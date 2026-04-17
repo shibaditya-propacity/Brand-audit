@@ -35,21 +35,21 @@ export interface DeveloperInput {
 }
 
 export interface AuditDimensionResult {
-  id: string;
-  auditId: string;
+  _id?: string;
+  id?: string;
   code: string;
   score: number | null;
   status: string;
   aiSummary: string | null;
-  aiFindings: AIDimensionFindings | null;
+  aiFindings: AIDimensionFindings | Record<string, unknown> | null;
   aiFlags: string[] | null;
   analyzedAt: string | null;
   items: ChecklistItemResult[];
 }
 
 export interface ChecklistItemResult {
-  id: string;
-  dimensionId: string;
+  _id?: string;
+  id?: string;
   itemCode: string;
   status: ItemStatus | null;
   auditorNote: string | null;
@@ -77,9 +77,10 @@ export interface AIItemResult {
 }
 
 export interface AuditWithRelations {
-  id: string;
+  _id: string;
+  id?: string;
   developerId: string;
-  developer: DeveloperInput & { id: string };
+  developer: DeveloperInput & { _id?: string; id?: string };
   auditorName: string | null;
   auditDate: string;
   objective: string | null;
@@ -89,11 +90,11 @@ export interface AuditWithRelations {
   collectedData: CollectedDataRecord | null;
   dimensions: AuditDimensionResult[];
   assets: AuditAsset[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CollectedDataRecord {
-  id: string;
-  auditId: string;
   gmbData: unknown;
   seoKeywords: unknown;
   technicalSeo: unknown;
@@ -104,18 +105,28 @@ export interface CollectedDataRecord {
   metaAdsData: unknown;
   screenshotUrl: string | null;
   logoUrl: string | null;
-  collectedAt: string;
+  collectedAt?: string;
 }
 
 export interface AuditAsset {
-  id: string;
-  auditId: string;
+  _id?: string;
   type: string;
   fileName: string;
   fileUrl: string;
   mimeType: string | null;
   aiAnalysis: unknown;
   uploadedAt: string;
+}
+
+// Add score field to ProgressEvent for analyze stage updates
+export interface ProgressEvent {
+  stage: 'collecting' | 'analyzing' | 'complete' | 'error';
+  source?: string;
+  dimension?: string;
+  status?: 'in_progress' | 'done' | 'failed';
+  overallScore?: number;
+  score?: number;
+  message?: string;
 }
 
 export interface ProgressEvent {
