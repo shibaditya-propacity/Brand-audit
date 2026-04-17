@@ -1,0 +1,138 @@
+import mongoose, { Schema, Document, Model, Types } from 'mongoose';
+
+export type AuditStatus = 'DRAFT' | 'COLLECTING' | 'ANALYZING' | 'COMPLETE' | 'FAILED';
+export type ItemStatus = 'PASS' | 'FAIL' | 'PARTIAL' | 'NA';
+
+// ── ChecklistItemResult (subdocument) ──────────────────────────
+export interface IChecklistItemResult {
+  _id: Types.ObjectId;
+  itemCode: string;
+  status?: ItemStatus;
+  auditorNote?: string;
+  evidenceUrl?: string;
+  aiNote?: string;
+  dataSource?: string;
+}
+
+const ChecklistItemResultSchema = new Schema<IChecklistItemResult>({
+  itemCode: { type: String, required: true },
+  status: { type: String, enum: ['PASS', 'FAIL', 'PARTIAL', 'NA'] },
+  auditorNote: String,
+  evidenceUrl: String,
+  aiNote: String,
+  dataSource: String,
+});
+
+// ── AuditDimension (subdocument) ───────────────────────────────
+export interface IAuditDimension {
+  _id: Types.ObjectId;
+  code: string;
+  score?: number;
+  status: string;
+  aiSummary?: string;
+  aiFindings?: Record<string, unknown>;
+  aiFlags?: string[];
+  items: IChecklistItemResult[];
+  analyzedAt?: Date;
+}
+
+const AuditDimensionSchema = new Schema<IAuditDimension>({
+  code: { type: String, required: true },
+  score: Number,
+  status: { type: String, default: 'pending' },
+  aiSummary: String,
+  aiFindings: { type: Schema.Types.Mixed },
+  aiFlags: [String],
+  items: [ChecklistItemResultSchema],
+  analyzedAt: Date,
+});
+
+// ── CollectedData (subdocument) ────────────────────────────────
+export interface ICollectedData {
+  gmbData?: Record<string, unknown>;
+  seoKeywords?: Record<string, unknown>;
+  technicalSeo?: Record<string, unknown>;
+  backlinks?: Record<string, unknown>;
+  googleReviews?: Record<string, unknown>;
+  websiteContent?: Record<string, unknown>;
+  instagramData?: Record<string, unknown>;
+  metaAdsData?: Record<string, unknown>;
+  screenshotUrl?: string;
+  logoUrl?: string;
+  collectedAt: Date;
+}
+
+const CollectedDataSchema = new Schema<ICollectedData>({
+  gmbData: { type: Schema.Types.Mixed },
+  seoKeywords: { type: Schema.Types.Mixed },
+  technicalSeo: { type: Schema.Types.Mixed },
+  backlinks: { type: Schema.Types.Mixed },
+  googleReviews: { type: Schema.Types.Mixed },
+  websiteContent: { type: Schema.Types.Mixed },
+  instagramData: { type: Schema.Types.Mixed },
+  metaAdsData: { type: Schema.Types.Mixed },
+  screenshotUrl: String,
+  logoUrl: String,
+  collectedAt: { type: Date, default: Date.now },
+});
+
+// ── AuditAsset (subdocument) ───────────────────────────────────
+export interface IAuditAsset {
+  _id: Types.ObjectId;
+  type: string;
+  fileName: string;
+  fileUrl: string;
+  mimeType?: string;
+  aiAnalysis?: Record<string, unknown>;
+  uploadedAt: Date;
+}
+
+const AuditAssetSchema = new Schema<IAuditAsset>({
+  type: { type: String, required: true },
+  fileName: { type: String, required: true },
+  fileUrl: { type: String, required: true },
+  mimeType: String,
+  aiAnalysis: { type: Schema.Types.Mixed },
+  uploadedAt: { type: Date, default: Date.now },
+});
+
+// ── Audit (main document) ──────────────────────────────────────
+export interface IAudit extends Document {
+  developerId: Types.ObjectId;
+  auditorName?: string;
+  auditDate: Date;
+  objective?: string;
+  knownRedFlags?: string;
+  overallScore?: number;
+  status: AuditStatus;
+  collectedData?: ICollectedData;
+  dimensions: IAuditDimension[];
+  assets: IAuditAsset[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const AuditSchema = new Schema<IAudit>(
+  {
+    developerId: { type: Schema.Types.ObjectId, ref: 'Developer', required: true },
+    auditorName: String,
+    auditDate: { type: Date, default: Date.now },
+    objective: String,
+    knownRedFlags: String,
+    overallScore: Number,
+    status: {
+      type: String,
+      enum: ['DRAFT', 'COLLECTING', 'ANALYZING', 'COMPLETE', 'FAILED'],
+      default: 'DRAFT',
+    },
+    collectedData: CollectedDataSchema,
+    dimensions: [AuditDimensionSchema],
+    assets: [AuditAssetSchema],
+  },
+  { timestamps: true }
+);
+
+const Audit: Model<IAudit> =
+  mongoose.models.Audit || mongoose.model<IAudit>('Audit', AuditSchema);
+
+export default Audit;

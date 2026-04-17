@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Developer {
+  id                String   @id @default(cuid())
+  brandName         String
+  legalName         String?
+  domain            String?
+  city              String?
+  yearEstablished   Int?
+  positioning       String?
+  productType       String?
+  microMarkets      String[]
+  targetSegments    String[]
+  promoterName      String?
+  promoterLinkedIn  String?
+  websiteUrl        String?
+  instagramHandle   String?
+  facebookUrl       String?
+  linkedinUrl       String?
+  youtubeUrl        String?
+  whatsappNumber    String?
+  gmbPlaceId        String?
+  acres99Url        String?
+  housingUrl        String?
+  magicbricksUrl    String?
+  reraNumbers       String[]
+  reraState         String?
+  adSpendRange      String?
+  adPlatforms       String[]
+  crmTool           String?
+  competitors       String[]
+  metaAdLibraryName String?
+  pdlData           Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  audits            Audit[]
+}
+
+model Audit {
+  id             String          @id @default(cuid())
+  developerId    String
+  developer      Developer       @relation(fields: [developerId], references: [id])
+  auditorName    String?
+  auditDate      DateTime        @default(now())
+  objective      String?
+  knownRedFlags  String?
+  overallScore   Float?
+  status         AuditStatus     @default(DRAFT)
+  collectedData  CollectedData?
+  dimensions     AuditDimension[]
+  assets         AuditAsset[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+enum AuditStatus {
+  DRAFT
+  COLLECTING
+  ANALYZING
+  COMPLETE
+  FAILED
+}
+
+model CollectedData {
+  id              String   @id @default(cuid())
+  auditId         String   @unique
+  audit           Audit    @relation(fields: [auditId], references: [id])
+  gmbData         Json?
+  seoKeywords     Json?
+  technicalSeo    Json?
+  backlinks       Json?
+  googleReviews   Json?
+  websiteContent  Json?
+  instagramData   Json?
+  metaAdsData     Json?
+  screenshotUrl   String?
+  logoUrl         String?
+  collectedAt     DateTime @default(now())
+}
+
+model AuditDimension {
+  id            String              @id @default(cuid())
+  auditId       String
+  audit         Audit               @relation(fields: [auditId], references: [id])
+  code          String
+  score         Float?
+  status        String              @default("pending")
+  aiSummary     String?
+  aiFindings    Json?
+  aiFlags       Json?
+  items         ChecklistItemResult[]
+  analyzedAt    DateTime?
+}
+
+model ChecklistItemResult {
+  id           String         @id @default(cuid())
+  dimensionId  String
+  dimension    AuditDimension @relation(fields: [dimensionId], references: [id])
+  itemCode     String
+  status       ItemStatus?
+  auditorNote  String?
+  evidenceUrl  String?
+  aiNote       String?
+  dataSource   String?
+}
+
+enum ItemStatus {
+  PASS
+  FAIL
+  PARTIAL
+  NA
+}
+
+model AuditAsset {
+  id          String   @id @default(cuid())
+  auditId     String
+  audit       Audit    @relation(fields: [auditId], references: [id])
+  type        String
+  fileName    String
+  fileUrl     String
+  mimeType    String?
+  aiAnalysis  Json?
+  uploadedAt  DateTime @default(now())
+}
