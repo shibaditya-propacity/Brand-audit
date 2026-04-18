@@ -1,68 +1,79 @@
 import axios from 'axios';
-import type { HikerUserResponse, HikerPostResponse } from '@/types/apiResponses';
+import type { ApifyInstagramProfile, ApifyInstagramPost } from '@/types/apiResponses';
 
-const HIKER_BASE = 'https://hikerapi.com/api/v1';
+const APIFY_URL = 'https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items';
 
-const hikerClient = axios.create({
-  baseURL: HIKER_BASE,
-  headers: { 'x-access-key': process.env.HIKER_API_KEY },
-});
+async function apifyRun<T>(input: Record<string, unknown>): Promise<T[]> {
+  const response = await axios.post<T[]>(APIFY_URL, input, {
+    params: { token: process.env.APIFY_API_KEY },
+    headers: { 'Content-Type': 'application/json' },
+  });
+  const data = response.data || [];
+  // Filter out Apify error objects (e.g. { error: 'no_items', errorDescription: '...' })
+  return data.filter((item) => !(item as Record<string, unknown>).error);
+}
 
-export async function getUserByUsername(username: string): Promise<HikerUserResponse | null> {
+export async function getUserByUsername(username: string): Promise<ApifyInstagramProfile | null> {
   try {
-    const response = await hikerClient.get('/user/by/username', {
-      params: { username },
+    const [profile] = await apifyRun<ApifyInstagramProfile>({
+      usernames: [username],
+      resultsLimit: 1,
+      resultsType: 'details',
     });
-    return response.data;
+    // store username as pk so getUserPosts can reuse it
+    return profile ? { ...profile, pk: profile.username } : null;
   } catch {
     return null;
   }
 }
 
-export async function getUserPosts(userId: string, amount = 12): Promise<HikerPostResponse[]> {
+export async function getUserPosts(username: string, amount = 12): Promise<ApifyInstagramPost[]> {
   try {
-    const response = await hikerClient.get('/user/medias', {
-      params: { user_id: userId, amount },
+    return await apifyRun<ApifyInstagramPost>({
+      usernames: [username],
+      resultsLimit: amount,
+      resultsType: 'posts',
     });
-    return response.data?.items || response.data || [];
   } catch {
     return [];
   }
 }
 
-export function calculateInstagramMetrics(user: HikerUserResponse, posts: HikerPostResponse[]) {
-  const followers = user.follower_count || 0;
-  const avgLikes = posts.length ? posts.reduce((s, p) => s + (p.like_count || 0), 0) / posts.length : 0;
-  const avgComments = posts.length ? posts.reduce((s, p) => s + (p.comment_count || 0), 0) / posts.length : 0;
+export function calculateInstagramMetrics(user: ApifyInstagramProfile, posts: ApifyInstagramPost[]) {
+  const followers = user.followersCount || 0;
+  const avgLikes = posts.length ? posts.reduce((s, p) => s + (p.likesCount || 0), 0) / posts.length : 0;
+  const avgComments = posts.length ? posts.reduce((s, p) => s + (p.commentsCount || 0), 0) / posts.length : 0;
   const engagementRate = followers > 0 ? ((avgLikes + avgComments) / followers) * 100 : 0;
 
   const contentMix = {
-    photos: posts.filter(p => p.media_type === 1).length,
-    videos: posts.filter(p => p.media_type === 2).length,
-    carousels: posts.filter(p => p.media_type === 8).length,
+    photos: posts.filter(p => p.type === 'Image').length,
+    videos: posts.filter(p => p.type === 'Video').length,
+    carousels: posts.filter(p => p.type === 'Sidecar').length,
   };
 
-  const sortedPosts = [...posts].sort((a, b) => b.taken_at - a.taken_at);
-  const lastPostDate = sortedPosts[0] ? new Date(sortedPosts[0].taken_at * 1000) : null;
+  const sortedPosts = [...posts].sort((a, b) =>
+    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  );
+  const lastPostDate = sortedPosts[0]?.timestamp ?? null;
 
   let postsPerWeek = 0;
   if (sortedPosts.length >= 2) {
-    const firstTs = sortedPosts[sortedPosts.length - 1].taken_at;
-    const lastTs = sortedPosts[0].taken_at;
-    const weeksDiff = (lastTs - firstTs) / (7 * 24 * 3600);
+    const firstTs = new Date(sortedPosts[sortedPosts.length - 1].timestamp).getTime();
+    const lastTs = new Date(sortedPosts[0].timestamp).getTime();
+    const weeksDiff = (lastTs - firstTs) / (7 * 24 * 3600 * 1000);
     postsPerWeek = weeksDiff > 0 ? sortedPosts.length / weeksDiff : 0;
   }
 
   return {
     followers,
-    following: user.following_count,
-    totalPosts: user.media_count,
+    following: user.followingCount,
+    totalPosts: user.postsCount,
     avgLikes: Math.round(avgLikes),
     avgComments: Math.round(avgComments),
     engagementRate: Math.round(engagementRate * 100) / 100,
     contentMix,
     postsPerWeek: Math.round(postsPerWeek * 10) / 10,
-    lastPostDate: lastPostDate?.toISOString(),
-    isBusinessAccount: user.is_business_account,
+    lastPostDate,
+    isBusinessAccount: user.isBusinessAccount,
   };
 }

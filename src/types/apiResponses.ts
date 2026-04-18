@@ -1,44 +1,91 @@
 export interface PDLCompanyResponse {
-  status: number;
+  id?: string;
   name?: string;
-  display_name?: string;
-  size?: string;
-  employee_count?: number;
-  industry?: string;
-  summary?: string;
-  founded?: number;
+  domain?: string;
   website?: string;
-  linkedin_url?: string;
-  twitter_url?: string;
-  facebook_url?: string;
-  instagram_url?: string;
-  youtube_url?: string;
+  industry?: string;
+  industries?: string[];
+  description?: string;
+  keywords?: string[];
+  technologies?: string[];
+  founded_year?: number;
+  naics_codes?: string[];
   location?: {
-    country?: string;
-    region?: string;
-    locality?: string;
+    country?: {
+      code?: string;
+      name?: string;
+      latitude?: number;
+      longitude?: number;
+    };
+    state?: {
+      id?: number;
+      name?: string;
+      code?: string;
+      latitude?: number;
+      longitude?: number;
+    };
+    city?: {
+      id?: number;
+      name?: string;
+      latitude?: number;
+      longitude?: number;
+    };
+    address?: string;
+    postal_code?: string;
+    phone?: string;
   };
+  financial?: {
+    stock_symbol?: string;
+    stock_exchange?: string;
+    total_funding?: number;
+    funding_stage?: string;
+    funding_date?: string;
+  };
+  socials?: {
+    linkedin_url?: string;
+    linkedin_id?: string;
+    twitter_url?: string;
+    facebook_url?: string;
+    instagram_url?: string;
+    angellist_url?: string;
+    crunchbase_url?: string;
+    youtube_url?: string;
+    github_url?: string;
+    g2_url?: string;
+  };
+  workforce?: {
+    observed_employee_count?: number;
+    department_headcount?: Record<string, number>;
+  };
+  logo_url?: string;
+  seo_description?: string;
+  updated_at?: string;
 }
 
-export interface DataForSEOSerpResult {
-  keyword: string;
-  type: string;
-  se_domain: string;
-  location_code: number;
-  language_code: string;
-  items?: SerpItem[];
-  items_count?: number;
-  organic?: SerpItem[];
+export interface SerperSearchResult {
+  organic?: SerperOrganicItem[];
+  searchParameters?: { q: string; gl: string; hl: string; num: number };
+  knowledgeGraph?: Record<string, unknown>;
+  answerBox?: Record<string, unknown>;
+  topStories?: Record<string, unknown>[];
 }
 
-export interface SerpItem {
-  type: string;
-  rank_group: number;
-  rank_absolute: number;
-  domain: string;
+export interface SerperOrganicItem {
   title: string;
-  description: string;
-  url: string;
+  link: string;
+  snippet: string;
+  position: number;
+  date?: string;
+}
+
+// kept for backlinks/on-page stubs that still reference these shapes
+export interface DataForSEOBacklinksResponse {
+  target: string;
+  total_count?: number;
+  referring_domains?: number;
+  rank?: number;
+  backlinks_spam_score?: number;
+  referring_ips?: number;
 }
 
 export interface DataForSEOBacklinksResponse {
@@ -89,31 +136,29 @@ export interface WebCrawlerPage {
   status_code?: number;
 }
 
-export interface HikerUserResponse {
-  pk?: string;
-  id?: string;
+export interface ApifyInstagramProfile {
+  pk?: string; // set to username for internal routing
   username: string;
-  full_name?: string;
+  fullName?: string;
   biography?: string;
-  follower_count: number;
-  following_count: number;
-  media_count: number;
-  is_business_account?: boolean;
-  is_verified?: boolean;
-  profile_pic_url?: string;
-  external_url?: string;
+  followersCount: number;
+  followingCount: number;
+  postsCount: number;
+  isBusinessAccount?: boolean;
+  isVerified?: boolean;
+  profilePicUrl?: string;
+  externalUrl?: string;
 }
 
-export interface HikerPostResponse {
+export interface ApifyInstagramPost {
   id: string;
-  media_type: 1 | 2 | 8;
-  like_count: number;
-  comment_count: number;
-  caption?: { text?: string };
-  taken_at: number;
-  thumbnail_url?: string;
-  image_versions2?: { candidates?: Array<{ url: string }> };
-  video_url?: string;
+  type: 'Image' | 'Video' | 'Sidecar';
+  likesCount: number;
+  commentsCount: number;
+  caption?: string;
+  timestamp: string; // ISO 8601
+  displayUrl?: string;
+  videoUrl?: string;
 }
 
 export interface MetaAdResponse {

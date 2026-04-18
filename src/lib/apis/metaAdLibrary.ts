@@ -1,22 +1,23 @@
 import axios from 'axios';
 import type { MetaAdResponse } from '@/types/apiResponses';
-import { subDays, format } from 'date-fns';
+
+const APIFY_URL = 'https://api.apify.com/v2/acts/apify~facebook-ads-scraper/run-sync-get-dataset-items';
 
 export async function getMetaAds(brandName: string): Promise<MetaAdResponse[]> {
-  const ninetyDaysAgo = format(subDays(new Date(), 90), 'yyyy-MM-dd');
-
   try {
-    const response = await axios.get('https://graph.facebook.com/v19.0/ads_archive', {
-      params: {
-        access_token: process.env.META_ACCESS_TOKEN,
-        search_terms: brandName,
-        ad_reached_countries: '["IN"]',
-        ad_delivery_date_min: ninetyDaysAgo,
-        fields: 'id,ad_creation_time,ad_creative_bodies,ad_creative_link_titles,ad_snapshot_url,page_name,impressions,spend,currency',
-        limit: 25,
+    const response = await axios.post<MetaAdResponse[]>(
+      APIFY_URL,
+      {
+        searchTerms: [brandName],
+        country: 'IN',
+        resultsLimit: 25,
       },
-    });
-    return response.data?.data || [];
+      {
+        params: { token: process.env.APIFY_API_KEY },
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+    return response.data || [];
   } catch {
     return [];
   }

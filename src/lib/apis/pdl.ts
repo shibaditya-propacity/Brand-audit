@@ -1,13 +1,16 @@
 import axios from 'axios';
 import type { PDLCompanyResponse } from '@/types/apiResponses';
 
-const PDL_BASE_URL = 'https://api.peopledatalabs.com/v5';
+const CE_BASE_URL = 'https://api.companyenrich.com';
 
 export async function enrichCompany(domain: string): Promise<PDLCompanyResponse | null> {
   try {
-    const response = await axios.get(`${PDL_BASE_URL}/company/enrich`, {
-      params: { website: domain, pretty: true },
-      headers: { 'X-Api-Key': process.env.PDL_API_KEY },
+    const response = await axios.get(`${CE_BASE_URL}/companies/enrich`, {
+      params: { domain },
+      headers: {
+        Authorization: `Bearer ${process.env.COMPANY_ENRICH_API_KEY}`,
+        accept: 'application/json',
+      },
     });
     return response.data;
   } catch (error: unknown) {
@@ -18,19 +21,19 @@ export async function enrichCompany(domain: string): Promise<PDLCompanyResponse 
 
 export function extractCompanyData(data: PDLCompanyResponse) {
   return {
-    name: data.display_name || data.name,
-    employeeCount: data.employee_count,
-    size: data.size,
-    industry: data.industry,
-    summary: data.summary,
-    founded: data.founded,
+    name: data.name,
+    employeeCount: data.workforce?.observed_employee_count,
+    size: undefined,
+    industry: data.industry || (data.industries?.[0] ?? undefined),
+    summary: data.description,
+    founded: data.founded_year,
     location: data.location,
     socialLinks: {
-      linkedin: data.linkedin_url,
-      twitter: data.twitter_url,
-      facebook: data.facebook_url,
-      instagram: data.instagram_url,
-      youtube: data.youtube_url,
+      linkedin: data.socials?.linkedin_url,
+      twitter: data.socials?.twitter_url,
+      facebook: data.socials?.facebook_url,
+      instagram: data.socials?.instagram_url,
+      youtube: data.socials?.youtube_url,
     },
   };
 }

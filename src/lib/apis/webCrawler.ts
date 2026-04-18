@@ -1,11 +1,11 @@
 import axios from 'axios';
 import type { WebCrawlerResponse, WebCrawlerPage } from '@/types/apiResponses';
 
-const WC_BASE = 'https://webcrawlerapi.com/api/v1';
+const WC_BASE = 'https://api.webcrawlerapi.com/v1';
 
 const wcClient = axios.create({
   baseURL: WC_BASE,
-  headers: { 'X-Access-Token': process.env.WEBCRAWLER_API_KEY },
+  headers: { Authorization: `Bearer ${process.env.WEBCRAWLER_API_KEY}` },
 });
 
 export async function startCrawl(url: string): Promise<string> {
@@ -14,22 +14,52 @@ export async function startCrawl(url: string): Promise<string> {
     max_pages: 20,
     output_format: 'markdown',
   });
-  return response.data.job_id || response.data.id;
+  return response.data.id;
 }
 
 export async function getCrawlStatus(jobId: string): Promise<WebCrawlerResponse> {
-  const response = await wcClient.get(`/crawl/${jobId}`);
-  return response.data;
+  const response = await wcClient.get(`/scrape/${jobId}`);
+  const data = response.data;
+  return {
+    job_id: data.id,
+    status: data.status as WebCrawlerResponse['status'],
+    total_pages: data.page_count || 1,
+    _markdownUrl: data.structured_data?.markdown_content_url,
+  } as WebCrawlerResponse & { _markdownUrl?: string };
 }
 
 export async function pollCrawlUntilDone(jobId: string, maxWaitMs = 120000): Promise<WebCrawlerResponse> {
   const start = Date.now();
   while (Date.now() - start < maxWaitMs) {
-    const status = await getCrawlStatus(jobId);
-    if (status.status === 'done' || status.status === 'failed') return status;
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    const status = await getCrawlStatus(jobId) as WebCrawlerResponse & { _markdownUrl?: string };
+    if (status.status === 'failed') return status;
+
+    if (status.status === 'done' && status._markdownUrl) {
+      const mdRes = await axios.get<string>(status._markdownUrl);
+      const markdown = mdRes.data || '';
+      const page = markdownToPage(markdown);
+      return { ...status, pages: [page] };
+    }
+
+    await new Promise(resolve => setTimeout(resolve, status._markdownUrl ? 2000 : 3000));
   }
   throw new Error('Crawl timed out');
+}
+
+function markdownToPage(markdown: string): WebCrawlerPage {
+  const lines = markdown.split('\n');
+  const h1 = lines.filter(l => /^# /.test(l)).map(l => l.replace(/^# /, '').trim());
+  const h2 = lines.filter(l => /^## /.test(l)).map(l => l.replace(/^## /, '').trim());
+  const title = h1[0] || '';
+  const metaLine = lines.find(l => l.toLowerCase().includes('description:'));
+  return {
+    url: '',
+    title,
+    meta_description: metaLine?.replace(/.*description:/i, '').trim(),
+    content: markdown,
+    headings: { h1, h2 },
+    status_code: 200,
+  };
 }
 
 export function extractWebsiteInsights(pages: WebCrawlerPage[]) {

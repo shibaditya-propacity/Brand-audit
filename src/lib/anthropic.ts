@@ -4,7 +4,7 @@ export const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-export const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
+export const CLAUDE_MODEL = 'claude-sonnet-4-5';
 
 export async function analyzeWithClaude(prompt: string, systemPrompt?: string): Promise<string> {
   const response = await anthropic.messages.create({
@@ -30,6 +30,10 @@ export async function analyzeWithVision(
   imageUrl: string,
   imageMediaType: 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp' = 'image/png'
 ): Promise<string> {
+  const imgRes = await fetch(imageUrl);
+  const imgBuffer = await imgRes.arrayBuffer();
+  const base64Data = Buffer.from(imgBuffer).toString('base64');
+
   const response = await anthropic.messages.create({
     model: CLAUDE_MODEL,
     max_tokens: 2048,
@@ -37,7 +41,7 @@ export async function analyzeWithVision(
     messages: [{
       role: 'user',
       content: [
-        { type: 'image', source: { type: 'url', url: imageUrl } },
+        { type: 'image', source: { type: 'base64', media_type: imageMediaType, data: base64Data } },
         { type: 'text', text: prompt },
       ],
     }],
