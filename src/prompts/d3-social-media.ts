@@ -19,6 +19,8 @@ ${JSON.stringify(pdlData, null, 2)}
 
 Instagram Handle: ${developer.instagramHandle || 'Not provided'}
 
+Scoring guide for D3: Having an active Instagram account with regular posts = 50+. Good follower count for a local developer (5K+), decent engagement, consistent branding = 65-75. If Instagram data is null, mark items "partial" — the brand may have social presence not captured by the API. Recognise consistency, content variety, and community building as strengths.
+
 Evaluate checklist items D3-1 through D3-13. Return this exact JSON:
 {
   "score": <number 0-100>,

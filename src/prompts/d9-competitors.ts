@@ -18,6 +18,8 @@ THIS BRAND'S GMB DATA: ${JSON.stringify(gmbData, null, 2)}
 THIS BRAND'S INSTAGRAM DATA: ${JSON.stringify(instagramData, null, 2)}
 THIS BRAND'S SERP DATA: ${JSON.stringify(serpData, null, 2)}
 
+Scoring guide for D9: Having awareness of competitors and a differentiated positioning = 50+. Clear competitive advantages, strong local market presence, distinctive USPs = 65-75. If competitor data is limited, base scoring on this brand's own strengths and stated positioning. Highlight this brand's differentiators, niche strengths, and areas where it clearly stands out.
+
 Using the stated competitors and the brand's own metrics, evaluate competitive positioning for checklist items D9-1 through D9-10.
 
 Return this exact JSON:

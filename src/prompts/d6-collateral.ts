@@ -13,6 +13,8 @@ You are auditing the Collateral dimension (D6) for ${developer.brandName}.
 WEBSITE CONTENT (for detecting brochures, press, downloads):
 ${JSON.stringify(websiteContent, null, 2)}
 
+Scoring guide for D6: A website with project brochures, floor plans, or downloadable content = 50+. Well-produced collateral, virtual tours, video walkthroughs = 65-75. If website content is limited, mark items "partial" — collateral may exist offline or in sales centres. Highlight any digital content, media mentions, or project documentation that exists.
+
 Evaluate checklist items D6-1 through D6-10. Return this exact JSON:
 {
   "score": <number 0-100>,

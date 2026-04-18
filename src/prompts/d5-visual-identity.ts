@@ -14,6 +14,8 @@ You are auditing the Visual Identity dimension (D5) for ${developer.brandName}.
 ${logoUrl ? `BRAND LOGO: ${logoUrl}` : 'BRAND LOGO: Not available'}
 ${screenshotUrl ? `WEBSITE SCREENSHOT: ${screenshotUrl}` : 'WEBSITE SCREENSHOT: Not available'}
 
+Scoring guide for D5: A clean, professional website with consistent colors and readable typography = 50-60. Distinct logo, strong visual system, high-quality photography, brand coherence across touchpoints = 70-80. If assets are unavailable, mark "partial" not "fail". When you CAN see visual assets, celebrate what works — color choices, photography quality, layout clarity, modernity of design.
+
 Based on the visual assets provided and what you can infer about this brand's positioning, evaluate checklist items D5-1 through D5-12.
 
 Return this exact JSON:

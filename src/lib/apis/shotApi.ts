@@ -2,27 +2,30 @@ import axios from 'axios';
 
 export async function captureScreenshot(websiteUrl: string): Promise<string | null> {
   try {
-    const screenshotUrl = `https://shot.screenshotapi.net/screenshot?token=${process.env.SHOT_API_KEY}&url=${encodeURIComponent(websiteUrl)}&output=image&file_type=png&width=1440&height=900&wait_for_event=load`;
-    // Verify the URL is accessible
-    const response = await axios.head(screenshotUrl);
-    if (response.status === 200) return screenshotUrl;
-    return null;
+    const response = await axios.get('https://api.microlink.io/', {
+      params: { url: websiteUrl, screenshot: true, meta: false },
+      timeout: 30000,
+    });
+    const url: string | undefined = response.data?.data?.screenshot?.url;
+    return url || null;
   } catch {
     return null;
   }
 }
 
 export function getClearbitLogoUrl(domain: string): string {
-  const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
-  return `https://logo.clearbit.com/${cleanDomain}`;
+  const clean = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+  return `https://logo.clearbit.com/${clean}`;
 }
 
 export async function checkClearbitLogo(domain: string): Promise<string | null> {
-  const logoUrl = getClearbitLogoUrl(domain);
+  const clean = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+  // Try Clearbit first, fall back to Google favicon
   try {
-    const response = await axios.head(logoUrl);
-    return response.status === 200 ? logoUrl : null;
-  } catch {
-    return null;
-  }
+    const logoUrl = `https://logo.clearbit.com/${clean}`;
+    const res = await axios.get(logoUrl, { responseType: 'arraybuffer', timeout: 8000 });
+    if (res.status === 200 && (res.headers['content-type'] || '').startsWith('image/')) return logoUrl;
+  } catch { /* fall through */ }
+  // Google high-res favicon as fallback (always works)
+  return `https://www.google.com/s2/favicons?sz=128&domain=${clean}`;
 }

@@ -19,6 +19,8 @@ ${JSON.stringify(websiteContent, null, 2)}
 TECHNICAL SEO (reveals tech stack):
 ${JSON.stringify(technicalSeo, null, 2)}
 
+Scoring guide for D8: Using any CRM + having Google Analytics on the website = 50+. Modern CRM, marketing automation, lead tracking, WhatsApp integration, and tech-enabled sales process = 65-80. If tech data is sparse, mark "partial" — many tools are used internally and don't appear on the website. Recognise any tech adoption (even basic ones) as a positive signal.
+
 Evaluate checklist items D8-1 through D8-12. Return this exact JSON:
 {
   "score": <number 0-100>,

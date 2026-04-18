@@ -4,7 +4,8 @@ const nextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "logo.clearbit.com" },
       { protocol: "https", hostname: "*.r2.cloudflarestorage.com" },
-      { protocol: "https", hostname: "shot.screenshotapi.net" },
+      { protocol: "https", hostname: "*.microlink.io" },
+      { protocol: "https", hostname: "iad.microlink.io" },
     ],
   },
 };

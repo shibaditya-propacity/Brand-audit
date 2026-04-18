@@ -25,7 +25,9 @@ ${JSON.stringify(pdlData, null, 2)}
 SERP DATA (brand keyword search):
 ${JSON.stringify(serpData, null, 2)}
 
-Evaluate the following checklist items for D1 Brand Overview. For each item, use the data above to make evidence-based assessments. Where you lack data, note it as a finding.
+Evaluate the following checklist items for D1 Brand Overview. Use available data for evidence-based assessments. Where data is missing, give "partial" and note what could not be verified — do not assume failure.
+
+Scoring guide for D1: A brand with a clear name, stated positioning, and some market presence should score at least 45. Strong brand identity, consistent messaging, and good SERP presence = 65-80. Score the brand on what it HAS, not what it lacks.
 
 Checklist items to evaluate: D1-1, D1-2, D1-3, D1-4, D1-5, D1-6, D1-7, D1-8, D1-9, D1-10, D1-11, D1-12, D1-13, D1-14, D1-15
 

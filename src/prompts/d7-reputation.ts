@@ -20,6 +20,8 @@ ${JSON.stringify(googleReviews, null, 2)}
 RERA Numbers: ${developer.reraNumbers?.join(', ') || 'Not provided'}
 RERA State: ${developer.reraState || 'Not provided'}
 
+Scoring guide for D7: Having RERA registration + a Google My Business listing with some reviews = 50+. High rating (4+), active review responses, strong positive sentiment, clean compliance record = 70-80. If review data is null, mark items "partial" — reviews exist that were not captured. Highlight positive customer sentiments, delivery track record, and compliance posture as major strengths.
+
 Perform sentiment analysis on the reviews and evaluate checklist items D7-1 through D7-16.
 
 Return this exact JSON:
