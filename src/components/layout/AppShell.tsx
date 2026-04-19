@@ -11,7 +11,7 @@ interface AppShellProps {
 
 export function AppShell({ children, auditId, dimensionScores, dimensionStatuses }: AppShellProps) {
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col h-screen bg-white dark:bg-slate-950">
       <TopBar />
       <div className="flex flex-1 overflow-hidden">
         {auditId && (
@@ -21,7 +21,7 @@ export function AppShell({ children, auditId, dimensionScores, dimensionStatuses
             dimensionStatuses={dimensionStatuses}
           />
         )}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto bg-white dark:bg-slate-950">
           {children}
         </main>
       </div>

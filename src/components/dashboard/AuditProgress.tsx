@@ -30,7 +30,7 @@ function EventRow({ event }: { event: ProgressEvent }) {
       {icon}
       <span className={cn(
         event.status === 'failed' || event.stage === 'error' ? 'text-red-600' :
-        event.stage === 'complete' ? 'text-green-700 font-semibold' : 'text-gray-700'
+        event.stage === 'complete' ? 'text-green-600 font-semibold' : 'text-slate-700 dark:text-slate-300'
       )}>{label}</span>
       {event.score !== undefined && <span className="ml-auto font-medium">{event.score}</span>}
     </div>
@@ -72,16 +72,16 @@ export function AuditProgress({ auditId, onComplete }: AuditProgressProps) {
   }, [auditId]);
 
   return (
-    <div className="rounded-lg border bg-white p-4">
+    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-4">
       <div className="flex items-center gap-2 mb-3">
-        {isRunning && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
-        <h3 className="font-semibold text-sm">
+        {isRunning && <Loader2 className="h-4 w-4 animate-spin text-indigo-500" />}
+        <h3 className="font-semibold text-sm text-slate-900 dark:text-slate-100">
           {isRunning ? 'Running Audit...' : 'Audit Progress'}
         </h3>
       </div>
       <div className="max-h-80 overflow-y-auto space-y-0.5">
         {progressEvents.length === 0 && (
-          <p className="text-sm text-muted-foreground py-2">Starting...</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 py-2">Starting...</p>
         )}
         {progressEvents.map((event, idx) => (
           <EventRow key={idx} event={event} />
