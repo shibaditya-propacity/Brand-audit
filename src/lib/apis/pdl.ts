@@ -1,21 +1,27 @@
 import axios from 'axios';
+import { withRetry } from '@/lib/fetchWithRetry';
 import type { PDLCompanyResponse } from '@/types/apiResponses';
 
 const CE_BASE_URL = 'https://api.companyenrich.com';
 
 export async function enrichCompany(domain: string): Promise<PDLCompanyResponse | null> {
   try {
-    const response = await axios.get(`${CE_BASE_URL}/companies/enrich`, {
-      params: { domain },
-      headers: {
-        Authorization: `Bearer ${process.env.COMPANY_ENRICH_API_KEY}`,
-        accept: 'application/json',
-      },
-    });
+    const response = await withRetry(() =>
+      axios.get(`${CE_BASE_URL}/companies/enrich`, {
+        timeout: 15000,
+        params: { domain },
+        headers: {
+          Authorization: `Bearer ${process.env.COMPANY_ENRICH_API_KEY}`,
+          accept: 'application/json',
+        },
+      })
+    );
     return response.data;
   } catch (error: unknown) {
     if (axios.isAxiosError(error) && error.response?.status === 404) return null;
-    throw error;
+    // On any other error (timeout, network, etc.) return null instead of throwing
+    console.error('enrichCompany error:', error instanceof Error ? error.message : error);
+    return null;
   }
 }
 

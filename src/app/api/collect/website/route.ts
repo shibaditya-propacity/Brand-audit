@@ -6,22 +6,35 @@ import { startCrawl, pollCrawlUntilDone, extractWebsiteInsights } from '@/lib/ap
 export async function POST(request: NextRequest) {
   try {
     const { websiteUrl, auditId } = await request.json();
-    if (!websiteUrl) return NextResponse.json({ error: 'websiteUrl required' }, { status: 400 });
+    if (!websiteUrl) {
+      return NextResponse.json({ success: false, data: null, error: 'websiteUrl required' });
+    }
 
-    const jobId = await startCrawl(websiteUrl);
-    const crawlResult = await pollCrawlUntilDone(jobId);
-    const insights = crawlResult.pages ? extractWebsiteInsights(crawlResult.pages) : null;
+    let insights = null;
+    let pageCount = 0;
+
+    try {
+      const jobId = await startCrawl(websiteUrl);
+      const crawlResult = await pollCrawlUntilDone(jobId);
+      insights = crawlResult.pages ? extractWebsiteInsights(crawlResult.pages) : null;
+      pageCount = crawlResult.pages?.length || 0;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('Web crawl API error:', msg);
+      return NextResponse.json({ success: false, data: null, error: msg });
+    }
 
     if (auditId) {
       await connectDB();
       await Audit.findByIdAndUpdate(auditId, {
-        'collectedData.websiteContent': { insights, rawPageCount: crawlResult.pages?.length || 0 },
+        'collectedData.websiteContent': { insights, rawPageCount: pageCount },
       });
     }
 
-    return NextResponse.json({ insights, pageCount: crawlResult.pages?.length || 0 });
+    return NextResponse.json({ success: true, data: { insights, pageCount }, error: null });
   } catch (error) {
-    console.error('Website collection error:', error);
-    return NextResponse.json({ error: 'Failed to collect website data' }, { status: 500 });
+    const msg = error instanceof Error ? error.message : 'Failed to collect website data';
+    console.error('Website collection error:', msg);
+    return NextResponse.json({ success: false, data: null, error: msg });
   }
 }

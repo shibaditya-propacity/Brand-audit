@@ -6,23 +6,37 @@ import { getPlaceDetails } from '@/lib/apis/googlePlaces';
 export async function POST(request: NextRequest) {
   try {
     const { placeId, auditId } = await request.json();
-    if (!placeId) return NextResponse.json({ error: 'placeId required' }, { status: 400 });
+    if (!placeId) {
+      return NextResponse.json({ success: false, data: null, error: 'placeId required' });
+    }
 
-    const details = await getPlaceDetails(placeId);
+    let details = null;
+    try {
+      details = await getPlaceDetails(placeId);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('GMB API error:', msg);
+      return NextResponse.json({ success: false, data: null, error: msg });
+    }
+
     if (details && auditId) {
       await connectDB();
       await Audit.findByIdAndUpdate(auditId, { 'collectedData.gmbData': details });
     }
-    return NextResponse.json({
-      rating: details?.rating,
-      reviewCount: details?.user_ratings_total,
-      address: details?.formatted_address,
-      website: details?.website,
-      phone: details?.formatted_phone_number,
-      reviews: details?.reviews?.slice(0, 10) || [],
-    });
+
+    const data = {
+      rating: details?.rating ?? null,
+      reviewCount: details?.user_ratings_total ?? null,
+      address: details?.formatted_address ?? null,
+      website: details?.website ?? null,
+      phone: details?.formatted_phone_number ?? null,
+      reviews: (details as { reviews?: unknown[] } | null)?.reviews?.slice(0, 10) ?? [],
+    };
+
+    return NextResponse.json({ success: true, data, error: null });
   } catch (error) {
-    console.error('GMB collection error:', error);
-    return NextResponse.json({ error: 'Failed to collect GMB data' }, { status: 500 });
+    const msg = error instanceof Error ? error.message : 'Failed to collect GMB data';
+    console.error('GMB collection error:', msg);
+    return NextResponse.json({ success: false, data: null, error: msg });
   }
 }

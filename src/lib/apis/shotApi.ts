@@ -1,11 +1,14 @@
 import axios from 'axios';
+import { withRetry } from '@/lib/fetchWithRetry';
 
 export async function captureScreenshot(websiteUrl: string): Promise<string | null> {
   try {
-    const response = await axios.get('https://api.microlink.io/', {
-      params: { url: websiteUrl, screenshot: true, meta: false },
-      timeout: 30000,
-    });
+    const response = await withRetry(() =>
+      axios.get('https://api.microlink.io/', {
+        timeout: 30000,
+        params: { url: websiteUrl, screenshot: true, meta: false },
+      })
+    );
     const url: string | undefined = response.data?.data?.screenshot?.url;
     return url || null;
   } catch {

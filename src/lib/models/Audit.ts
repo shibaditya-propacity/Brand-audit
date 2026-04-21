@@ -106,6 +106,7 @@ export interface IAudit extends Document {
   overallScore?: number;
   status: AuditStatus;
   collectedData?: ICollectedData;
+  dataSourceStatus?: { collected: string[]; failed: string[] };
   dimensions: IAuditDimension[];
   assets: IAuditAsset[];
   createdAt: Date;
@@ -126,6 +127,10 @@ const AuditSchema = new Schema<IAudit>(
       default: 'DRAFT',
     },
     collectedData: CollectedDataSchema,
+    dataSourceStatus: {
+      collected: [String],
+      failed: [String],
+    },
     dimensions: [AuditDimensionSchema],
     assets: [AuditAssetSchema],
   },

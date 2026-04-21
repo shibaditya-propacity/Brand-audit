@@ -6,16 +6,37 @@ import { getUserByUsername, getUserPosts, calculateInstagramMetrics } from '@/li
 export async function POST(request: NextRequest) {
   try {
     const { instagramHandle, auditId } = await request.json();
-    if (!instagramHandle) return NextResponse.json({ error: 'instagramHandle required' }, { status: 400 });
+    if (!instagramHandle) {
+      return NextResponse.json({ success: false, data: null, error: 'instagramHandle required' });
+    }
 
     const handle = instagramHandle.replace('@', '');
-    const user = await getUserByUsername(handle);
-    if (!user) return NextResponse.json({ error: 'Instagram user not found' }, { status: 404 });
+    let user = null;
+    try {
+      user = await getUserByUsername(handle);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('Instagram user lookup error:', msg);
+      return NextResponse.json({ success: false, data: null, error: msg });
+    }
+
+    if (!user) {
+      return NextResponse.json({ success: false, data: null, error: 'Instagram user not found' });
+    }
 
     const userId = (user as { pk?: string; id?: string }).pk || (user as { pk?: string; id?: string }).id;
-    if (!userId) return NextResponse.json({ error: 'Could not get user ID' }, { status: 500 });
+    if (!userId) {
+      return NextResponse.json({ success: false, data: null, error: 'Could not get Instagram user ID' });
+    }
 
-    const posts = await getUserPosts(userId);
+    let posts: Awaited<ReturnType<typeof getUserPosts>> = [];
+    try {
+      posts = await getUserPosts(userId);
+    } catch (err) {
+      console.error('Instagram posts fetch error:', err instanceof Error ? err.message : err);
+      // Continue with empty posts — partial data is better than none
+    }
+
     const metrics = calculateInstagramMetrics(user, posts);
     const data = { user, posts: posts.slice(0, 12), metrics };
 
@@ -24,9 +45,10 @@ export async function POST(request: NextRequest) {
       await Audit.findByIdAndUpdate(auditId, { 'collectedData.instagramData': data });
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json({ success: true, data, error: null });
   } catch (error) {
-    console.error('Instagram collection error:', error);
-    return NextResponse.json({ error: 'Failed to collect Instagram data' }, { status: 500 });
+    const msg = error instanceof Error ? error.message : 'Failed to collect Instagram data';
+    console.error('Instagram collection error:', msg);
+    return NextResponse.json({ success: false, data: null, error: msg });
   }
 }

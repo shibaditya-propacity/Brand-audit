@@ -8,19 +8,28 @@ export async function POST(request: NextRequest) {
     const { domain, brandName, auditId, developerId } = await request.json();
     let pdlData = null;
     let extracted = null;
+
     if (domain) {
-      pdlData = await enrichCompany(domain);
-      if (pdlData && developerId) {
-        await connectDB();
-        await Developer.findByIdAndUpdate(developerId, { pdlData });
-        extracted = extractCompanyData(pdlData);
+      try {
+        pdlData = await enrichCompany(domain);
+        if (pdlData && developerId) {
+          await connectDB();
+          await Developer.findByIdAndUpdate(developerId, { pdlData });
+          extracted = extractCompanyData(pdlData);
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error('Company data API error:', msg);
+        return NextResponse.json({ success: false, data: null, error: msg });
       }
     }
+
     // auditId noted but PDL data goes on developer, not collectedData
     void auditId;
-    return NextResponse.json({ pdlData, extracted, brandName });
+    return NextResponse.json({ success: true, data: { pdlData, extracted, brandName }, error: null });
   } catch (error) {
-    console.error('Company data collection error:', error);
-    return NextResponse.json({ error: 'Failed to collect company data' }, { status: 500 });
+    const msg = error instanceof Error ? error.message : 'Failed to collect company data';
+    console.error('Company data collection error:', msg);
+    return NextResponse.json({ success: false, data: null, error: msg });
   }
 }

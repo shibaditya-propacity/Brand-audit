@@ -1,19 +1,19 @@
 import axios from 'axios';
+import { withRetry } from '@/lib/fetchWithRetry';
 import type { WebCrawlerResponse, WebCrawlerPage } from '@/types/apiResponses';
 
 const WC_BASE = 'https://api.webcrawlerapi.com/v1';
 
 const wcClient = axios.create({
   baseURL: WC_BASE,
+  timeout: 15000,
   headers: { Authorization: `Bearer ${process.env.WEBCRAWLER_API_KEY}` },
 });
 
 export async function startCrawl(url: string): Promise<string> {
-  const response = await wcClient.post('/crawl', {
-    url,
-    max_pages: 20,
-    output_format: 'markdown',
-  });
+  const response = await withRetry(() =>
+    wcClient.post('/crawl', { url, max_pages: 20, output_format: 'markdown' })
+  );
   return response.data.id;
 }
 
@@ -35,7 +35,7 @@ export async function pollCrawlUntilDone(jobId: string, maxWaitMs = 120000): Pro
     if (status.status === 'failed') return status;
 
     if (status.status === 'done' && status._markdownUrl) {
-      const mdRes = await axios.get<string>(status._markdownUrl);
+      const mdRes = await axios.get<string>(status._markdownUrl, { timeout: 15000 });
       const markdown = mdRes.data || '';
       const page = markdownToPage(markdown);
       return { ...status, pages: [page] };

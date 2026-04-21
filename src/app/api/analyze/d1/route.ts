@@ -1,22 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeWithClaude } from '@/lib/anthropic';
 import { buildD1Prompt } from '@/prompts/d1-brand-overview';
-import { getAuditWithDev, saveDimensionResult } from '../_shared';
+import { getAuditWithDev, saveDimensionResult, buildDataAvailabilityNote } from '../_shared';
 
 export async function POST(request: NextRequest) {
   try {
     const { auditId } = await request.json();
     const { audit, dev } = await getAuditWithDev(auditId);
-    if (!audit || !dev) return NextResponse.json({ error: 'Audit not found' }, { status: 404 });
+    if (!audit || !dev) return NextResponse.json({ success: false, error: 'Audit not found' }, { status: 404 });
 
     const auditDate = new Date().toISOString().split('T')[0];
-    const prompt = buildD1Prompt(dev, dev.pdlData, audit.collectedData?.seoKeywords, auditDate);
+    const cd = audit.collectedData;
+
+    const missing: string[] = [];
+    if (!dev.pdlData) missing.push('company enrichment data (PDL)');
+    if (!cd?.seoKeywords) missing.push('SEO/SERP data');
+
+    const prompt = buildD1Prompt(dev, dev.pdlData ?? null, cd?.seoKeywords ?? null, auditDate)
+      + buildDataAvailabilityNote(missing);
+
     const raw = await analyzeWithClaude(prompt);
     const findings = JSON.parse(raw);
     const score = await saveDimensionResult(auditId, 'D1', findings);
-    return NextResponse.json({ score, dimension: 'D1', findings });
+    return NextResponse.json({ success: true, score, dimension: 'D1', findings });
   } catch (error) {
-    console.error('D1 analysis error:', error);
-    return NextResponse.json({ error: 'D1 analysis failed' }, { status: 500 });
+    const msg = error instanceof Error ? error.message : 'D1 analysis failed';
+    console.error('D1 analysis error:', msg);
+    return NextResponse.json({ success: false, score: null, dimension: 'D1', error: msg });
   }
 }

@@ -6,10 +6,11 @@ import { Step1BrandDetails } from './Step1BrandDetails';
 import { Step2DigitalPresence } from './Step2DigitalPresence';
 import { Step3Collateral } from './Step3Collateral';
 import { Step4Confirm } from './Step4Confirm';
+import { BrandPrefillStep } from './BrandPrefillStep';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { CheckCircle, XCircle, Loader2, Database, Brain, Rocket } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, Database, Brain, Rocket, Sparkles } from 'lucide-react';
 import type { ProgressEvent } from '@/types/audit';
 
 const STEPS = [
@@ -141,7 +142,7 @@ function AnalysisScreen({ auditId, onDone }: { auditId: string; onDone: () => vo
                     : <div className="h-3.5 w-3.5 rounded-full border border-gray-200 flex-shrink-0" />}
                   <span className={cn('truncate', status === 'pending' ? 'text-gray-400' : status === 'failed' ? 'text-red-500' : 'text-gray-700')}>
                     {dim}
-                    {ev?.score !== undefined && status === 'done' && (
+                    {ev?.score !== undefined && ev?.score !== null && status === 'done' && (
                       <span className="ml-1 text-xs text-muted-foreground">· {ev.score}</span>
                     )}
                   </span>
@@ -168,6 +169,8 @@ export function AuditWizard() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [analyzingAuditId, setAnalyzingAuditId] = useState<string | null>(null);
+  // showPrefill: true = show the Brand Prefill screen between step 1 and step 2
+  const [showPrefill, setShowPrefill] = useState(false);
   const step = wizard.currentStep;
 
   async function handleSubmit() {
@@ -196,6 +199,45 @@ export function AuditWizard() {
         auditId={analyzingAuditId}
         onDone={() => router.push(`/audit/${analyzingAuditId}`)}
       />
+    );
+  }
+
+  // Prefill screen shown between step 1 and step 2
+  if (showPrefill) {
+    return (
+      <div className="max-w-2xl mx-auto py-8 px-4">
+        {/* Stepper — step 1 shown as active during prefill */}
+        <div className="flex items-center gap-2 mb-8">
+          {STEPS.map((s, i) => (
+            <div key={s.num} className="flex items-center gap-2 flex-1">
+              <div className={cn(
+                'flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium flex-shrink-0',
+                s.num === 1 ? 'bg-primary text-white' :
+                step > s.num ? 'bg-primary/20 text-primary' : 'bg-gray-100 text-gray-400'
+              )}>
+                {s.num === 1 ? <Sparkles className="h-4 w-4" /> : s.num}
+              </div>
+              <span className={cn('text-sm hidden sm:block', s.num === 1 ? 'text-primary font-medium' : 'text-muted-foreground')}>
+                {s.num === 1 ? 'Quick Lookup' : s.label}
+              </span>
+              {i < STEPS.length - 1 && <div className="flex-1 h-px bg-gray-200" />}
+            </div>
+          ))}
+        </div>
+
+        <div className="rounded-lg border bg-white p-6">
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold">Brand Quick Lookup</h2>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              We found this data publicly. Review, edit, or clear any field before continuing.
+            </p>
+          </div>
+          <BrandPrefillStep
+            onContinue={() => { setShowPrefill(false); setWizardStep(2); }}
+            onBack={() => setShowPrefill(false)}
+          />
+        </div>
+      </div>
     );
   }
 
@@ -237,7 +279,18 @@ export function AuditWizard() {
             {step === 1 ? 'Cancel' : 'Back'}
           </Button>
           {step < 4 ? (
-            <Button onClick={() => setWizardStep(step + 1)}>Next →</Button>
+            <Button
+              onClick={() => {
+                // After step 1, show prefill if brand name is set
+                if (step === 1 && wizard.formData.brandName) {
+                  setShowPrefill(true);
+                } else {
+                  setWizardStep(step + 1);
+                }
+              }}
+            >
+              Next →
+            </Button>
           ) : (
             <Button onClick={handleSubmit} disabled={submitting}>
               {submitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating…</> : 'Launch Audit'}

@@ -88,6 +88,7 @@ export interface AuditWithRelations {
   overallScore: number | null;
   status: AuditStatus;
   collectedData: CollectedDataRecord | null;
+  dataSourceStatus?: { collected: string[]; failed: string[] };
   dimensions: AuditDimensionResult[];
   assets: AuditAsset[];
   createdAt?: string;
@@ -118,24 +119,16 @@ export interface AuditAsset {
   uploadedAt: string;
 }
 
-// Add score field to ProgressEvent for analyze stage updates
 export interface ProgressEvent {
   stage: 'collecting' | 'analyzing' | 'complete' | 'error';
   source?: string;
   dimension?: string;
   status?: 'in_progress' | 'done' | 'failed';
-  overallScore?: number;
-  score?: number;
+  overallScore?: number | null;
+  score?: number | null;
   message?: string;
-}
-
-export interface ProgressEvent {
-  stage: 'collecting' | 'analyzing' | 'complete' | 'error';
-  source?: string;
-  dimension?: string;
-  status?: 'in_progress' | 'done' | 'failed';
-  overallScore?: number;
-  message?: string;
+  collectedSources?: string[];
+  failedSources?: string[];
 }
 
 export function getScoreTier(score: number): ScoreTier {

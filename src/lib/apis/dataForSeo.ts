@@ -1,9 +1,11 @@
 import axios from 'axios';
+import { withRetry } from '@/lib/fetchWithRetry';
 
 const SERPER_BASE = 'https://google.serper.dev';
 
 const serperClient = axios.create({
   baseURL: SERPER_BASE,
+  timeout: 15000,
   headers: {
     'X-API-KEY': process.env.SERPER_API_KEY,
     'Content-Type': 'application/json',
@@ -11,12 +13,9 @@ const serperClient = axios.create({
 });
 
 export async function getSerpResults(keyword: string) {
-  const response = await serperClient.post('/search', {
-    q: keyword,
-    gl: 'in',
-    hl: 'en',
-    num: 10,
-  });
+  const response = await withRetry(() =>
+    serperClient.post('/search', { q: keyword, gl: 'in', hl: 'en', num: 10 })
+  );
   return response.data || null;
 }
 

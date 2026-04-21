@@ -1,23 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeWithClaude } from '@/lib/anthropic';
 import { buildD7Prompt } from '@/prompts/d7-reputation';
-import { getAuditWithDev, saveDimensionResult } from '../_shared';
+import { getAuditWithDev, saveDimensionResult, buildDataAvailabilityNote } from '../_shared';
 
 export async function POST(request: NextRequest) {
   try {
     const { auditId } = await request.json();
     const { audit, dev } = await getAuditWithDev(auditId);
-    if (!audit || !dev) return NextResponse.json({ error: 'Audit not found' }, { status: 404 });
+    if (!audit || !dev) return NextResponse.json({ success: false, error: 'Audit not found' }, { status: 404 });
 
     const auditDate = new Date().toISOString().split('T')[0];
     const cd = audit.collectedData;
-    const prompt = buildD7Prompt(dev, cd?.gmbData, cd?.googleReviews, auditDate);
+
+    const missing: string[] = [];
+    if (!cd?.gmbData) missing.push('Google My Business data (rating, reviews, address)');
+    if (!cd?.googleReviews) missing.push('Google Reviews data');
+
+    const prompt = buildD7Prompt(dev, cd?.gmbData ?? null, cd?.googleReviews ?? null, auditDate)
+      + buildDataAvailabilityNote(missing);
+
     const raw = await analyzeWithClaude(prompt);
     const findings = JSON.parse(raw);
     const score = await saveDimensionResult(auditId, 'D7', findings);
-    return NextResponse.json({ score, dimension: 'D7', findings });
+    return NextResponse.json({ success: true, score, dimension: 'D7', findings });
   } catch (error) {
-    console.error('D7 analysis error:', error);
-    return NextResponse.json({ error: 'D7 analysis failed' }, { status: 500 });
+    const msg = error instanceof Error ? error.message : 'D7 analysis failed';
+    console.error('D7 analysis error:', msg);
+    return NextResponse.json({ success: false, score: null, dimension: 'D7', error: msg });
   }
 }

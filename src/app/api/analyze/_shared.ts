@@ -11,8 +11,28 @@ export async function getAuditWithDev(auditId: string) {
   return { audit, dev };
 }
 
-type ItemStatus = 'PASS' | 'FAIL' | 'PARTIAL';
-const STATUS_MAP: Record<string, ItemStatus> = { pass: 'PASS', fail: 'FAIL', partial: 'PARTIAL' };
+type ItemStatus = 'PASS' | 'FAIL' | 'PARTIAL' | 'NA';
+const STATUS_MAP: Record<string, ItemStatus> = {
+  pass: 'PASS',
+  fail: 'FAIL',
+  partial: 'PARTIAL',
+  na: 'NA',
+};
+
+/**
+ * Build a data availability note to append to Claude prompts.
+ * Tells Claude which sources are missing so it can mark items NA instead of failing.
+ */
+export function buildDataAvailabilityNote(missing: string[]): string {
+  if (!missing.length) return '';
+  return (
+    '\n\nDATA AVAILABILITY NOTE: The following data sources are unavailable for this audit: ' +
+    missing.join(', ') +
+    '. For any checklist items that require these data sources, set status to "na" and ' +
+    'set finding to "Data source unavailable — cannot evaluate". Do not assign pass or fail ' +
+    'to items that depend solely on missing data.'
+  );
+}
 
 export async function saveDimensionResult(
   auditId: string,
@@ -31,37 +51,42 @@ export async function saveDimensionResult(
 
   const items = (findings.items || []).map((item) => ({
     itemCode: item.code,
-    status: STATUS_MAP[item.status] || 'FAIL',
+    status: STATUS_MAP[item.status?.toLowerCase?.()] ?? 'FAIL',
     aiNote: item.finding,
     dataSource: item.dataSource,
   }));
 
+  // If >50% of items are NA, treat score as null (insufficient data)
+  const naCount = items.filter(i => i.status === 'NA').length;
+  const insufficientData = items.length > 0 && naCount / items.length > 0.5;
+  const score = insufficientData ? null : findings.score;
+
   const dimensionData = {
     code,
-    score: findings.score,
-    status: 'complete',
+    score,
+    status: insufficientData ? 'insufficient_data' : 'complete',
     aiSummary: findings.summary,
-    aiFindings: findings as Record<string, unknown>,
+    aiFindings: { ...findings as Record<string, unknown>, insufficientData },
     aiFlags: findings.criticalFlags || [],
     items,
     analyzedAt: new Date(),
   };
 
-  // Check if dimension already exists
   const audit = await Audit.findById(auditId);
   if (!audit) throw new Error('Audit not found');
 
   const existingIdx = audit.dimensions.findIndex((d: { code: string }) => d.code === code);
   if (existingIdx >= 0) {
     const existing = audit.dimensions[existingIdx];
-    audit.dimensions[existingIdx] = {
-      ...(typeof existing.toObject === 'function' ? existing.toObject() : existing),
-      ...dimensionData,
-    };
+    const existingObj = (typeof (existing as unknown as { toObject?: () => object }).toObject === 'function'
+      ? (existing as unknown as { toObject: () => object }).toObject()
+      : existing) as object;
+    audit.dimensions[existingIdx] = { ...existingObj, ...dimensionData } as unknown as typeof existing;
   } else {
-    audit.dimensions.push(dimensionData as Parameters<typeof audit.dimensions.push>[0]);
+    audit.dimensions.push(dimensionData as unknown as Parameters<typeof audit.dimensions.push>[0]);
   }
 
   await audit.save();
-  return findings.score;
+  // Return null when insufficient data so it is excluded from overall score
+  return score;
 }

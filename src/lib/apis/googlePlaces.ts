@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { withRetry } from '@/lib/fetchWithRetry';
 import type { GooglePlaceResult, GooglePlaceDetails } from '@/types/developer';
 
 const GEOAPIFY_BASE = 'https://api.geoapify.com';
@@ -6,6 +7,7 @@ const API_KEY = process.env.GEOAPIFY_API_KEY;
 
 export async function autocompletePlace(input: string): Promise<GooglePlaceResult[]> {
   const response = await axios.get(`${GEOAPIFY_BASE}/v1/geocode/autocomplete`, {
+    timeout: 15000,
     params: { text: input, type: 'amenity', limit: 5, apiKey: API_KEY },
   });
   const features = response.data?.features || [];
@@ -21,9 +23,12 @@ export async function autocompletePlace(input: string): Promise<GooglePlaceResul
 
 export async function getPlaceDetails(placeId: string): Promise<GooglePlaceDetails | null> {
   try {
-    const response = await axios.get(`${GEOAPIFY_BASE}/v2/place-details`, {
-      params: { id: placeId, apiKey: API_KEY },
-    });
+    const response = await withRetry(() =>
+      axios.get(`${GEOAPIFY_BASE}/v2/place-details`, {
+        timeout: 15000,
+        params: { id: placeId, apiKey: API_KEY },
+      })
+    );
     const p = response.data?.features?.[0]?.properties;
     if (!p) return null;
     return {

@@ -15,17 +15,38 @@ export async function POST(request: NextRequest) {
     const screenshotUrl = screenshotResult.status === 'fulfilled' ? screenshotResult.value : null;
     const logoUrl = logoResult.status === 'fulfilled' ? logoResult.value : null;
 
-    if (auditId) {
+    if (screenshotResult.status === 'rejected') {
+      console.error('Screenshot capture failed:', screenshotResult.reason);
+    }
+    if (logoResult.status === 'rejected') {
+      console.error('Logo fetch failed:', logoResult.reason);
+    }
+
+    if (auditId && (screenshotUrl || logoUrl)) {
       await connectDB();
       const update: Record<string, string> = {};
       if (screenshotUrl) update['collectedData.screenshotUrl'] = screenshotUrl;
       if (logoUrl) update['collectedData.logoUrl'] = logoUrl;
-      if (Object.keys(update).length) await Audit.findByIdAndUpdate(auditId, update);
+      await Audit.findByIdAndUpdate(auditId, update);
     }
 
-    return NextResponse.json({ screenshotUrl, logoUrl });
+
+    if (!screenshotUrl && !logoUrl && (websiteUrl || domain)) {
+      return NextResponse.json({
+        success: false,
+        data: null,
+        error: 'Both screenshot and logo capture failed',
+      });
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: { screenshotUrl, logoUrl },
+      error: null,
+    });
   } catch (error) {
-    console.error('Screenshot collection error:', error);
-    return NextResponse.json({ error: 'Failed to collect screenshots' }, { status: 500 });
+    const msg = error instanceof Error ? error.message : 'Failed to collect screenshots';
+    console.error('Screenshot collection error:', msg);
+    return NextResponse.json({ success: false, data: null, error: msg });
   }
 }

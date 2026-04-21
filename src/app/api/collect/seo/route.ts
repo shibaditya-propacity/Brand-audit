@@ -21,13 +21,20 @@ export async function POST(request: NextRequest) {
           technicalSeo = await getOnPageResults(taskId);
         }
       } catch (err) {
-        console.error('Technical SEO task failed:', err);
+        console.error('Technical SEO task failed:', err instanceof Error ? err.message : err);
       }
     }
 
     const serpData = serpResult.status === 'fulfilled' ? serpResult.value : null;
     const backlinks = backlinksResult.status === 'fulfilled' ? backlinksResult.value : null;
     const domainRanking = serpData && domain ? findDomainInSerp(serpData, domain) : null;
+
+    // Only consider it a failure if the primary data (SERP) failed
+    if (serpResult.status === 'rejected') {
+      const msg = serpResult.reason instanceof Error ? serpResult.reason.message : 'SEO data collection failed';
+      console.error('SEO SERP collection error:', msg);
+      return NextResponse.json({ success: false, data: null, error: msg });
+    }
 
     if (auditId) {
       await connectDB();
@@ -38,9 +45,14 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({ serpData, backlinks, technicalSeo, domainRanking });
+    return NextResponse.json({
+      success: true,
+      data: { serpData, backlinks, technicalSeo, domainRanking },
+      error: null,
+    });
   } catch (error) {
-    console.error('SEO collection error:', error);
-    return NextResponse.json({ error: 'Failed to collect SEO data' }, { status: 500 });
+    const msg = error instanceof Error ? error.message : 'Failed to collect SEO data';
+    console.error('SEO collection error:', msg);
+    return NextResponse.json({ success: false, data: null, error: msg });
   }
 }

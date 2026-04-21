@@ -1,21 +1,21 @@
 import axios from 'axios';
+import { withRetry } from '@/lib/fetchWithRetry';
 import type { MetaAdResponse } from '@/types/apiResponses';
 
 const APIFY_URL = 'https://api.apify.com/v2/acts/apify~facebook-ads-scraper/run-sync-get-dataset-items';
 
 export async function getMetaAds(brandName: string): Promise<MetaAdResponse[]> {
   try {
-    const response = await axios.post<MetaAdResponse[]>(
-      APIFY_URL,
-      {
-        searchTerms: [brandName],
-        country: 'IN',
-        resultsLimit: 25,
-      },
-      {
-        params: { token: process.env.APIFY_API_KEY },
-        headers: { 'Content-Type': 'application/json' },
-      }
+    const response = await withRetry(() =>
+      axios.post<MetaAdResponse[]>(
+        APIFY_URL,
+        { searchTerms: [brandName], country: 'IN', resultsLimit: 25 },
+        {
+          timeout: 15000,
+          params: { token: process.env.APIFY_API_KEY },
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
     );
     return response.data || [];
   } catch {

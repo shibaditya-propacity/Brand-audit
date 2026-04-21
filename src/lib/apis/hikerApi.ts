@@ -1,13 +1,17 @@
 import axios from 'axios';
+import { withRetry } from '@/lib/fetchWithRetry';
 import type { ApifyInstagramProfile, ApifyInstagramPost } from '@/types/apiResponses';
 
 const APIFY_URL = 'https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items';
 
 async function apifyRun<T>(input: Record<string, unknown>): Promise<T[]> {
-  const response = await axios.post<T[]>(APIFY_URL, input, {
-    params: { token: process.env.APIFY_API_KEY },
-    headers: { 'Content-Type': 'application/json' },
-  });
+  const response = await withRetry(() =>
+    axios.post<T[]>(APIFY_URL, input, {
+      timeout: 15000,
+      params: { token: process.env.APIFY_API_KEY },
+      headers: { 'Content-Type': 'application/json' },
+    })
+  );
   const data = response.data || [];
   // Filter out Apify error objects (e.g. { error: 'no_items', errorDescription: '...' })
   return data.filter((item) => !(item as Record<string, unknown>).error);
