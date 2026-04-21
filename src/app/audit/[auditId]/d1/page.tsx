@@ -9,7 +9,7 @@ import { DimensionPageSkeleton } from '@/components/shared/LoadingSkeleton';
 import { ScoreBadge } from '@/components/shared/ScoreBadge';
 
 export default function D1Page({ params }: { params: { auditId: string } }) {
-  const { audit, loading } = useAuditData(params.auditId);
+  const { audit, loading, refetch } = useAuditData(params.auditId);
   const dimension = audit?.dimensions?.find(d => d.code === 'D1');
   const dimensionScores = Object.fromEntries((audit?.dimensions || []).map(d => [d.code, d.score]));
 
@@ -48,7 +48,7 @@ export default function D1Page({ params }: { params: { auditId: string } }) {
 
   return (
     <AppShell auditId={params.auditId} dimensionScores={dimensionScores}>
-      <DimensionPageShell dimensionCode="D1" dimension={dimension} leftContent={leftContent} rightContent={rightContent} />
+      <DimensionPageShell dimensionCode="D1" dimension={dimension} leftContent={leftContent} rightContent={rightContent} auditId={params.auditId} onRerunComplete={refetch} />
     </AppShell>
   );
 }

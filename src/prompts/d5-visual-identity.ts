@@ -14,15 +14,17 @@ You are auditing the Visual Identity dimension (D5) for ${developer.brandName}.
 ${logoUrl ? `BRAND LOGO: ${logoUrl}` : 'BRAND LOGO: Not available'}
 ${screenshotUrl ? `WEBSITE SCREENSHOT: ${screenshotUrl}` : 'WEBSITE SCREENSHOT: Not available'}
 
-Scoring guide for D5: A clean, professional website with consistent colors and readable typography = 50-60. Distinct logo, strong visual system, high-quality photography, brand coherence across touchpoints = 70-80. If assets are unavailable, mark "partial" not "fail". When you CAN see visual assets, celebrate what works — color choices, photography quality, layout clarity, modernity of design.
+CRITICAL: Only evaluate items for which you have actual visual assets. If logo or screenshot URLs are "Not available", set every item that depends on them to status "na" and finding "Visual asset unavailable — cannot evaluate". Do NOT infer visual quality from brand name alone.
 
-Based on the visual assets provided and what you can infer about this brand's positioning, evaluate checklist items D5-1 through D5-12.
+Scoring guide for D5: A clean, professional website with consistent colors and readable typography = 50-60. Distinct logo, strong visual system, high-quality photography, brand coherence = 70-80.
+
+Evaluate checklist items D5-1 through D5-12 based only on the assets you can actually see.
 
 Return this exact JSON:
 {
   "score": <number 0-100>,
   "summary": "<2-3 sentences about visual identity quality>",
-  "items": [{ "code": "D5-1", "status": "pass"|"fail"|"partial", "finding": "<visual observation>", "recommendation": "<specific action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "Screenshot"|"Manual" }],
+  "items": [{ "code": "D5-1", "status": "pass"|"fail"|"partial"|"na", "finding": "<visual observation or 'Asset unavailable'>", "recommendation": "<specific action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "Screenshot"|"Manual" }],
   "criticalFlags": [],
   "strengths": [],
   "quickWins": [],

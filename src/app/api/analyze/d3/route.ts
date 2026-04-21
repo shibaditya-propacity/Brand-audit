@@ -12,12 +12,29 @@ export async function POST(request: NextRequest) {
     const auditDate = new Date().toISOString().split('T')[0];
     const cd = audit.collectedData;
 
-    const missing: string[] = [];
-    if (!cd?.instagramData) missing.push('Instagram data (follower count, posts, engagement metrics)');
-    if (!dev.pdlData) missing.push('company social profile data');
+    const instagramData = cd?.instagramData ?? null;
+    const facebookData = (cd as unknown as Record<string, unknown>)?.facebookData ?? null;
+    const linkedinData = (cd as unknown as Record<string, unknown>)?.linkedinData ?? null;
 
-    const prompt = buildD3Prompt(dev, cd?.instagramData ?? null, dev.pdlData ?? null, auditDate)
-      + buildDataAvailabilityNote(missing);
+    const missing: string[] = [];
+    if (!instagramData) missing.push('Instagram data');
+    if (!facebookData) missing.push('Facebook data');
+    if (!linkedinData) missing.push('LinkedIn data');
+
+    const devWithSocials = {
+      brandName: dev.brandName as string,
+      positioning: (dev.positioning as string | null) ?? null,
+      city: (dev.city as string | null) ?? null,
+      targetSegments: (dev.targetSegments as string[]) ?? [],
+      websiteUrl: (dev.websiteUrl as string | null) ?? null,
+      instagramHandle: (dev.instagramHandle as string | null) ?? null,
+      facebookUrl: (dev.facebookUrl as string | null) ?? null,
+      linkedinUrl: (dev.linkedinUrl as string | null) ?? null,
+    };
+
+    const prompt =
+      buildD3Prompt(devWithSocials, instagramData, facebookData, linkedinData, auditDate) +
+      buildDataAvailabilityNote(missing);
 
     const raw = await analyzeWithClaude(prompt);
     const findings = JSON.parse(raw);

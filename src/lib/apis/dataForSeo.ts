@@ -19,6 +19,31 @@ export async function getSerpResults(keyword: string) {
   return response.data || null;
 }
 
+export async function getPlacesResults(query: string) {
+  try {
+    const response = await withRetry(() =>
+      serperClient.post('/places', { q: query, gl: 'in', hl: 'en' })
+    );
+    return response.data || null;
+  } catch {
+    return null;
+  }
+}
+
+/** Search for a brand's presence on a specific social platform */
+export async function getSocialProfileUrl(brandName: string, platform: 'instagram.com' | 'linkedin.com/company' | 'facebook.com' | 'youtube.com' | 'twitter.com'): Promise<string | null> {
+  try {
+    const response = await withRetry(() =>
+      serperClient.post('/search', { q: `${brandName} site:${platform}`, gl: 'in', hl: 'en', num: 3 })
+    );
+    const organic: Array<{ link: string }> = response.data?.organic ?? [];
+    const hit = organic.find(r => r.link?.includes(platform.split('/')[0]));
+    return hit?.link ?? null;
+  } catch {
+    return null;
+  }
+}
+
 // No Serper equivalent — returns null
 export async function getBacklinksSummary(_domain: string) {
   return null;

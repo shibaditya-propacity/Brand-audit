@@ -9,7 +9,7 @@ import { DimensionPageSkeleton } from '@/components/shared/LoadingSkeleton';
 import { ExternalLink } from 'lucide-react';
 
 export default function D10Page({ params }: { params: { auditId: string } }) {
-  const { audit, loading } = useAuditData(params.auditId);
+  const { audit, loading, refetch } = useAuditData(params.auditId);
   const dimension = audit?.dimensions?.find(d => d.code === 'D10');
   const dimensionScores = Object.fromEntries((audit?.dimensions || []).map(d => [d.code, d.score]));
 
@@ -52,7 +52,7 @@ export default function D10Page({ params }: { params: { auditId: string } }) {
 
   return (
     <AppShell auditId={params.auditId} dimensionScores={dimensionScores}>
-      <DimensionPageShell dimensionCode="D10" dimension={dimension} leftContent={leftContent} rightContent={rightContent} />
+      <DimensionPageShell dimensionCode="D10" dimension={dimension} leftContent={leftContent} rightContent={rightContent} auditId={params.auditId} onRerunComplete={refetch} />
     </AppShell>
   );
 }

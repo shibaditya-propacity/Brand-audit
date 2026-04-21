@@ -9,7 +9,7 @@ import { useAuditData } from '@/hooks/useAuditData';
 import { DimensionPageSkeleton } from '@/components/shared/LoadingSkeleton';
 
 export default function D4Page({ params }: { params: { auditId: string } }) {
-  const { audit, loading } = useAuditData(params.auditId);
+  const { audit, loading, refetch } = useAuditData(params.auditId);
   const dimension = audit?.dimensions?.find(d => d.code === 'D4');
   const dimensionScores = Object.fromEntries((audit?.dimensions || []).map(d => [d.code, d.score]));
   const cd = audit?.collectedData;
@@ -32,7 +32,7 @@ export default function D4Page({ params }: { params: { auditId: string } }) {
 
   return (
     <AppShell auditId={params.auditId} dimensionScores={dimensionScores}>
-      <DimensionPageShell dimensionCode="D4" dimension={dimension} leftContent={leftContent} rightContent={rightContent} />
+      <DimensionPageShell dimensionCode="D4" dimension={dimension} leftContent={leftContent} rightContent={rightContent} auditId={params.auditId} onRerunComplete={refetch} />
     </AppShell>
   );
 }

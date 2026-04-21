@@ -28,9 +28,11 @@ export function buildDataAvailabilityNote(missing: string[]): string {
   return (
     '\n\nDATA AVAILABILITY NOTE: The following data sources are unavailable for this audit: ' +
     missing.join(', ') +
-    '. For any checklist items that require these data sources, set status to "na" and ' +
-    'set finding to "Data source unavailable — cannot evaluate". Do not assign pass or fail ' +
-    'to items that depend solely on missing data.'
+    '. STRICT RULES: (1) Set status to "na" and finding to "Data source unavailable — cannot evaluate"' +
+    ' for every checklist item that depends on these sources.' +
+    ' (2) Do NOT use "partial" as a substitute for missing data.' +
+    ' (3) Do NOT write observations like "the existence of X suggests Y" when you cannot see actual data.' +
+    ' (4) Do NOT infer, assume, or speculate about data you were not given.'
   );
 }
 

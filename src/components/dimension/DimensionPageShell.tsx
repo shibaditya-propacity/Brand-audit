@@ -6,12 +6,15 @@ import { RadialBarChart, RadialBar, ResponsiveContainer } from 'recharts';
 import CountUp from 'react-countup';
 import type { AuditDimensionResult } from '@/types/audit';
 import * as Icons from 'lucide-react';
+import { RerunButton } from './RerunButton';
 
 interface DimensionPageShellProps {
   dimensionCode: string;
   dimension: AuditDimensionResult | null | undefined;
   leftContent: React.ReactNode;
   rightContent: React.ReactNode;
+  auditId: string;
+  onRerunComplete?: () => void;
 }
 
 function getTremorColor(score: number): 'red' | 'orange' | 'yellow' | 'green' | 'emerald' {
@@ -22,7 +25,7 @@ function getTremorColor(score: number): 'red' | 'orange' | 'yellow' | 'green' | 
   return 'emerald';
 }
 
-export function DimensionPageShell({ dimensionCode, dimension, leftContent, rightContent }: DimensionPageShellProps) {
+export function DimensionPageShell({ dimensionCode, dimension, leftContent, rightContent, auditId, onRerunComplete }: DimensionPageShellProps) {
   const meta = DIMENSIONS.find(d => d.code === dimensionCode);
   if (!meta) return <div className="p-6">Dimension not found</div>;
 
@@ -61,11 +64,14 @@ export function DimensionPageShell({ dimensionCode, dimension, leftContent, righ
                 {dimension.aiSummary}
               </p>
             )}
-            {score > 0 && (
-              <div className="mt-2">
-                <Badge color={tier} size="sm">{score}/100</Badge>
-              </div>
-            )}
+            <div className="mt-2 flex items-center gap-2 flex-wrap">
+              {score > 0 && <Badge color={tier} size="sm">{score}/100</Badge>}
+              <RerunButton
+                auditId={auditId}
+                dimensionCode={dimensionCode}
+                onComplete={onRerunComplete}
+              />
+            </div>
           </div>
           {score > 0 && (
             <div className="flex-shrink-0 relative" style={{ width: 80, height: 80 }}>

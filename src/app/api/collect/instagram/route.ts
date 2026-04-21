@@ -1,54 +1,66 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
-import { Audit } from '@/lib/models';
-import { getUserByUsername, getUserPosts, calculateInstagramMetrics } from '@/lib/apis/hikerApi';
+import { Audit, Developer } from '@/lib/models';
+import { getSocialInsights } from '@/lib/apis/socialInsights';
 
 export async function POST(request: NextRequest) {
   try {
     const { instagramHandle, auditId } = await request.json();
-    if (!instagramHandle) {
-      return NextResponse.json({ success: false, data: null, error: 'instagramHandle required' });
+
+    // We need either an instagramHandle or an auditId to look up the developer
+    if (!instagramHandle && !auditId) {
+      return NextResponse.json({ success: false, data: null, error: 'instagramHandle or auditId required' });
     }
 
-    const handle = instagramHandle.replace('@', '');
-    let user = null;
-    try {
-      user = await getUserByUsername(handle);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.error('Instagram user lookup error:', msg);
-      return NextResponse.json({ success: false, data: null, error: msg });
+    // If auditId provided, load developer to get all social URLs
+    interface DevSocial {
+      brandName: string;
+      instagramHandle?: string | null;
+      facebookUrl?: string | null;
+      linkedinUrl?: string | null;
     }
-
-    if (!user) {
-      return NextResponse.json({ success: false, data: null, error: 'Instagram user not found' });
-    }
-
-    const userId = (user as { pk?: string; id?: string }).pk || (user as { pk?: string; id?: string }).id;
-    if (!userId) {
-      return NextResponse.json({ success: false, data: null, error: 'Could not get Instagram user ID' });
-    }
-
-    let posts: Awaited<ReturnType<typeof getUserPosts>> = [];
-    try {
-      posts = await getUserPosts(userId);
-    } catch (err) {
-      console.error('Instagram posts fetch error:', err instanceof Error ? err.message : err);
-      // Continue with empty posts — partial data is better than none
-    }
-
-    const metrics = calculateInstagramMetrics(user, posts);
-    const data = { user, posts: posts.slice(0, 12), metrics };
+    let dev: DevSocial | null = null;
 
     if (auditId) {
       await connectDB();
-      await Audit.findByIdAndUpdate(auditId, { 'collectedData.instagramData': data });
+      const audit = await Audit.findById(auditId).lean() as { developerId: unknown } | null;
+      if (audit) {
+        dev = await Developer.findById(audit.developerId).lean() as DevSocial | null;
+      }
     }
 
-    return NextResponse.json({ success: true, data, error: null });
+    // Fall back to just the instagramHandle if no dev found
+    const handle = dev?.instagramHandle?.replace('@', '') ?? instagramHandle?.replace('@', '') ?? null;
+    const brandName = dev?.brandName ?? handle ?? 'Unknown';
+
+    const insights = await getSocialInsights({
+      brandName,
+      instagramHandle: handle,
+      facebookUrl: dev?.facebookUrl ?? null,
+      linkedinUrl: dev?.linkedinUrl ?? null,
+    });
+
+    const hasAnyData = insights.instagram || insights.facebook || insights.linkedin;
+    if (!hasAnyData) {
+      return NextResponse.json({ success: false, data: null, error: 'No social data found for any platform' });
+    }
+
+    // Persist to audit
+    if (auditId) {
+      await connectDB();
+      const update: Record<string, unknown> = {};
+      if (insights.instagram) update['collectedData.instagramData'] = insights.instagram;
+      if (insights.facebook) update['collectedData.facebookData'] = insights.facebook;
+      if (insights.linkedin) update['collectedData.linkedinData'] = insights.linkedin;
+      if (Object.keys(update).length) {
+        await Audit.findByIdAndUpdate(auditId, update);
+      }
+    }
+
+    return NextResponse.json({ success: true, data: insights, error: null });
   } catch (error) {
-    const msg = error instanceof Error ? error.message : 'Failed to collect Instagram data';
-    console.error('Instagram collection error:', msg);
+    const msg = error instanceof Error ? error.message : 'Failed to collect social data';
+    console.error('Social collection error:', msg);
     return NextResponse.json({ success: false, data: null, error: msg });
   }
 }

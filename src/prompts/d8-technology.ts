@@ -19,13 +19,15 @@ ${JSON.stringify(websiteContent, null, 2)}
 TECHNICAL SEO (reveals tech stack):
 ${JSON.stringify(technicalSeo, null, 2)}
 
-Scoring guide for D8: Using any CRM + having Google Analytics on the website = 50+. Modern CRM, marketing automation, lead tracking, WhatsApp integration, and tech-enabled sales process = 65-80. If tech data is sparse, mark "partial" — many tools are used internally and don't appear on the website. Recognise any tech adoption (even basic ones) as a positive signal.
+CRITICAL: Only evaluate items for which you have actual data. If website content and technical SEO data are both null, set every item to status "na" and finding "Tech data unavailable — cannot evaluate". Do NOT infer tool usage from brand name or market segment.
+
+Scoring guide for D8: Using any CRM + having Google Analytics on the website = 50+. Modern CRM, marketing automation, lead tracking, WhatsApp integration = 65-80.
 
 Evaluate checklist items D8-1 through D8-12. Return this exact JSON:
 {
   "score": <number 0-100>,
   "summary": "<2-3 sentences>",
-  "items": [{ "code": "D8-1", "status": "pass"|"fail"|"partial", "finding": "<finding>", "recommendation": "<action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "WebCrawler"|"DataForSEO"|"Manual" }],
+  "items": [{ "code": "D8-1", "status": "pass"|"fail"|"partial"|"na", "finding": "<finding or 'Data unavailable'>", "recommendation": "<action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "WebCrawler"|"DataForSEO"|"Manual" }],
   "criticalFlags": [],
   "strengths": [],
   "quickWins": []

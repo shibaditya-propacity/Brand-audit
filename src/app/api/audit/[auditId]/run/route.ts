@@ -43,7 +43,7 @@ export async function GET(_req: NextRequest, { params }: { params: { auditId: st
           { key: 'gmb', source: 'GooglePlaces', enabled: !!dev.gmbPlaceId, body: { placeId: dev.gmbPlaceId, auditId } },
           { key: 'seo', source: 'DataForSEO', enabled: !!dev.domain || !!dev.brandName, body: { domain: dev.domain, brandName: dev.brandName, auditId } },
           { key: 'website', source: 'WebCrawler', enabled: !!dev.websiteUrl, body: { websiteUrl: dev.websiteUrl, auditId } },
-          { key: 'instagram', source: 'HikerAPI', enabled: !!dev.instagramHandle, body: { instagramHandle: dev.instagramHandle, auditId } },
+          { key: 'instagram', source: 'HikerAPI', enabled: !!(dev.instagramHandle || dev.facebookUrl || dev.linkedinUrl), body: { instagramHandle: dev.instagramHandle, auditId } },
           { key: 'metaAds', source: 'MetaAdLibrary', enabled: true, body: { brandName: (dev as { metaAdLibraryName?: string }).metaAdLibraryName || dev.brandName, auditId } },
           { key: 'screenshot', source: 'Screenshot', enabled: !!dev.websiteUrl, body: { websiteUrl: dev.websiteUrl, domain: dev.domain, auditId } },
         ];

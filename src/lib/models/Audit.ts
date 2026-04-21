@@ -56,6 +56,8 @@ export interface ICollectedData {
   googleReviews?: Record<string, unknown>;
   websiteContent?: Record<string, unknown>;
   instagramData?: Record<string, unknown>;
+  facebookData?: Record<string, unknown>;
+  linkedinData?: Record<string, unknown>;
   metaAdsData?: Record<string, unknown>;
   screenshotUrl?: string;
   logoUrl?: string;
@@ -70,6 +72,8 @@ const CollectedDataSchema = new Schema<ICollectedData>({
   googleReviews: { type: Schema.Types.Mixed },
   websiteContent: { type: Schema.Types.Mixed },
   instagramData: { type: Schema.Types.Mixed },
+  facebookData: { type: Schema.Types.Mixed },
+  linkedinData: { type: Schema.Types.Mixed },
   metaAdsData: { type: Schema.Types.Mixed },
   screenshotUrl: String,
   logoUrl: String,

@@ -1,56 +1,211 @@
-import { Users, TrendingUp, Calendar, Activity } from 'lucide-react';
-import { Card } from '@tremor/react';
+'use client';
+import { Instagram, Facebook, Linkedin, Users, FileText, UserCheck, Briefcase, ExternalLink } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface InstagramData {
+  handle?: string;
+  profileUrl?: string | null;
+  followers?: number | null;
+  following?: number | null;
+  totalPosts?: number | null;
+  bio?: string | null;
+  recentPostSummaries?: string[];
+}
+
+interface FacebookData {
+  pageUrl?: string | null;
+  pageName?: string | null;
+  likes?: number | null;
+  followers?: number | null;
+  talkingAbout?: number | null;
+  description?: string | null;
+}
+
+interface LinkedInData {
+  pageUrl?: string | null;
+  companyName?: string | null;
+  followers?: number | null;
+  employees?: number | null;
+  industry?: string | null;
+  description?: string | null;
+}
 
 interface SocialStatsWidgetProps {
   instagramData: unknown;
+  facebookData?: unknown;
+  linkedinData?: unknown;
 }
 
-export function SocialStatsWidget({ instagramData }: SocialStatsWidgetProps) {
-  const data = instagramData as {
-    metrics?: {
-      followers?: number;
-      engagementRate?: number;
-      postsPerWeek?: number;
-      lastPostDate?: string;
-      contentMix?: { photos: number; videos: number; carousels: number };
-    };
-  } | null;
+function fmt(n: number | null | undefined): string {
+  if (n == null) return '—';
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return n.toLocaleString('en-IN');
+}
 
-  const m = data?.metrics;
+function StatCell({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-[10px] text-slate-400 uppercase tracking-wide">{label}</span>
+      <span className={cn('text-sm font-semibold', highlight ? 'text-slate-900' : 'text-slate-700')}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function PlatformCard({
+  icon,
+  name,
+  color,
+  profileUrl,
+  available,
+  stats,
+  description,
+  extras,
+}: {
+  icon: React.ReactNode;
+  name: string;
+  color: string;
+  profileUrl?: string | null;
+  available: boolean;
+  stats: Array<{ label: string; value: string }>;
+  description?: string | null;
+  extras?: React.ReactNode;
+}) {
+  return (
+    <div className={cn(
+      'rounded-xl border bg-white p-4 space-y-3',
+      !available && 'opacity-60'
+    )}>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className={cn('rounded-lg p-1.5', color)}>{icon}</div>
+          <span className="font-semibold text-sm text-slate-800">{name}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {available ? (
+            <span className="text-[10px] bg-green-50 text-green-700 border border-green-200 rounded-full px-2 py-0.5 font-medium">Active</span>
+          ) : (
+            <span className="text-[10px] bg-slate-50 text-slate-500 border border-slate-200 rounded-full px-2 py-0.5 font-medium">No data</span>
+          )}
+          {profileUrl && (
+            <a href={profileUrl} target="_blank" rel="noopener noreferrer"
+              className="text-slate-400 hover:text-slate-600 transition-colors">
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          )}
+        </div>
+      </div>
+
+      {/* Stats grid */}
+      {available && (
+        <div className="grid grid-cols-3 gap-3 py-2 border-t border-b border-slate-100">
+          {stats.map(s => <StatCell key={s.label} label={s.label} value={s.value} />)}
+        </div>
+      )}
+
+      {/* Description / bio */}
+      {available && description && (
+        <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{description}</p>
+      )}
+
+      {extras}
+    </div>
+  );
+}
+
+export function SocialStatsWidget({ instagramData, facebookData, linkedinData }: SocialStatsWidgetProps) {
+  const ig = instagramData as InstagramData | null;
+  const fb = facebookData as FacebookData | null;
+  const li = linkedinData as LinkedInData | null;
+
+  const igAvailable = !!(ig && (ig.followers != null || ig.totalPosts != null || ig.following != null));
+  const fbAvailable = !!(fb && (fb.likes != null || fb.followers != null));
+  const liAvailable = !!(li && (li.followers != null || li.employees != null));
 
   return (
-    <Card className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 p-4 space-y-4">
-      <h3 className="font-semibold text-sm text-slate-900 dark:text-slate-100">Instagram Performance</h3>
-      <div className="grid grid-cols-2 gap-3">
-        {[
-          { icon: Users, label: 'Followers', value: m?.followers ? m.followers.toLocaleString() : '--' },
-          { icon: TrendingUp, label: 'Engagement Rate', value: m?.engagementRate ? `${m.engagementRate}%` : '--' },
-          { icon: Activity, label: 'Posts / Week', value: m?.postsPerWeek ?? '--' },
-          { icon: Calendar, label: 'Last Post', value: m?.lastPostDate ? new Date(m.lastPostDate).toLocaleDateString('en-IN') : '--' },
-        ].map(stat => (
-          <div key={stat.label} className="rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3">
-            <div className="flex items-center gap-1.5 mb-1">
-              <stat.icon className="h-3.5 w-3.5 text-slate-400" />
-              <span className="text-xs text-slate-500 dark:text-slate-400">{stat.label}</span>
+    <div className="space-y-3">
+      <h3 className="font-semibold text-sm text-slate-800 px-0.5">Social Media Presence</h3>
+
+      {/* Instagram */}
+      <PlatformCard
+        icon={<Instagram className="h-4 w-4 text-pink-600" />}
+        name="Instagram"
+        color="bg-pink-50"
+        profileUrl={ig?.profileUrl}
+        available={igAvailable}
+        stats={[
+          { label: 'Followers', value: fmt(ig?.followers) },
+          { label: 'Posts', value: fmt(ig?.totalPosts) },
+          { label: 'Following', value: fmt(ig?.following) },
+        ]}
+        description={ig?.bio}
+        extras={
+          ig?.recentPostSummaries && ig.recentPostSummaries.length > 0 ? (
+            <div className="space-y-1">
+              <p className="text-[10px] uppercase tracking-wide text-slate-400 font-medium">Recent Posts</p>
+              {ig.recentPostSummaries.slice(0, 2).map((s, i) => (
+                <p key={i} className="text-xs text-slate-500 line-clamp-1 pl-2 border-l-2 border-pink-200">{s}</p>
+              ))}
             </div>
-            <p className="font-semibold text-sm text-slate-900 dark:text-slate-100">{String(stat.value)}</p>
+          ) : null
+        }
+      />
+
+      {/* Facebook */}
+      <PlatformCard
+        icon={<Facebook className="h-4 w-4 text-blue-600" />}
+        name="Facebook"
+        color="bg-blue-50"
+        profileUrl={fb?.pageUrl}
+        available={fbAvailable}
+        stats={[
+          { label: 'Likes', value: fmt(fb?.likes) },
+          { label: 'Followers', value: fmt(fb?.followers) },
+          { label: 'Talking', value: fmt(fb?.talkingAbout) },
+        ]}
+        description={fb?.description}
+      />
+
+      {/* LinkedIn */}
+      <PlatformCard
+        icon={<Linkedin className="h-4 w-4 text-sky-700" />}
+        name="LinkedIn"
+        color="bg-sky-50"
+        profileUrl={li?.pageUrl}
+        available={liAvailable}
+        stats={[
+          { label: 'Followers', value: fmt(li?.followers) },
+          { label: 'Employees', value: li?.employees != null ? `${fmt(li.employees)}+` : '—' },
+          { label: 'Industry', value: li?.industry?.slice(0, 14) ?? '—' },
+        ]}
+        description={li?.description}
+        extras={
+          li?.companyName ? (
+            <div className="flex items-center gap-1.5 text-xs text-slate-500">
+              <Briefcase className="h-3 w-3 flex-shrink-0" />
+              <span className="truncate">{li.companyName}</span>
+            </div>
+          ) : null
+        }
+      />
+
+      {/* Summary row */}
+      <div className="rounded-lg bg-slate-50 border border-slate-200 p-3 grid grid-cols-3 gap-2 text-center">
+        {[
+          { icon: <Users className="h-3.5 w-3.5" />, label: 'IG Followers', value: fmt(ig?.followers), color: 'text-pink-600' },
+          { icon: <FileText className="h-3.5 w-3.5" />, label: 'FB Likes', value: fmt(fb?.likes), color: 'text-blue-600' },
+          { icon: <UserCheck className="h-3.5 w-3.5" />, label: 'LI Followers', value: fmt(li?.followers), color: 'text-sky-700' },
+        ].map(item => (
+          <div key={item.label} className="space-y-0.5">
+            <div className={cn('flex justify-center', item.color)}>{item.icon}</div>
+            <p className="text-sm font-bold text-slate-800">{item.value}</p>
+            <p className="text-[10px] text-slate-400">{item.label}</p>
           </div>
         ))}
       </div>
-      {m?.contentMix && (
-        <div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Content Mix</p>
-          <div className="flex gap-2 text-xs flex-wrap">
-            {[
-              { label: 'Photos', val: m.contentMix.photos, color: 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300' },
-              { label: 'Videos', val: m.contentMix.videos, color: 'bg-pink-100 dark:bg-pink-950 text-pink-700 dark:text-pink-300' },
-              { label: 'Carousels', val: m.contentMix.carousels, color: 'bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300' },
-            ].map(c => (
-              <span key={c.label} className={`rounded-full px-2 py-0.5 font-medium ${c.color}`}>{c.val} {c.label}</span>
-            ))}
-          </div>
-        </div>
-      )}
-    </Card>
+    </div>
   );
 }

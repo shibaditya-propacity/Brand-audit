@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import { Audit } from '@/lib/models';
 import { captureScreenshot, checkClearbitLogo } from '@/lib/apis/shotApi';
-
 export async function POST(request: NextRequest) {
   try {
     const { websiteUrl, domain, auditId } = await request.json();
@@ -29,8 +28,6 @@ export async function POST(request: NextRequest) {
       if (logoUrl) update['collectedData.logoUrl'] = logoUrl;
       await Audit.findByIdAndUpdate(auditId, update);
     }
-
-
     if (!screenshotUrl && !logoUrl && (websiteUrl || domain)) {
       return NextResponse.json({
         success: false,
@@ -38,6 +35,7 @@ export async function POST(request: NextRequest) {
         error: 'Both screenshot and logo capture failed',
       });
     }
+    
 
     return NextResponse.json({
       success: true,

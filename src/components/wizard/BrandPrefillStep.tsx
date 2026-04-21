@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import {
   Check, AlertCircle, Pencil, Trash2, Loader2,
-  Globe, MapPin, Phone, Briefcase, Calendar, Users,
+  Globe, MapPin, Phone, Briefcase, Calendar,
   Linkedin, Instagram, Facebook, Youtube, Twitter,
-  Image, MapPinned, ArrowRight, ChevronLeft,
+  Image, ArrowRight, ChevronLeft,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,7 +21,7 @@ interface PrefillField {
   label: string;
   icon: React.ReactNode;
   value: string | null;
-  source: 'Google' | 'PDL' | 'Clearbit' | null;
+  source: 'Serper' | 'Web' | 'Clearbit' | null;
   /** Which DeveloperInput key to write when saving */
   savesTo?: keyof DeveloperInput;
   /** Optional transform applied before saving (e.g. extract IG handle) */
@@ -33,42 +33,33 @@ interface PrefillField {
 interface PrefillResponse {
   success: boolean;
   data: {
-    google: {
-      placeId: string | null;
-      name: string | null;
-      address: string | null;
-      website: string | null;
-      phone: string | null;
-      rating: number | null;
-    } | null;
-    pdl: {
-      industry: string | null;
-      employeeCount: number | null;
-      foundedYear: number | null;
-      linkedinUrl: string | null;
-      twitterUrl: string | null;
-      facebookUrl: string | null;
-      instagramUrl: string | null;
-      youtubeUrl: string | null;
-    } | null;
-    logoUrl: string | null;
+    website: string | null;
     resolvedDomain: string | null;
+    industry: string | null;
+    foundedYear: string | null;
+    address: string | null;
+    phone: string | null;
+    description: string | null;
+    logoUrl: string | null;
+    socials: {
+      instagramUrl: string | null;
+      instagramHandle: string | null;
+      linkedinUrl: string | null;
+      facebookUrl: string | null;
+      youtubeUrl: string | null;
+      twitterUrl: string | null;
+      whatsappNumber: string | null;
+    };
   } | null;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function extractInstagramHandle(url: string | null): string | null {
-  if (!url) return null;
-  const m = url.match(/instagram\.com\/([^/?#]+)/);
-  return m ? `@${m[1]}` : url;
-}
-
 function sourceTag(src: PrefillField['source']) {
   if (!src) return null;
   const map: Record<NonNullable<PrefillField['source']>, string> = {
-    Google: 'bg-blue-50 text-blue-600 border-blue-100',
-    PDL: 'bg-violet-50 text-violet-600 border-violet-100',
+    Serper: 'bg-blue-50 text-blue-600 border-blue-100',
+    Web: 'bg-violet-50 text-violet-600 border-violet-100',
     Clearbit: 'bg-orange-50 text-orange-600 border-orange-100',
   };
   return (
@@ -244,46 +235,36 @@ export function BrandPrefillStep({ onContinue, onBack }: BrandPrefillStepProps) 
     })
       .then(r => r.json() as Promise<PrefillResponse>)
       .then(res => {
-        const g = res.data?.google ?? null;
-        const p = res.data?.pdl ?? null;
-        const logo = res.data?.logoUrl ?? null;
-        const resolvedDomain = res.data?.resolvedDomain ?? null;
+        const d = res.data ?? null;
+        const s = d?.socials ?? null;
+        const logo = d?.logoUrl ?? null;
 
         setLogoUrl(logo);
-        setHeaderAddress(g?.address ?? null);
+        setHeaderAddress(d?.address ?? null);
 
         const rawFields: PrefillField[] = [
           {
             id: 'websiteUrl',
             label: 'Website URL',
             icon: <Globe className="h-3.5 w-3.5" />,
-            value: g?.website ?? null,
-            source: g?.website ? 'Google' : null,
+            value: d?.website ?? null,
+            source: d?.website ? 'Serper' : null,
             savesTo: 'websiteUrl',
           },
           {
             id: 'domain',
             label: 'Domain',
             icon: <Globe className="h-3.5 w-3.5" />,
-            value: resolvedDomain,
-            source: resolvedDomain ? 'Google' : null,
+            value: d?.resolvedDomain ?? null,
+            source: d?.resolvedDomain ? 'Serper' : null,
             savesTo: 'domain',
           },
           {
-            id: 'gmbPlaceId',
-            label: 'GMB Place ID',
-            icon: <MapPinned className="h-3.5 w-3.5" />,
-            value: g?.placeId ?? null,
-            source: g?.placeId ? 'Google' : null,
-            savesTo: 'gmbPlaceId',
-          },
-          {
             id: 'address',
-            label: 'Address',
+            label: 'Address / HQ',
             icon: <MapPin className="h-3.5 w-3.5" />,
-            value: g?.address ?? null,
-            source: g?.address ? 'Google' : null,
-            // Display only — stored in city (trimmed)
+            value: d?.address ?? null,
+            source: d?.address ? 'Serper' : null,
             savesTo: 'city',
             transform: v => v.split(',')[0]?.trim() ?? v,
           },
@@ -291,74 +272,74 @@ export function BrandPrefillStep({ onContinue, onBack }: BrandPrefillStepProps) 
             id: 'phone',
             label: 'Phone',
             icon: <Phone className="h-3.5 w-3.5" />,
-            value: g?.phone ?? null,
-            source: g?.phone ? 'Google' : null,
+            value: d?.phone ?? null,
+            source: d?.phone ? 'Serper' : null,
             savesTo: 'whatsappNumber',
           },
           {
             id: 'industry',
             label: 'Industry',
             icon: <Briefcase className="h-3.5 w-3.5" />,
-            value: p?.industry ?? null,
-            source: p?.industry ? 'PDL' : null,
+            value: d?.industry ?? null,
+            source: d?.industry ? 'Serper' : null,
             savesTo: 'positioning',
           },
           {
             id: 'foundedYear',
             label: 'Founded Year',
             icon: <Calendar className="h-3.5 w-3.5" />,
-            value: p?.foundedYear != null ? String(p.foundedYear) : null,
-            source: p?.foundedYear != null ? 'PDL' : null,
+            value: d?.foundedYear ?? null,
+            source: d?.foundedYear ? 'Serper' : null,
             savesTo: 'yearEstablished',
             numeric: true,
-          },
-          {
-            id: 'employeeCount',
-            label: 'Employee Count',
-            icon: <Users className="h-3.5 w-3.5" />,
-            value: p?.employeeCount != null ? String(p.employeeCount) : null,
-            source: p?.employeeCount != null ? 'PDL' : null,
-            // display-only — no matching DeveloperInput field
           },
           {
             id: 'linkedinUrl',
             label: 'LinkedIn URL',
             icon: <Linkedin className="h-3.5 w-3.5" />,
-            value: p?.linkedinUrl ?? null,
-            source: p?.linkedinUrl ? 'PDL' : null,
+            value: s?.linkedinUrl ?? null,
+            source: s?.linkedinUrl ? 'Web' : null,
             savesTo: 'linkedinUrl',
           },
           {
             id: 'instagramHandle',
             label: 'Instagram',
             icon: <Instagram className="h-3.5 w-3.5" />,
-            value: extractInstagramHandle(p?.instagramUrl ?? null),
-            source: p?.instagramUrl ? 'PDL' : null,
+            value: s?.instagramHandle ?? null,
+            source: s?.instagramHandle ? 'Web' : null,
             savesTo: 'instagramHandle',
           },
           {
             id: 'facebookUrl',
             label: 'Facebook URL',
             icon: <Facebook className="h-3.5 w-3.5" />,
-            value: p?.facebookUrl ?? null,
-            source: p?.facebookUrl ? 'PDL' : null,
+            value: s?.facebookUrl ?? null,
+            source: s?.facebookUrl ? 'Web' : null,
             savesTo: 'facebookUrl',
           },
           {
             id: 'youtubeUrl',
             label: 'YouTube URL',
             icon: <Youtube className="h-3.5 w-3.5" />,
-            value: p?.youtubeUrl ?? null,
-            source: p?.youtubeUrl ? 'PDL' : null,
+            value: s?.youtubeUrl ?? null,
+            source: s?.youtubeUrl ? 'Web' : null,
             savesTo: 'youtubeUrl',
           },
           {
             id: 'twitterUrl',
             label: 'Twitter / X',
             icon: <Twitter className="h-3.5 w-3.5" />,
-            value: p?.twitterUrl ?? null,
-            source: p?.twitterUrl ? 'PDL' : null,
+            value: s?.twitterUrl ?? null,
+            source: s?.twitterUrl ? 'Web' : null,
             // display-only — no DeveloperInput field for twitter
+          },
+          {
+            id: 'whatsappNumber',
+            label: 'WhatsApp',
+            icon: <Phone className="h-3.5 w-3.5" />,
+            value: s?.whatsappNumber ?? null,
+            source: s?.whatsappNumber ? 'Web' : null,
+            savesTo: 'whatsappNumber',
           },
           {
             id: 'logoUrl',
