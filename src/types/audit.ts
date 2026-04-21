@@ -95,6 +95,16 @@ export interface AuditWithRelations {
   updatedAt?: string;
 }
 
+export interface DiscoveredCompetitor {
+  name: string;
+  link: string;
+  domain: string;
+  snippet?: string;
+  address?: string;
+  rating?: number;
+  source: 'organic' | 'places';
+}
+
 export interface CollectedDataRecord {
   gmbData: unknown;
   seoKeywords: unknown;
@@ -107,6 +117,11 @@ export interface CollectedDataRecord {
   screenshotUrl: string | null;
   logoUrl: string | null;
   collectedAt?: string;
+  competitorData?: {
+    competitors: DiscoveredCompetitor[];
+    keywords: string[];
+    collectedAt: string;
+  };
 }
 
 export interface AuditAsset {

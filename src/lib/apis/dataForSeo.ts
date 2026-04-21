@@ -69,6 +69,96 @@ export async function getGoogleReviewsResults(_taskId: string) {
   return null;
 }
 
+export interface DiscoveredCompetitor {
+  name: string;
+  link: string;
+  domain: string;
+  snippet?: string;
+  address?: string;
+  rating?: number;
+  source: 'organic' | 'places';
+}
+
+/**
+ * Build targeted competitor search queries from brand context + SERP keywords,
+ * then run them through Serper to discover competitor companies.
+ */
+export async function searchCompetitors(
+  brandName: string,
+  productType: string,
+  city: string,
+  serpKeywords: string[],
+): Promise<DiscoveredCompetitor[]> {
+  // Build 2-3 targeted queries — always have at least one fallback
+  const queries: string[] = [];
+  const location = city || 'India';
+
+  if (productType && city) {
+    queries.push(`top ${productType} companies in ${city}`);
+    queries.push(`best ${productType} developers ${city}`);
+  } else if (city) {
+    queries.push(`real estate developers in ${city}`);
+    queries.push(`top builders in ${city}`);
+  } else if (productType) {
+    queries.push(`top ${productType} companies India`);
+  }
+
+  if (serpKeywords.length > 0) {
+    const kw = serpKeywords[0];
+    queries.push(`${kw} companies ${location}`);
+  }
+
+  // Always ensure at least one query using the brand name as context
+  if (queries.length === 0) {
+    queries.push(`competitors of ${brandName} real estate`);
+    queries.push(`real estate developers India`);
+  }
+
+  const seen = new Set<string>([brandName.toLowerCase()]);
+  const competitors: DiscoveredCompetitor[] = [];
+
+  await Promise.allSettled(queries.slice(0, 3).map(async (q) => {
+    // Run organic + places in parallel per query
+    const [organicRes, placesRes] = await Promise.allSettled([
+      withRetry(() => serperClient.post('/search', { q: q, gl: 'in', hl: 'en', num: 10 })),
+      withRetry(() => serperClient.post('/places', { q: q, gl: 'in', hl: 'en' })),
+    ]);
+
+    if (organicRes.status === 'fulfilled') {
+      const organic: Array<{ title: string; link: string; snippet?: string }> =
+        organicRes.value.data?.organic ?? [];
+      for (const item of organic) {
+        if (!item.title || !item.link) continue;
+        let domain = '';
+        try { domain = new URL(item.link).hostname.replace('www.', ''); } catch { continue; }
+        const key = item.title.toLowerCase();
+        if (seen.has(key) || key.includes(brandName.toLowerCase())) continue;
+        // Skip generic aggregator/portal sites
+        if (/99acres|housing\.com|magicbricks|justdial|sulekha|indiamart|wikipedia|linkedin\.com\/(jobs|company\/search)/i.test(domain)) continue;
+        seen.add(key);
+        competitors.push({ name: item.title, link: item.link, domain, snippet: item.snippet, source: 'organic' });
+      }
+    }
+
+    if (placesRes.status === 'fulfilled') {
+      const places: Array<{ title: string; address?: string; rating?: number; website?: string }> =
+        placesRes.value.data?.places ?? [];
+      for (const place of places) {
+        if (!place.title) continue;
+        const key = place.title.toLowerCase();
+        if (seen.has(key) || key.includes(brandName.toLowerCase())) continue;
+        seen.add(key);
+        const link = place.website || '';
+        let domain = '';
+        try { domain = link ? new URL(link).hostname.replace('www.', '') : ''; } catch { /* ignore */ }
+        competitors.push({ name: place.title, link, domain, address: place.address, rating: place.rating, source: 'places' });
+      }
+    }
+  }));
+
+  return competitors.slice(0, 15);
+}
+
 export function findDomainInSerp(serpResult: { organic?: Array<{ link: string; position: number }> }, domain: string) {
   if (!serpResult?.organic) return null;
   const normalizedDomain = domain.replace(/^www\./, '');

@@ -62,6 +62,19 @@ export interface ICollectedData {
   screenshotUrl?: string;
   logoUrl?: string;
   collectedAt: Date;
+  competitorData?: {
+    competitors: Array<{
+      name: string;
+      link: string;
+      domain: string;
+      snippet?: string;
+      address?: string;
+      rating?: number;
+      source: 'organic' | 'places';
+    }>;
+    keywords: string[];
+    collectedAt: string;
+  };
 }
 
 const CollectedDataSchema = new Schema<ICollectedData>({
@@ -78,6 +91,7 @@ const CollectedDataSchema = new Schema<ICollectedData>({
   screenshotUrl: String,
   logoUrl: String,
   collectedAt: { type: Date, default: Date.now },
+  competitorData: { type: Schema.Types.Mixed },
 });
 
 // ── AuditAsset (subdocument) ───────────────────────────────────
