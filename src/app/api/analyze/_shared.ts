@@ -42,7 +42,7 @@ export async function saveDimensionResult(
   findings: {
     score: number;
     summary: string;
-    items: Array<{ code: string; status: string; finding: string; recommendation: string; priority: string; dataSource: string }>;
+    items: Array<{ code: string; status: string; finding: string; recommendation: string; priority: string; dataSource: string; sourceUrl?: string }>;
     criticalFlags: string[];
     strengths: string[];
     quickWins: string[];
@@ -56,6 +56,7 @@ export async function saveDimensionResult(
     status: STATUS_MAP[item.status?.toLowerCase?.()] ?? 'FAIL',
     aiNote: item.finding,
     dataSource: item.dataSource,
+    sourceUrl: item.sourceUrl ?? null,
   }));
 
   // If >50% of items are NA, treat score as null (insufficient data)

@@ -24,7 +24,7 @@ Return this exact JSON:
 {
   "score": <number 0-100>,
   "summary": "<2-3 sentences about visual identity quality>",
-  "items": [{ "code": "D5-1", "status": "pass"|"fail"|"partial"|"na", "finding": "<visual observation or 'Asset unavailable'>", "recommendation": "<specific action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "Screenshot"|"Manual" }],
+  "items": [{ "code": "D5-1", "status": "pass"|"fail"|"partial"|"na", "finding": "<visual observation or 'Asset unavailable'>", "recommendation": "<specific action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "Screenshot"|"Manual", "sourceUrl": "<direct URL to the page/asset proving this finding, or null>" }],
   "criticalFlags": [],
   "strengths": [],
   "quickWins": [],

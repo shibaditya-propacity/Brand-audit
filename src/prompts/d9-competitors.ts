@@ -26,7 +26,7 @@ Return this exact JSON:
 {
   "score": <number 0-100>,
   "summary": "<2-3 sentences about competitive position>",
-  "items": [{ "code": "D9-1", "status": "pass"|"fail"|"partial", "finding": "<evidence-based finding>", "recommendation": "<action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "GooglePlaces"|"HikerAPI"|"DataForSEO"|"Manual" }],
+  "items": [{ "code": "D9-1", "status": "pass"|"fail"|"partial", "finding": "<evidence-based finding>", "recommendation": "<action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "GooglePlaces"|"HikerAPI"|"DataForSEO"|"Manual", "sourceUrl": "<direct URL proving this finding, or null>" }],
   "criticalFlags": [],
   "strengths": [],
   "quickWins": []

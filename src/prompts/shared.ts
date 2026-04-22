@@ -18,5 +18,10 @@ SCORING PHILOSOPHY — read carefully before scoring:
 - STRENGTHS ARE MANDATORY: You must identify and articulate at least 3-5 genuine strengths per dimension. Every brand has positive attributes — find them. Strengths make the report actionable and motivating.
 - criticalFlags should only list genuinely serious brand risks, not minor gaps. Keep it to 1-3 maximum unless truly warranted.
 - Recommendations must be specific, actionable, and encouraging — frame them as opportunities, not failures.
-- Always return ONLY valid JSON with no prose, no markdown fences, no explanations outside the JSON.`;
+- Always return ONLY valid JSON with no prose, no markdown fences, no explanations outside the JSON.
+
+SOURCE URL RULES — for every item in the "items" array:
+- Set "sourceUrl" to the most direct URL that proves your finding. Examples: the brand's website URL, a Google Maps link, an Instagram profile URL, a Facebook page URL, a news article URL, a SERP result URL.
+- If the finding is based on data passed to you (not a public URL), set "sourceUrl" to null.
+- Never fabricate or guess URLs. Only use URLs that appear in the data you were given, or well-known public URLs (e.g. the brand's website, their social media handles if provided).`;
 }

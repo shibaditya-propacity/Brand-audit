@@ -42,7 +42,8 @@ Return this JSON structure exactly:
       "finding": "<what you found, citing actual data>",
       "recommendation": "<specific action to take>",
       "priority": "critical" | "high" | "medium" | "low",
-      "dataSource": "PDL" | "DataForSEO" | "Manual"
+      "dataSource": "PDL" | "DataForSEO" | "Manual",
+      "sourceUrl": "<direct URL proving this finding, or null>"
     }
   ],
   "criticalFlags": ["<critical issue 1>", ...],

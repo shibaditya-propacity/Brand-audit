@@ -52,7 +52,7 @@ Evaluate checklist items D3-1 through D3-13. Return this exact JSON:
 {
   "score": <number 0-100>,
   "summary": "<2-3 sentences — only reference data you actually have>",
-  "items": [{ "code": "D3-1", "status": "pass"|"fail"|"partial"|"na", "finding": "<cite actual metrics or 'Data unavailable'>", "recommendation": "<specific action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "Instagram"|"Facebook"|"LinkedIn"|"Manual" }],
+  "items": [{ "code": "D3-1", "status": "pass"|"fail"|"partial"|"na", "finding": "<cite actual metrics or 'Data unavailable'>", "recommendation": "<specific action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "Instagram"|"Facebook"|"LinkedIn"|"Manual", "sourceUrl": "<direct URL to profile/post proving this finding, or null>" }],
   "criticalFlags": [],
   "strengths": [],
   "quickWins": [],

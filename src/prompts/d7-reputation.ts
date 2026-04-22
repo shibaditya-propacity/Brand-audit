@@ -30,7 +30,7 @@ Return this exact JSON:
 {
   "score": <number 0-100>,
   "summary": "<2-3 sentences>",
-  "items": [{ "code": "D7-1", "status": "pass"|"fail"|"partial"|"na", "finding": "<cite review data or 'Data unavailable'>", "recommendation": "<action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "GooglePlaces"|"DataForSEO"|"Manual" }],
+  "items": [{ "code": "D7-1", "status": "pass"|"fail"|"partial"|"na", "finding": "<cite review data or 'Data unavailable'>", "recommendation": "<action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "GooglePlaces"|"DataForSEO"|"Manual", "sourceUrl": "<direct URL to review/listing proving this finding, or null>" }],
   "criticalFlags": [],
   "strengths": [],
   "quickWins": [],

@@ -28,7 +28,7 @@ Evaluate checklist items D10-1 through D10-10. Return this exact JSON:
 {
   "score": <number 0-100>,
   "summary": "<2-3 sentences>",
-  "items": [{ "code": "D10-1", "status": "pass"|"fail"|"partial"|"na", "finding": "<finding or 'Data unavailable'>", "recommendation": "<action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "WebCrawler"|"PDL"|"Manual" }],
+  "items": [{ "code": "D10-1", "status": "pass"|"fail"|"partial"|"na", "finding": "<finding or 'Data unavailable'>", "recommendation": "<action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "WebCrawler"|"PDL"|"Manual", "sourceUrl": "<direct URL proving this finding, or null>" }],
   "criticalFlags": [],
   "strengths": [],
   "quickWins": []

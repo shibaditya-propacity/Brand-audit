@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as Collapsible from '@radix-ui/react-collapsible';
 import { Card, Badge, Callout } from '@tremor/react';
-import { CheckCircle2, XCircle, AlertCircle, MinusCircle, ChevronDown, Info, Database } from 'lucide-react';
+import { CheckCircle2, XCircle, AlertCircle, MinusCircle, ChevronDown, Info, Database, ExternalLink } from 'lucide-react';
 import { getItemsByDimension } from '@/config/checklist';
 import type { AuditDimensionResult } from '@/types/audit';
 import type { DimensionCode } from '@/types/checklist';
@@ -110,6 +110,17 @@ function ChecklistItem({
                         <Database className="h-3 w-3 text-slate-400" />
                         <span className="text-xs text-slate-400">{item.dataSource}</span>
                       </div>
+                    )}
+                    {result?.sourceUrl && (
+                      <a
+                        href={result.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        View source
+                      </a>
                     )}
                   </div>
                 </motion.div>

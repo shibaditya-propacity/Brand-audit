@@ -33,7 +33,7 @@ Evaluate checklist items D2-1 through D2-17. Return this exact JSON:
 {
   "score": <number 0-100>,
   "summary": "<2-3 sentences>",
-  "items": [{ "code": "D2-1", "status": "pass"|"fail"|"partial"|"na", "finding": "<cite actual data or 'Data unavailable'>", "recommendation": "<specific action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "DataForSEO"|"WebCrawler"|"GooglePlaces"|"Manual" }],
+  "items": [{ "code": "D2-1", "status": "pass"|"fail"|"partial"|"na", "finding": "<cite actual data or 'Data unavailable'>", "recommendation": "<specific action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "DataForSEO"|"WebCrawler"|"GooglePlaces"|"Manual", "sourceUrl": "<direct URL proving this finding, or null>" }],
   "criticalFlags": [],
   "strengths": [],
   "quickWins": []

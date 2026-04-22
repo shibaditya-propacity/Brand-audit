@@ -34,6 +34,7 @@ export interface AIItemResult {
   recommendation: string;
   priority: 'critical' | 'high' | 'medium' | 'low';
   dataSource: string;
+  sourceUrl?: string;
 }
 
 export interface AIDimensionOutput {

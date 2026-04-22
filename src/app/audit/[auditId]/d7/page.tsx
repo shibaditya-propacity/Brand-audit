@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import { AppShell } from '@/components/layout/AppShell';
 import { DimensionPageShell } from '@/components/dimension/DimensionPageShell';
 import { AIFindingsPanel } from '@/components/dimension/AIFindingsPanel';
@@ -10,11 +11,38 @@ import { DimensionPageSkeleton } from '@/components/shared/LoadingSkeleton';
 
 export default function D7Page({ params }: { params: { auditId: string } }) {
   const { audit, loading, refetch } = useAuditData(params.auditId);
+  const [collecting, setCollecting] = useState(false);
+  const [collectError, setCollectError] = useState<string | null>(null);
+
   const dimension = audit?.dimensions?.find(d => d.code === 'D7');
   const dimensionScores = Object.fromEntries((audit?.dimensions || []).map(d => [d.code, d.score]));
   const cd = audit?.collectedData;
+  const dev = audit?.developer;
 
   if (loading) return <AppShell auditId={params.auditId}><DimensionPageSkeleton /></AppShell>;
+
+  async function handleCollectReviews() {
+    setCollecting(true);
+    setCollectError(null);
+    try {
+      const res = await fetch('/api/collect/gmb', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ placeId: dev?.gmbPlaceId, auditId: params.auditId }),
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || 'Collection failed');
+      await refetch();
+    } catch (err) {
+      setCollectError(err instanceof Error ? err.message : 'Failed to collect reviews');
+    } finally {
+      setCollecting(false);
+    }
+  }
+
+  const gmbData = cd?.gmbData as Record<string, unknown> | null | undefined;
+  const hasReviews = Array.isArray((gmbData as { reviews?: unknown[] } | null)?.reviews) &&
+    ((gmbData as { reviews: unknown[] })?.reviews?.length ?? 0) > 0;
 
   const leftContent = (
     <>
@@ -25,6 +53,29 @@ export default function D7Page({ params }: { params: { auditId: string } }) {
 
   const rightContent = (
     <>
+      {/* Reviews collection control */}
+      <div className="rounded-lg border bg-white p-3 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium">Google Reviews Data</p>
+          <p className="text-xs text-muted-foreground">
+            {hasReviews
+              ? `${(gmbData as { reviews: unknown[] }).reviews.length} review(s) collected`
+              : gmbData
+              ? 'Collected (no review text — add GOOGLE_PLACES_API_KEY for full reviews)'
+              : 'Not collected yet'}
+          </p>
+          {collectError && <p className="text-xs text-red-500 mt-1">{collectError}</p>}
+        </div>
+        <button
+          onClick={handleCollectReviews}
+          disabled={collecting || !dev?.gmbPlaceId}
+          title={!dev?.gmbPlaceId ? 'No GMB Place ID set for this brand' : undefined}
+          className="shrink-0 text-xs px-3 py-1.5 rounded-md bg-primary text-white hover:bg-primary/90 disabled:opacity-50 transition-colors"
+        >
+          {collecting ? 'Collecting…' : gmbData ? 'Refresh' : 'Collect Now'}
+        </button>
+      </div>
+
       <ReviewsWidget gmbData={cd?.gmbData} />
       <SentimentWidget findings={dimension?.aiFindings} />
     </>

@@ -12,6 +12,7 @@ export interface IChecklistItemResult {
   evidenceUrl?: string;
   aiNote?: string;
   dataSource?: string;
+  sourceUrl?: string;
 }
 
 const ChecklistItemResultSchema = new Schema<IChecklistItemResult>({
@@ -21,6 +22,7 @@ const ChecklistItemResultSchema = new Schema<IChecklistItemResult>({
   evidenceUrl: String,
   aiNote: String,
   dataSource: String,
+  sourceUrl: String,
 });
 
 // ── AuditDimension (subdocument) ───────────────────────────────

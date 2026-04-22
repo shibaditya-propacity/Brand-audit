@@ -23,7 +23,7 @@ Evaluate checklist items D4-1 through D4-16. Return this exact JSON:
 {
   "score": <number 0-100>,
   "summary": "<2-3 sentences>",
-  "items": [{ "code": "D4-1", "status": "pass"|"fail"|"partial"|"na", "finding": "<cite actual ad data or 'Data unavailable'>", "recommendation": "<specific action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "MetaAdLibrary"|"Manual" }],
+  "items": [{ "code": "D4-1", "status": "pass"|"fail"|"partial"|"na", "finding": "<cite actual ad data or 'Data unavailable'>", "recommendation": "<specific action>", "priority": "critical"|"high"|"medium"|"low", "dataSource": "MetaAdLibrary"|"Manual", "sourceUrl": "<direct URL proving this finding, or null>" }],
   "criticalFlags": [],
   "strengths": [],
   "quickWins": []
