@@ -188,32 +188,46 @@ export async function POST(request: NextRequest) {
       whatsapp: scrapedLinks?.whatsapp ?? null,
     };
 
-    // Promoter/founder: KG attrs first, then Groq extraction from search snippets
-    let promoterName: string | null = serperData.promoterName;
-    if (!promoterName) {
-      const founderSerpData = founderSerpRaw as SerperResult | null;
-      const founderContext = [
-        founderSerpData?.knowledgeGraph?.description,
-        ...(founderSerpData?.organic ?? []).slice(0, 4).map((r: Record<string, unknown>) => r.snippet as string ?? ''),
-        wikiSummary,
-      ].filter(Boolean).join('\n');
+    // Build shared context for Groq extraction (search snippets + Wikipedia)
+    const founderSerpData = founderSerpRaw as SerperResult | null;
+    const sharedContext = [
+      (serpRaw as SerperResult | null)?.knowledgeGraph?.description,
+      founderSerpData?.knowledgeGraph?.description,
+      ...(founderSerpData?.organic ?? []).slice(0, 4).map((r: Record<string, unknown>) => r.snippet as string ?? ''),
+      ...(((serpRaw as SerperResult | null)?.organic ?? []).slice(0, 3).map((r: Record<string, unknown>) => r.snippet as string ?? '')),
+      wikiSummary,
+    ].filter(Boolean).join('\n');
 
-      if (founderContext.trim()) {
-        promoterName = await extractFieldFromText(
-          `founder or promoter or managing director of ${brandName} (a real estate developer)`,
-          founderContext,
-          'Rajiv Singhania',
-        ).catch(() => null);
-      }
-    }
+    // Run Groq extractions in parallel for missing fields
+    const needsPromoter = !serperData.promoterName;
+    const needsIndustry = !serperData.industry;
+    const needsFoundedYear = !serperData.foundedYear;
+
+    const [groqPromoter, groqIndustry, groqFoundedYear] = await Promise.all([
+      needsPromoter && sharedContext.trim()
+        ? extractFieldFromText(`founder or promoter or managing director of ${brandName} (a real estate developer)`, sharedContext, 'Rajiv Singhania').catch(() => null)
+        : Promise.resolve(null),
+      needsIndustry && sharedContext.trim()
+        ? extractFieldFromText(`industry or business type of ${brandName}`, sharedContext, 'Real Estate Developer').catch(() => null)
+        : Promise.resolve(null),
+      needsFoundedYear && sharedContext.trim()
+        ? extractFieldFromText(`year ${brandName} was founded or established`, sharedContext, '2005').catch(() => null)
+        : Promise.resolve(null),
+    ]);
+
+    const promoterName = serperData.promoterName ?? groqPromoter;
+    const industry = serperData.industry ?? groqIndustry;
+    // Ensure foundedYear is a 4-digit year string
+    const rawFoundedYear = serperData.foundedYear ?? groqFoundedYear;
+    const foundedYear = rawFoundedYear ? String(rawFoundedYear).replace(/[^0-9]/g, '').slice(0, 4) || null : null;
 
     return NextResponse.json({
       success: true,
       data: {
         website: resolvedWebsite,
         resolvedDomain: domain,
-        industry: serperData.industry,
-        foundedYear: serperData.foundedYear,
+        industry,
+        foundedYear,
         address,
         phone,
         promoterName,

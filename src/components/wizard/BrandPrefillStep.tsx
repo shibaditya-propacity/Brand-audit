@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import {
   Check, AlertCircle, Pencil, Trash2, Loader2,
-  Globe, MapPin, Phone, Briefcase, Calendar,
+  Globe, MapPin, Briefcase, Calendar,
   Linkedin, Instagram, Facebook, Youtube, Twitter,
   Image, ArrowRight, ChevronLeft, User,
 } from 'lucide-react';
@@ -270,29 +270,12 @@ export function BrandPrefillStep({ onContinue, onBack }: BrandPrefillStepProps) 
             transform: v => v.split(',')[0]?.trim() ?? v,
           },
           {
-            id: 'phone',
-            label: 'Phone',
-            icon: <Phone className="h-3.5 w-3.5" />,
-            value: d?.phone ?? null,
-            source: d?.phone ? 'Serper' : null,
-            savesTo: 'whatsappNumber',
-          },
-          {
             id: 'industry',
             label: 'Industry',
             icon: <Briefcase className="h-3.5 w-3.5" />,
             value: d?.industry ?? null,
             source: d?.industry ? 'Serper' : null,
             savesTo: 'positioning',
-          },
-          {
-            id: 'foundedYear',
-            label: 'Founded Year',
-            icon: <Calendar className="h-3.5 w-3.5" />,
-            value: d?.foundedYear ?? null,
-            source: d?.foundedYear ? 'Serper' : null,
-            savesTo: 'yearEstablished',
-            numeric: true,
           },
           {
             id: 'promoterName',
@@ -341,14 +324,6 @@ export function BrandPrefillStep({ onContinue, onBack }: BrandPrefillStepProps) 
             value: s?.twitterUrl ?? null,
             source: s?.twitterUrl ? 'Web' : null,
             // display-only — no DeveloperInput field for twitter
-          },
-          {
-            id: 'whatsappNumber',
-            label: 'WhatsApp',
-            icon: <Phone className="h-3.5 w-3.5" />,
-            value: s?.whatsappNumber ?? null,
-            source: s?.whatsappNumber ? 'Web' : null,
-            savesTo: 'whatsappNumber',
           },
           {
             id: 'logoUrl',
