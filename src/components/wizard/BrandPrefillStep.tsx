@@ -5,7 +5,7 @@ import {
   Check, AlertCircle, Pencil, Trash2, Loader2,
   Globe, MapPin, Phone, Briefcase, Calendar,
   Linkedin, Instagram, Facebook, Youtube, Twitter,
-  Image, ArrowRight, ChevronLeft,
+  Image, ArrowRight, ChevronLeft, User,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,6 +39,7 @@ interface PrefillResponse {
     foundedYear: string | null;
     address: string | null;
     phone: string | null;
+    promoterName: string | null;
     description: string | null;
     logoUrl: string | null;
     socials: {
@@ -292,6 +293,14 @@ export function BrandPrefillStep({ onContinue, onBack }: BrandPrefillStepProps) 
             source: d?.foundedYear ? 'Serper' : null,
             savesTo: 'yearEstablished',
             numeric: true,
+          },
+          {
+            id: 'promoterName',
+            label: 'Promoter / Founder',
+            icon: <User className="h-3.5 w-3.5" />,
+            value: d?.promoterName ?? null,
+            source: d?.promoterName ? 'Web' : null,
+            savesTo: 'promoterName',
           },
           {
             id: 'linkedinUrl',

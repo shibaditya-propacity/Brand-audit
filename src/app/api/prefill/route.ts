@@ -3,6 +3,7 @@ import { getSerpResults, getPlacesResults, getSocialProfileUrl } from '@/lib/api
 import { scrapeSocialLinks } from '@/lib/apis/socialScraper';
 import { checkClearbitLogo } from '@/lib/apis/shotApi';
 import { fetchWithRetry } from '@/lib/fetchWithRetry';
+import { extractFieldFromText } from '@/lib/groq';
 
 function extractDomain(url: string | undefined | null): string | null {
   if (!url) return null;
@@ -57,6 +58,7 @@ interface SerperExtracted {
   headquarters: string | null;
   phone: string | null;
   description: string | null;
+  promoterName: string | null;
   socialLinks: Record<string, string | null>;
 }
 
@@ -84,6 +86,12 @@ function extractFromSerper(serper: SerperResult): SerperExtracted {
   const foundedRaw = attrs['Founded'] ?? attrs['Year Founded'] ?? null;
   const hqRaw = attrs['Headquarters'] ?? attrs['Location'] ?? null;
 
+  // Promoter / founder from KG attributes (many real estate KGs have these)
+  const promoterRaw =
+    attrs['Founder'] ?? attrs['Founders'] ?? attrs['Co-founder'] ??
+    attrs['Promoter'] ?? attrs['Chairman'] ?? attrs['Managing Director'] ??
+    attrs['CEO'] ?? attrs['CMD'] ?? null;
+
   return {
     website,
     industry: kg?.type ?? null,
@@ -91,6 +99,7 @@ function extractFromSerper(serper: SerperResult): SerperExtracted {
     headquarters: hqRaw ?? local?.address ?? null,
     phone: local?.phone ?? null,
     description: kg?.description ?? null,
+    promoterName: promoterRaw ?? null,
     socialLinks,
   };
 }
@@ -119,15 +128,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'brandName required' });
     }
 
-    // Run Serper web search + Places search in parallel
-    const [serpRaw, placesRaw] = await Promise.all([
+    // Run Serper web search + Places search + founder search in parallel
+    const [serpRaw, placesRaw, founderSerpRaw] = await Promise.all([
       getSerpResults(`${brandName} official website`).catch(() => null),
       getPlacesResults(`${brandName}`).catch(() => null),
+      getSerpResults(`${brandName} founder promoter chairman director`).catch(() => null),
     ]);
 
     const serperData: SerperExtracted = serpRaw
       ? extractFromSerper(serpRaw as SerperResult)
-      : { website: null, industry: null, foundedYear: null, headquarters: null, phone: null, description: null, socialLinks: { instagram: null, linkedin: null, facebook: null, youtube: null, twitter: null } };
+      : { website: null, industry: null, foundedYear: null, headquarters: null, phone: null, description: null, promoterName: null, socialLinks: { instagram: null, linkedin: null, facebook: null, youtube: null, twitter: null } };
 
     // Extract address + phone from Places if not found in web search
     const placesData = placesRaw as PlacesResult | null;
@@ -144,11 +154,7 @@ export async function POST(request: NextRequest) {
       ? extractDomain(providedDomain)
       : extractDomain(serperData.website ?? websiteFromPlaces);
 
-    // Run all enrichment in parallel:
-    // - scrape homepage for social links
-    // - targeted site: searches for each social platform (only if not already found in KG)
-    // - Wikipedia summary
-    // - Clearbit logo
+    // Run all enrichment in parallel
     const needsInstagram = !serperData.socialLinks.instagram;
     const needsLinkedin = !serperData.socialLinks.linkedin;
     const needsFacebook = !serperData.socialLinks.facebook;
@@ -182,6 +188,25 @@ export async function POST(request: NextRequest) {
       whatsapp: scrapedLinks?.whatsapp ?? null,
     };
 
+    // Promoter/founder: KG attrs first, then Groq extraction from search snippets
+    let promoterName: string | null = serperData.promoterName;
+    if (!promoterName) {
+      const founderSerpData = founderSerpRaw as SerperResult | null;
+      const founderContext = [
+        founderSerpData?.knowledgeGraph?.description,
+        ...(founderSerpData?.organic ?? []).slice(0, 4).map((r: Record<string, unknown>) => r.snippet as string ?? ''),
+        wikiSummary,
+      ].filter(Boolean).join('\n');
+
+      if (founderContext.trim()) {
+        promoterName = await extractFieldFromText(
+          `founder or promoter or managing director of ${brandName} (a real estate developer)`,
+          founderContext,
+          'Rajiv Singhania',
+        ).catch(() => null);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       data: {
@@ -191,6 +216,7 @@ export async function POST(request: NextRequest) {
         foundedYear: serperData.foundedYear,
         address,
         phone,
+        promoterName,
         description: wikiSummary ?? serperData.description,
         logoUrl,
         socials: {
