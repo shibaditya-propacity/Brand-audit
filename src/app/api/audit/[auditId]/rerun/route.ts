@@ -73,15 +73,14 @@ export async function GET(req: NextRequest, { params }: { params: { auditId: str
       try {
         if (!dimension || !DIMENSION_SOURCES[dimension]) {
           send({ stage: 'error', message: `Unknown dimension: ${dimension}` });
-          controller.close();
           return;
         }
 
         await connectDB();
         const audit = await Audit.findById(auditId).lean();
-        if (!audit) { send({ stage: 'error', message: 'Audit not found' }); controller.close(); return; }
+        if (!audit) { send({ stage: 'error', message: 'Audit not found' }); return; }
         const dev = await Developer.findById(audit.developerId).lean() as Record<string, string | undefined> | null;
-        if (!dev) { send({ stage: 'error', message: 'Developer not found' }); controller.close(); return; }
+        if (!dev) { send({ stage: 'error', message: 'Developer not found' }); return; }
 
         const sourcesNeeded = DIMENSION_SOURCES[dimension];
 
@@ -124,7 +123,6 @@ export async function GET(req: NextRequest, { params }: { params: { auditId: str
         if (analyzeJson.success === false) {
           send({ stage: 'analyzing', dimension, status: 'failed' });
           send({ stage: 'error', message: analyzeJson.error || 'Analysis failed' });
-          controller.close();
           return;
         }
 

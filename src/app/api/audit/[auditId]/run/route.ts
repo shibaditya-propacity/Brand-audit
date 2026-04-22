@@ -24,13 +24,11 @@ export async function GET(_req: NextRequest, { params }: { params: { auditId: st
         const audit = await Audit.findById(auditId).lean();
         if (!audit) {
           send({ stage: 'error', message: 'Audit not found' });
-          controller.close();
           return;
         }
         const dev = await Developer.findById(audit.developerId).lean();
         if (!dev) {
           send({ stage: 'error', message: 'Developer not found' });
-          controller.close();
           return;
         }
 
