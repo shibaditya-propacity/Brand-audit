@@ -31,17 +31,27 @@ export async function analyzeWithVision(
   imageMediaType: 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp' = 'image/png'
 ): Promise<string> {
   const imgRes = await fetch(imageUrl);
+  if (!imgRes.ok) throw new Error(`Failed to fetch image: ${imgRes.status} ${imageUrl}`);
   const imgBuffer = await imgRes.arrayBuffer();
   const base64Data = Buffer.from(imgBuffer).toString('base64');
 
+  // Detect media type from Content-Type header — overrides the caller's guess
+  const contentType = imgRes.headers.get('content-type') ?? '';
+  const detectedType = (
+    contentType.includes('jpeg') || contentType.includes('jpg') ? 'image/jpeg' :
+    contentType.includes('webp') ? 'image/webp' :
+    contentType.includes('gif') ? 'image/gif' :
+    imageMediaType
+  ) as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp';
+
   const response = await anthropic.messages.create({
     model: CLAUDE_MODEL,
-    max_tokens: 2048,
+    max_tokens: 4096,
     system: 'You are an expert brand visual designer. Always return valid JSON only, no prose, no markdown fences.',
     messages: [{
       role: 'user',
       content: [
-        { type: 'image', source: { type: 'base64', media_type: imageMediaType, data: base64Data } },
+        { type: 'image', source: { type: 'base64', media_type: detectedType, data: base64Data } },
         { type: 'text', text: prompt },
       ],
     }],
