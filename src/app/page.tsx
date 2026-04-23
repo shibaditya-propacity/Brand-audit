@@ -3,13 +3,20 @@ import { Plus, Building2, ChevronRight, BarChart3 } from 'lucide-react';
 import { TopBar } from '@/components/layout/TopBar';
 import { ScoreBadge } from '@/components/shared/ScoreBadge';
 import { formatDate } from '@/lib/utils';
+import connectDB from '@/lib/mongodb';
+import { Audit, Developer } from '@/lib/models';
 
 async function getAudits() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/audit/list`, { cache: 'no-store' });
-    if (!res.ok) return [];
-    return res.json();
+    await connectDB();
+    const audits = await Audit.find().sort({ createdAt: -1 }).limit(50).lean();
+    const withDevelopers = await Promise.all(
+      audits.map(async (audit) => {
+        const developer = await Developer.findById(audit.developerId).lean();
+        return { ...audit, developer };
+      })
+    );
+    return JSON.parse(JSON.stringify(withDevelopers));
   } catch {
     return [];
   }
