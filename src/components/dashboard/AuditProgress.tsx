@@ -102,9 +102,31 @@ export function AuditProgress({ auditId, onComplete }: AuditProgressProps) {
     };
 
     es.onerror = () => {
-      addProgressEvent({ stage: 'error', message: 'Connection lost' });
       es.close();
-      setIsRunning(false);
+      if (completedRef.current) return;
+      // SSE dropped (Render proxy timeout) — audit may still be running server-side.
+      // Poll until it reaches a terminal state.
+      addProgressEvent({ stage: 'error', message: 'Connection lost — checking status...' });
+      const poll = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/audit/${auditId}`);
+          if (!res.ok) return;
+          const data = await res.json();
+          if (data.status === 'COMPLETE') {
+            clearInterval(poll);
+            completedRef.current = true;
+            setIsRunning(false);
+            addProgressEvent({ stage: 'complete', overallScore: data.overallScore });
+            onComplete?.();
+          } else if (data.status === 'FAILED') {
+            clearInterval(poll);
+            completedRef.current = true;
+            setIsRunning(false);
+            addProgressEvent({ stage: 'error', message: 'Audit failed on server' });
+          }
+        } catch { /* keep polling */ }
+      }, 4000);
+      return () => clearInterval(poll);
     };
 
     return () => { es.close(); };

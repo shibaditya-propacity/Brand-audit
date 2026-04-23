@@ -5,7 +5,8 @@ import { Audit, Developer } from '@/lib/models';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
-const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+// Use localhost for internal server-to-server calls — avoids routing through the public internet
+const BASE_URL = `http://localhost:${process.env.PORT || 3000}`;
 
 export async function GET(_req: NextRequest, { params }: { params: { auditId: string } }) {
   const { auditId } = params;
