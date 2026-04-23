@@ -4,7 +4,7 @@ export const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-export const CLAUDE_MODEL = 'claude-sonnet-4-5';
+export const CLAUDE_MODEL = 'claude-sonnet-4-6';
 
 export async function analyzeWithClaude(prompt: string, systemPrompt?: string): Promise<string> {
   const response = await anthropic.messages.create({
