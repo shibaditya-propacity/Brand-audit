@@ -1,0 +1,20 @@
+{
+  "functions": {
+    "src/app/api/audit/[auditId]/run/route.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/audit/[auditId]/rerun/route.ts": {
+      "maxDuration": 300
+    },
+    "src/app/api/analyze/d1/route.ts": { "maxDuration": 60 },
+    "src/app/api/analyze/d2/route.ts": { "maxDuration": 60 },
+    "src/app/api/analyze/d3/route.ts": { "maxDuration": 60 },
+    "src/app/api/analyze/d4/route.ts": { "maxDuration": 60 },
+    "src/app/api/analyze/d5/route.ts": { "maxDuration": 60 },
+    "src/app/api/analyze/d6/route.ts": { "maxDuration": 60 },
+    "src/app/api/analyze/d7/route.ts": { "maxDuration": 60 },
+    "src/app/api/analyze/d8/route.ts": { "maxDuration": 60 },
+    "src/app/api/analyze/d9/route.ts": { "maxDuration": 60 },
+    "src/app/api/analyze/d10/route.ts": { "maxDuration": 60 }
+  }
+}
