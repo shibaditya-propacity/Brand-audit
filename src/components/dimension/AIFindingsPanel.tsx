@@ -1,4 +1,4 @@
-import { Card, CategoryBar, Callout, List, ListItem } from '@tremor/react';
+import { Card, CategoryBar, List, ListItem } from '@tremor/react';
 import { TrendingUp, TrendingDown, Zap } from 'lucide-react';
 import type { AuditDimensionResult } from '@/types/audit';
 import type { AIDimensionOutput } from '@/types/aiOutputs';
@@ -76,18 +76,17 @@ export function AIFindingsPanel({ dimension }: AIFindingsPanelProps) {
       </div>
 
       {findings.quickWins && findings.quickWins.length > 0 && (
-        <Callout
-          title="Quick Wins"
-          icon={Zap}
-          color="yellow"
-          className="mt-2"
-        >
-          <ul className="space-y-1 mt-1">
+        <div className="rounded-lg border border-yellow-200 dark:border-yellow-800/50 bg-yellow-50 dark:bg-yellow-900/20 p-3 mt-2">
+          <div className="flex items-center gap-1.5 mb-2">
+            <Zap className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-400" />
+            <span className="text-xs font-semibold text-yellow-700 dark:text-yellow-400">Quick Wins</span>
+          </div>
+          <ul className="space-y-1">
             {findings.quickWins.map((w, i) => (
-              <li key={i} className="text-xs">→ {w}</li>
+              <li key={i} className="text-xs text-yellow-800 dark:text-yellow-300">→ {w}</li>
             ))}
           </ul>
-        </Callout>
+        </div>
       )}
     </Card>
   );

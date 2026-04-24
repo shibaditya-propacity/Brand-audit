@@ -25,8 +25,11 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Dynamic import avoids build issues with pdf-parse's internal require() calls
-    const pdfParse = (await import('pdf-parse')).default;
+    // Dynamic import avoids build issues with pdf-parse's internal require() calls.
+    // The ESM build exports the function as the module itself (no .default wrapper).
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mod: any = await import('pdf-parse');
+    const pdfParse = (mod.default ?? mod) as (buf: Buffer) => Promise<{ text: string; numpages: number }>;
     const parsed = await pdfParse(buffer);
 
     const textContent = parsed.text.slice(0, MAX_TEXT_CHARS).trim();
