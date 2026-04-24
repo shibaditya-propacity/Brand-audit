@@ -19,9 +19,9 @@ const DIMENSION_SOURCES: Record<string, string[]> = {
   D4:  ['MetaAdLibrary'],
   D5:  ['Screenshot'],
   D6:  ['WebCrawler'],
-  D7:  ['GooglePlaces'],
+  D7:  ['Reviews'],
   D8:  ['WebCrawler', 'DataForSEO'],
-  D9:  ['GooglePlaces', 'HikerAPI', 'DataForSEO'],
+  D9:  ['Reviews', 'HikerAPI', 'DataForSEO'],
   D10: ['WebCrawler', 'PDL'],
 };
 
@@ -40,8 +40,8 @@ function buildCollectTasks(
   switch (source) {
     case 'PDL':
       return { source, urlKey: 'company-data', enabled: !!(dev.domain || dev.brandName), body: { domain: dev.domain, brandName: dev.brandName, auditId } };
-    case 'GooglePlaces':
-      return { source, urlKey: 'gmb', enabled: !!dev.gmbPlaceId, body: { placeId: dev.gmbPlaceId, auditId } };
+    case 'Reviews':
+      return { source, urlKey: 'gmb', enabled: !!dev.brandName, body: { placeId: dev.gmbPlaceId, auditId } };
     case 'DataForSEO':
       return { source, urlKey: 'seo', enabled: !!(dev.domain || dev.brandName), body: { domain: dev.domain, brandName: dev.brandName, auditId } };
     case 'WebCrawler':

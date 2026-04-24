@@ -13,8 +13,10 @@ export async function POST(request: NextRequest) {
     const cd = audit.collectedData;
 
     const missing: string[] = [];
-    if (!cd?.gmbData) missing.push('Google My Business data (rating, reviews, address)');
-    if (!cd?.googleReviews) missing.push('Google Reviews data');
+    const reviews = cd?.googleReviews as { overallRating?: number | null; fetchedCount?: number } | null | undefined;
+    const hasAnyReviewData = reviews && (reviews.overallRating != null || (reviews.fetchedCount ?? 0) > 0);
+    if (!cd?.gmbData && !hasAnyReviewData) missing.push('Google My Business / review data (rating, address, reviews)');
+    if (!hasAnyReviewData) missing.push('Google Reviews data');
 
     const prompt = buildD7Prompt(dev, cd?.gmbData ?? null, cd?.googleReviews ?? null, auditDate)
       + buildDataAvailabilityNote(missing);

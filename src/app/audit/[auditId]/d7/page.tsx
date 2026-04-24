@@ -40,9 +40,8 @@ export default function D7Page({ params }: { params: { auditId: string } }) {
     }
   }
 
-  const gmbData = cd?.gmbData as Record<string, unknown> | null | undefined;
-  const hasReviews = Array.isArray((gmbData as { reviews?: unknown[] } | null)?.reviews) &&
-    ((gmbData as { reviews: unknown[] })?.reviews?.length ?? 0) > 0;
+  const reviewSummary = cd?.googleReviews as { fetchedCount?: number; overallRating?: number | null; totalReviews?: number | null } | null | undefined;
+  const hasReviews    = reviewSummary != null && (reviewSummary.overallRating != null || (reviewSummary.fetchedCount ?? 0) > 0);
 
   const leftContent = (
     <>
@@ -54,25 +53,24 @@ export default function D7Page({ params }: { params: { auditId: string } }) {
   const rightContent = (
     <>
       {/* Reviews collection control */}
-      <div className="rounded-lg border bg-white p-3 flex items-center justify-between gap-3">
+      <div className="rounded-lg border bg-white dark:bg-slate-900 p-3 flex items-center justify-between gap-3">
         <div>
           <p className="text-sm font-medium">Google Reviews Data</p>
           <p className="text-xs text-muted-foreground">
             {hasReviews
-              ? `${(gmbData as { reviews: unknown[] }).reviews.length} review(s) collected`
-              : gmbData
-              ? 'Collected (no review text — add GOOGLE_PLACES_API_KEY for full reviews)'
+              ? reviewSummary!.fetchedCount
+                ? `${reviewSummary!.fetchedCount} review(s) collected · ${reviewSummary!.overallRating ?? '—'}★ overall`
+                : `Rating: ${reviewSummary!.overallRating}★ · ${reviewSummary!.totalReviews ?? '—'} total reviews`
               : 'Not collected yet'}
           </p>
           {collectError && <p className="text-xs text-red-500 mt-1">{collectError}</p>}
         </div>
         <button
           onClick={handleCollectReviews}
-          disabled={collecting || !dev?.gmbPlaceId}
-          title={!dev?.gmbPlaceId ? 'No GMB Place ID set for this brand' : undefined}
+          disabled={collecting}
           className="shrink-0 text-xs px-3 py-1.5 rounded-md bg-primary text-white hover:bg-primary/90 disabled:opacity-50 transition-colors"
         >
-          {collecting ? 'Collecting…' : gmbData ? 'Refresh' : 'Collect Now'}
+          {collecting ? 'Collecting…' : hasReviews ? 'Refresh' : 'Collect Now'}
         </button>
       </div>
 
