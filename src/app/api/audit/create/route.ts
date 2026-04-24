@@ -32,6 +32,10 @@ const DeveloperSchema = z.object({
   crmTool: z.string().optional(),
   competitors: z.array(z.string()).default([]),
   metaAdLibraryName: z.string().optional(),
+  collateralDocs: z.array(z.object({
+    name: z.string(),
+    textContent: z.string(),
+  })).default([]),
 });
 
 const CreateAuditSchema = z.object({

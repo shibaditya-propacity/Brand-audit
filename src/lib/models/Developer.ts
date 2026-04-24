@@ -30,6 +30,7 @@ export interface IDeveloper extends Document {
   competitors: string[];
   metaAdLibraryName?: string;
   pdlData?: Record<string, unknown>;
+  collateralDocs?: Array<{ name: string; textContent: string }>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -65,6 +66,10 @@ const DeveloperSchema = new Schema<IDeveloper>(
     competitors: { type: [String], default: [] },
     metaAdLibraryName: String,
     pdlData: { type: Schema.Types.Mixed },
+    collateralDocs: {
+      type: [{ name: String, textContent: String }],
+      default: [],
+    },
   },
   { timestamps: true }
 );

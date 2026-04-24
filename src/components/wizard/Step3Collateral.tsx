@@ -3,6 +3,7 @@ import { useAuditStore } from '@/store/auditStore';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ChipMultiSelect } from '@/components/shared/ChipMultiSelect';
+import { CollateralDocUpload } from '@/components/shared/CollateralDocUpload';
 
 const AD_PLATFORM_OPTIONS = ['Meta (Facebook/Instagram)', 'Google Ads', 'YouTube Ads', 'LinkedIn Ads', '99acres', 'Housing.com', 'MagicBricks'];
 const CRM_OPTIONS = ['Salesforce', 'HubSpot', 'Zoho CRM', 'LeadSquared', 'Sell.do', 'Custom', 'None'];
@@ -15,6 +16,15 @@ export function Step3Collateral() {
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-semibold">Market & Technology</h2>
+      {/* Collateral Documents */}
+      <div className="space-y-1.5">
+        <Label>Collateral Documents <span className="text-slate-400 font-normal">(optional, PDF only · up to 3)</span></Label>
+        <CollateralDocUpload
+          value={d.collateralDocs ?? []}
+          onChange={docs => updateFormData({ collateralDocs: docs })}
+        />
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div className="col-span-2">
           <Label>Competitors (up to 5)</Label>

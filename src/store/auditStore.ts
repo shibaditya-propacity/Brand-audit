@@ -36,6 +36,7 @@ const initialWizardState: WizardState = {
     reraNumbers: [],
     adPlatforms: [],
     competitors: [],
+    collateralDocs: [],
   },
   auditMeta: {},
 };

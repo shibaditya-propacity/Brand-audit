@@ -1,6 +1,6 @@
 'use client';
 import { useAuditStore } from '@/store/auditStore';
-import { Check } from 'lucide-react';
+import { Check, FileText, AlertTriangle } from 'lucide-react';
 
 export function Step4Confirm() {
   const { wizard } = useAuditStore();
@@ -34,6 +34,26 @@ export function Step4Confirm() {
           </div>
         ))}
       </div>
+      {/* Collateral docs summary */}
+      {d.collateralDocs && d.collateralDocs.length > 0 ? (
+        <div className="rounded-md border border-indigo-200 bg-indigo-50 p-3 space-y-1">
+          <p className="text-xs font-medium text-indigo-800 flex items-center gap-1.5">
+            <FileText className="h-3.5 w-3.5" />
+            {d.collateralDocs.length} collateral doc{d.collateralDocs.length > 1 ? 's' : ''} uploaded
+          </p>
+          {d.collateralDocs.map((doc, i) => (
+            <p key={i} className="text-xs text-indigo-700 pl-5">{doc.name}.pdf</p>
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-md border border-amber-200 bg-amber-50 p-3">
+          <p className="text-xs text-amber-800 flex items-center gap-1.5">
+            <AlertTriangle className="h-3.5 w-3.5" />
+            No collateral documents uploaded — collateral analysis will be incomplete.
+          </p>
+        </div>
+      )}
+
       <div className="rounded-md border border-amber-200 bg-amber-50 p-3">
         <p className="text-xs text-amber-800">Clicking <strong>Launch Audit</strong> will trigger live API calls to Google Places, DataForSEO, Instagram (HikerAPI), Meta Ad Library, and Claude AI. This uses real API credits.</p>
       </div>

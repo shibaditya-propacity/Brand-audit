@@ -142,6 +142,17 @@ export async function GET(_req: NextRequest, { params }: { params: { auditId: st
         }
         const overallScore = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : null;
 
+        // Run collateral analysis (Groq, from uploaded docs) — non-blocking, won't fail the audit
+        try {
+          await fetch(`${BASE_URL}/api/analyze/collateral`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ auditId }),
+          });
+        } catch (err) {
+          console.error('[collateral] analysis failed:', err instanceof Error ? err.message : err);
+        }
+
         await Audit.findByIdAndUpdate(auditId, { status: 'COMPLETE', overallScore });
         send({ stage: 'complete', overallScore, collectedSources, failedSources });
       } catch (error) {

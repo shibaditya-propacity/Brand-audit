@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { useAuditStore } from '@/store/auditStore';
 import type { DeveloperInput } from '@/types/audit';
+import { CollateralDocUpload } from '@/components/shared/CollateralDocUpload';
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -438,6 +439,21 @@ export function BrandPrefillStep({ onContinue, onBack }: BrandPrefillStepProps) 
           No data found for <strong>{brandName}</strong>. You can fill in details manually in the next steps.
         </p>
       )}
+
+      {/* Collateral documents section */}
+      <div className="mt-5 pt-5 border-t space-y-2">
+        <div>
+          <p className="text-sm font-medium text-slate-700">Collateral Documents</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Upload brochures, project decks, or pricing sheets (PDF, up to 3). These are analysed separately
+            using Groq AI and only the uploaded content is used.
+          </p>
+        </div>
+        <CollateralDocUpload
+          value={wizard.formData.collateralDocs ?? []}
+          onChange={docs => updateFormData({ collateralDocs: docs })}
+        />
+      </div>
 
       {/* Footer actions */}
       <div className="flex items-center justify-between pt-5 mt-5 border-t">

@@ -14,6 +14,7 @@ import { AuditProgress } from './AuditProgress';
 import { DimensionGrid } from './DimensionGrid';
 import type { AuditWithRelations } from '@/types/audit';
 import type { AIDimensionOutput } from '@/types/aiOutputs';
+import { CollateralAnalysisPanel } from '@/components/shared/CollateralAnalysisPanel';
 
 interface AuditOverviewProps {
   audit: AuditWithRelations;
@@ -336,6 +337,15 @@ export function AuditOverview({ audit, onRefetch }: AuditOverviewProps) {
           </Card>
         </div>
       )}
+
+      {/* Collateral Analysis */}
+      <div>
+        <h2 className="font-semibold text-slate-900 dark:text-slate-100 mb-3">Collateral Analysis</h2>
+        <CollateralAnalysisPanel
+          analysis={audit.collectedData?.collateralAnalysis}
+          hasDocs={!!(audit.developer as { collateralDocs?: unknown[] })?.collateralDocs?.length}
+        />
+      </div>
 
       {/* Dimension Grid */}
       <div>

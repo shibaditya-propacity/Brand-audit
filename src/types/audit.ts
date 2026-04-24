@@ -32,6 +32,7 @@ export interface DeveloperInput {
   crmTool?: string;
   competitors: string[];
   metaAdLibraryName?: string;
+  collateralDocs?: Array<{ name: string; textContent: string }>;
 }
 
 export interface AuditDimensionResult {
@@ -105,6 +106,17 @@ export interface DiscoveredCompetitor {
   source: 'organic' | 'places';
 }
 
+export interface CollateralAnalysisResult {
+  summary: string;
+  keyFindings: string[];
+  marketPositioning: string;
+  score: number;
+  gaps: string[];
+  recommendations: string[];
+  docsAnalyzed: number;
+  analyzedAt: string;
+}
+
 export interface CollectedDataRecord {
   gmbData: unknown;
   seoKeywords: unknown;
@@ -117,6 +129,7 @@ export interface CollectedDataRecord {
   screenshotUrl: string | null;
   logoUrl: string | null;
   collectedAt?: string;
+  collateralAnalysis?: CollateralAnalysisResult;
   competitorData?: {
     competitors: DiscoveredCompetitor[];
     keywords: string[];
