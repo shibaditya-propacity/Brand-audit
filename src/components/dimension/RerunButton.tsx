@@ -17,6 +17,7 @@ interface ProgressEvent {
   status?: 'in_progress' | 'done' | 'failed';
   dimension?: string;
   score?: number | null;
+  overallScore?: number | null;
   message?: string;
 }
 

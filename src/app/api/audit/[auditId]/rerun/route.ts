@@ -132,9 +132,10 @@ export async function GET(req: NextRequest, { params }: { params: { auditId: str
 
         // ── Recalculate overall score ─────────────────────────────────────────
         const freshAudit = await Audit.findById(auditId).lean() as {
-          dimensions?: Array<{ code: string; score?: number | null }>;
+          dimensions?: Array<{ code: string; score?: number | null; status?: string }>;
         } | null;
 
+        let overallScore: number | null = null;
         if (freshAudit) {
           let totalWeight = 0;
           let weightedSum = 0;
@@ -144,11 +145,22 @@ export async function GET(req: NextRequest, { params }: { params: { auditId: str
             weightedSum += d.score * w;
             totalWeight += w;
           }
-          const overallScore = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : null;
-          await Audit.findByIdAndUpdate(auditId, { overallScore });
+          overallScore = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : null;
+
+          // Mark audit COMPLETE when every dimension has been analyzed
+          const allDimCodes = Object.keys(WEIGHTS); // D1…D10
+          const allAnalyzed = allDimCodes.every(code => {
+            const d = (freshAudit.dimensions ?? []).find(d => d.code === code);
+            return d && (d.status === 'complete' || d.status === 'insufficient_data');
+          });
+
+          await Audit.findByIdAndUpdate(auditId, {
+            overallScore,
+            ...(allAnalyzed ? { status: 'COMPLETE' } : {}),
+          });
         }
 
-        send({ stage: 'complete', dimension, score: newScore });
+        send({ stage: 'complete', dimension, score: newScore, overallScore });
       } catch (err) {
         send({ stage: 'error', message: err instanceof Error ? err.message : 'Unknown error' });
       } finally {
