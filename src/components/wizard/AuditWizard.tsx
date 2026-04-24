@@ -185,6 +185,13 @@ export function AuditWizard() {
       if (!res.ok) throw new Error('Failed to create audit');
       const audit = await res.json();
       resetWizard();
+
+      // Existing complete audit found — skip analysis and go straight to report
+      if (audit.existing) {
+        router.push(`/audit/${audit._id}`);
+        return;
+      }
+
       setAnalyzingAuditId(audit._id);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Unknown error');

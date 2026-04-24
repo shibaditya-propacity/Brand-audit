@@ -51,6 +51,33 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { developer: devData, auditorName, objective, knownRedFlags } = CreateAuditSchema.parse(body);
 
+    // ── Check for an existing COMPLETE audit for the same brand ──────────────
+    // Match on brandName (case-insensitive) or domain (if provided).
+    // This avoids re-running expensive LLM analysis for the same company.
+    const nameFilter = { brandName: { $regex: `^${devData.brandName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' } };
+    const domainFilter = devData.domain ? { domain: devData.domain.toLowerCase() } : null;
+    const existingDev = await Developer.findOne(
+      domainFilter ? { $or: [nameFilter, domainFilter] } : nameFilter
+    ).lean() as { _id: unknown } | null;
+
+    if (existingDev) {
+      const existingAudit = await Audit.findOne({
+        developerId: existingDev._id,
+        status: 'COMPLETE',
+      })
+        .sort({ createdAt: -1 })
+        .lean();
+
+      if (existingAudit) {
+        const developer = await Developer.findById(existingDev._id).lean();
+        return NextResponse.json(
+          { ...existingAudit, developer, existing: true },
+          { status: 200 },
+        );
+      }
+    }
+    // ── No existing audit — create fresh ─────────────────────────────────────
+
     const developer = await Developer.create(devData);
 
     const audit = await Audit.create({
