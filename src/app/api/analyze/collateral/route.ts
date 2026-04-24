@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import { Audit, Developer } from '@/lib/models';
-import { extractWithGroq } from '@/lib/groq';
+import { analyzeWithGroq } from '@/lib/groq';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -69,13 +69,11 @@ export async function POST(request: NextRequest) {
     }
 
     const prompt = buildCollateralPrompt(dev.brandName, docs);
-    const raw = await extractWithGroq(prompt, 1024);
+    const raw = await analyzeWithGroq(prompt);
 
     let result: Record<string, unknown>;
     try {
-      // Strip markdown fences if Groq wraps the output
-      const cleaned = raw.replace(/^```(?:json)?\n?/i, '').replace(/\n?```$/i, '').trim();
-      result = JSON.parse(cleaned);
+      result = JSON.parse(raw);
     } catch {
       return NextResponse.json({
         success: false,

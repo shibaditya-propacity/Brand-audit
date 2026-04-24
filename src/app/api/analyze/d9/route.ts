@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeWithClaude } from '@/lib/anthropic';
 import { buildD9Prompt } from '@/prompts/d9-competitors';
-import { getAuditWithDev, saveDimensionResult, buildDataAvailabilityNote } from '../_shared';
+import { getAuditWithDev, saveDimensionResult, saveSkippedDimension, buildDataAvailabilityNote } from '../_shared';
 
 export async function POST(request: NextRequest) {
   try {

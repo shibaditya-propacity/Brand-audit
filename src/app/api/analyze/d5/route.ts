@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeWithClaude, analyzeWithVision } from '@/lib/anthropic';
 import { buildD5Prompt } from '@/prompts/d5-visual-identity';
-import { getAuditWithDev, saveDimensionResult, buildDataAvailabilityNote } from '../_shared';
+import { getAuditWithDev, saveDimensionResult, saveSkippedDimension, buildDataAvailabilityNote } from '../_shared';
 
 export async function POST(request: NextRequest) {
   try {

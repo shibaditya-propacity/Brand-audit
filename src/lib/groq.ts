@@ -1,7 +1,6 @@
 /**
  * Groq API wrapper — free tier, fast inference.
- * Used for lightweight extraction tasks (promoter names, summaries, etc.)
- * so the expensive Anthropic API is reserved for deep analysis.
+ * Used for all dimension analysis and lightweight extraction tasks.
  *
  * Free tier: 14,400 req/day, 500K tokens/min on llama-3.3-70b-versatile
  * Sign up at console.groq.com → create an API key → add GROQ_API_KEY to .env
@@ -10,6 +9,55 @@
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_MODEL = 'llama-3.3-70b-versatile';
 const GROQ_BASE = 'https://api.groq.com/openai/v1/chat/completions';
+
+/**
+ * Drop-in replacement for analyzeWithClaude — same signature, uses Groq instead.
+ * Strips markdown fences from the response just like the Anthropic wrapper.
+ */
+export async function analyzeWithGroq(prompt: string, systemPrompt?: string): Promise<string> {
+  if (!GROQ_API_KEY) {
+    throw new Error('GROQ_API_KEY not set — add it to .env');
+  }
+
+  const messages: Array<{ role: string; content: string }> = [];
+  if (systemPrompt) {
+    messages.push({ role: 'system', content: systemPrompt });
+  } else {
+    messages.push({
+      role: 'system',
+      content: 'You are an expert real estate brand strategist. Always return valid JSON only, no prose, no markdown fences.',
+    });
+  }
+  messages.push({ role: 'user', content: prompt });
+
+  const res = await fetch(GROQ_BASE, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      messages,
+      max_tokens: 8192,
+      temperature: 0,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text().catch(() => res.statusText);
+    throw new Error(`Groq API error ${res.status}: ${err}`);
+  }
+
+  const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
+  let text = data.choices?.[0]?.message?.content?.trim() ?? '';
+
+  // Strip markdown fences if present
+  if (text.startsWith('```')) {
+    text = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+  }
+  return text;
+}
 
 export async function extractWithGroq(prompt: string, maxTokens = 256): Promise<string> {
   if (!GROQ_API_KEY) {

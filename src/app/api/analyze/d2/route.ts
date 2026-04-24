@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeWithClaude } from '@/lib/anthropic';
 import { buildD2Prompt } from '@/prompts/d2-website-seo';
-import { getAuditWithDev, saveDimensionResult, buildDataAvailabilityNote } from '../_shared';
+import { getAuditWithDev, saveDimensionResult, saveSkippedDimension, buildDataAvailabilityNote } from '../_shared';
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,6 +18,11 @@ export async function POST(request: NextRequest) {
     if (!cd?.backlinks) missing.push('backlink data');
     if (!cd?.technicalSeo) missing.push('technical SEO data');
     if (!cd?.screenshotUrl) missing.push('website screenshot');
+
+    if (missing.length === 5) {
+      const score = await saveSkippedDimension(auditId, 'D2');
+      return NextResponse.json({ success: true, score, dimension: 'D2', skipped: true });
+    }
 
     const prompt = buildD2Prompt(
       dev,

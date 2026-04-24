@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       ads = await getMetaAds(brandName || '');
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      console.error('Meta ads API error:', msg);
+      console.error('MetAPI ads error:', msg);
       return NextResponse.json({ success: false, data: null, error: msg });
     }
 

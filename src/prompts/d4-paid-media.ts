@@ -10,12 +10,15 @@ export function buildD4Prompt(
 
 You are auditing the Paid Media dimension (D4) for ${developer.brandName}.
 
-META AD LIBRARY DATA:
+META AD LIBRARY DATA (sourced via MetAPI):
 ${JSON.stringify(metaAdsData, null, 2)}
+
+Key fields in adCopySamples: id, pageName, copy (ad body text), title, description, cta, date, platforms (["FACEBOOK","INSTAGRAM",...]), imageUrl.
+Key fields in analysis summary: totalAds, isActive (active in last 30 days), lastAdDate, daysSinceLastAd, platforms (unique list).
 
 RERA Numbers: ${developer.reraNumbers?.join(', ') || 'Not provided'}
 
-CRITICAL: Only evaluate items for which you have actual data. If Meta Ads data is null/empty, set every item to status "na" and finding "Ad library data unavailable — cannot evaluate". Do NOT assume ads exist that weren't captured.
+CRITICAL: Only evaluate items for which you have actual data. If Meta Ads data is null/empty or totalAds is 0, set every item to status "na" and finding "Ad library data unavailable — cannot evaluate". Do NOT assume ads exist that weren't captured.
 
 Scoring guide for D4: Running any Meta ads at all = 45+. Active campaigns with varied creatives, consistent messaging, and RERA compliance = 65-75.
 

@@ -3,13 +3,19 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 import * as Collapsible from '@radix-ui/react-collapsible';
-import { Card, BadgeDelta, Badge, Metric, Text } from '@tremor/react';
-import { RadialBarChart, RadialBar, ResponsiveContainer, Radar, RadarChart as RechartsRadar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Tooltip } from 'recharts';
+import { Badge } from '@tremor/react';
+import {
+  RadialBarChart, RadialBar, ResponsiveContainer,
+  Radar, RadarChart as RechartsRadar, PolarGrid, PolarAngleAxis,
+  PolarRadiusAxis, Tooltip,
+} from 'recharts';
 import CountUp from 'react-countup';
-import { AlertTriangle, CheckCircle2, ChevronDown, BarChart3, CheckCircle, Clock } from 'lucide-react';
+import {
+  AlertTriangle, CheckCircle2, ChevronDown, BarChart3,
+  CheckCircle, Clock, TrendingUp, Zap,
+} from 'lucide-react';
 import { DIMENSIONS } from '@/config/dimensions';
 import { getScoreLabel } from '@/config/scoring';
-import { ThemeToggle } from '@/components/shared/ThemeToggle';
 import { AuditProgress } from './AuditProgress';
 import { DimensionGrid } from './DimensionGrid';
 import type { AuditWithRelations } from '@/types/audit';
@@ -21,103 +27,157 @@ interface AuditOverviewProps {
   onRefetch: () => void;
 }
 
-function getTremorColor(score: number): 'red' | 'orange' | 'yellow' | 'green' | 'emerald' {
-  if (score <= 40) return 'red';
-  if (score <= 60) return 'orange';
-  if (score <= 75) return 'yellow';
-  if (score <= 90) return 'green';
-  return 'emerald';
+function getScoreGradient(score: number): string {
+  if (score <= 40) return 'from-rose-500 to-red-600';
+  if (score <= 60) return 'from-orange-400 to-orange-600';
+  if (score <= 75) return 'from-yellow-400 to-amber-500';
+  if (score <= 90) return 'from-green-400 to-emerald-500';
+  return 'from-emerald-400 to-teal-500';
 }
 
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.05 } },
-};
+function getScoreColor(score: number): string {
+  if (score <= 40) return '#ef4444';
+  if (score <= 60) return '#f97316';
+  if (score <= 75) return '#eab308';
+  if (score <= 90) return '#22c55e';
+  return '#10b981';
+}
+
+const containerVariants = { hidden: {}, visible: { transition: { staggerChildren: 0.05 } } };
 const itemVariants = {
-  hidden: { opacity: 0, y: 12 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+  hidden:   { opacity: 0, y: 12 },
+  visible:  { opacity: 1, y: 0, transition: { duration: 0.3 } },
 };
 
-function ScoreRing({ score }: { score: number }) {
-  const data = [{ name: 'Score', value: score, fill: '#6366f1' }];
+/* ── Score Ring ── */
+function ScoreRing({
+  score,
+  label,
+  subtitle,
+  size = 'lg',
+}: {
+  score: number;
+  label: string;
+  subtitle?: string;
+  size?: 'sm' | 'lg';
+}) {
+  const dim   = size === 'lg' ? 160 : 120;
+  const color = getScoreColor(score);
+  const data  = [{ name: 'score', value: score, fill: color }];
+
   return (
-    <div className="relative" style={{ width: 160, height: 160 }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <RadialBarChart
-          cx="50%" cy="50%"
-          innerRadius="68%" outerRadius="90%"
-          data={data}
-          startAngle={90}
-          endAngle={-270}
-        >
-          <RadialBar dataKey="value" cornerRadius={8} background={{ fill: 'currentColor', className: 'text-slate-100 dark:text-slate-800' }} />
-        </RadialBarChart>
-      </ResponsiveContainer>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-          <CountUp end={score} duration={2} enableScrollSpy />
-        </span>
-        <span className="text-xs text-slate-500 dark:text-slate-400">/ 100</span>
+    <div className="flex flex-col items-center gap-1.5">
+      <div className="relative" style={{ width: dim, height: dim }}>
+        {/* glow */}
+        <div
+          className="absolute inset-0 rounded-full blur-xl opacity-20 pointer-events-none"
+          style={{ background: color }}
+        />
+        <ResponsiveContainer width="100%" height="100%">
+          <RadialBarChart
+            cx="50%" cy="50%"
+            innerRadius="68%" outerRadius="90%"
+            data={data}
+            startAngle={90} endAngle={-270}
+          >
+            <RadialBar
+              dataKey="value"
+              cornerRadius={6}
+              background={{ fill: 'currentColor', className: 'text-slate-100 dark:text-slate-800' }}
+            />
+          </RadialBarChart>
+        </ResponsiveContainer>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className={`${size === 'lg' ? 'text-3xl' : 'text-2xl'} font-black text-slate-900 dark:text-slate-100`}>
+            <CountUp end={score} duration={2} enableScrollSpy />
+          </span>
+          <span className="text-[10px] text-slate-400 dark:text-slate-500">/100</span>
+        </div>
+      </div>
+      <div className="text-center">
+        <p className="text-xs font-bold text-slate-700 dark:text-slate-300">{label}</p>
+        {subtitle && <p className="text-[10px] text-slate-400 dark:text-slate-500">{subtitle}</p>}
       </div>
     </div>
   );
 }
 
+/* ── Stat card ── */
+function StatCard({
+  label, value, icon: Icon, gradient, sub,
+}: {
+  label: string;
+  value: string | number;
+  icon: React.ElementType;
+  gradient: string;
+  sub?: string;
+}) {
+  return (
+    <motion.div
+      variants={itemVariants}
+      whileHover={{ scale: 1.02, y: -1 }}
+      className="glass-card rounded-2xl p-4 flex items-start gap-3 shadow-sm"
+    >
+      <div className={`rounded-xl p-2.5 bg-gradient-to-br ${gradient} shadow-md`}>
+        <Icon className="h-4 w-4 text-white" />
+      </div>
+      <div>
+        <p className="text-xl font-black text-slate-900 dark:text-slate-100">
+          {typeof value === 'number' ? <CountUp end={value} duration={1.5} enableScrollSpy /> : value}
+        </p>
+        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{label}</p>
+        {sub && <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{sub}</p>}
+      </div>
+    </motion.div>
+  );
+}
+
+/* ── Strengths tab ── */
 function StrengthsTab({ dimensions }: { dimensions: AuditWithRelations['dimensions'] }) {
-  const passItems = dimensions.flatMap(d => {
+  const items = dimensions.flatMap(d => {
     const findings = d.aiFindings as unknown as AIDimensionOutput | null;
-    const dimMeta = DIMENSIONS.find(m => m.code === d.code);
+    const dimMeta  = DIMENSIONS.find(m => m.code === d.code);
     return (findings?.strengths || []).map((s, i) => ({
-      key: `${d.code}-${i}`,
-      text: s,
-      code: d.code,
-      label: dimMeta?.shortName || d.code,
+      key: `${d.code}-${i}`, text: s,
+      code: d.code, label: dimMeta?.shortName || d.code,
     }));
   });
 
-  if (passItems.length === 0) {
-    return <p className="text-sm text-slate-500 dark:text-slate-400 py-4">No strengths data available yet.</p>;
+  if (!items.length) {
+    return <p className="text-sm text-slate-500 dark:text-slate-400 py-6 text-center">No strengths data yet.</p>;
   }
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-3">
-      {passItems.map(item => (
-        <motion.div key={item.key} variants={itemVariants}>
-          <Card className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 p-4">
-            <div className="flex items-start gap-3">
-              <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                <p className="text-sm text-slate-700 dark:text-slate-300">{item.text}</p>
-              </div>
-              <Badge color="emerald" size="xs">{item.label}</Badge>
-            </div>
-          </Card>
+    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-2">
+      {items.map(item => (
+        <motion.div key={item.key} variants={itemVariants}
+          className="flex items-start gap-3 p-3 rounded-xl bg-emerald-500/5 dark:bg-emerald-500/8 border border-emerald-500/15"
+        >
+          <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+          <p className="flex-1 text-sm text-slate-700 dark:text-slate-300 leading-snug">{item.text}</p>
+          <Badge color="emerald" size="xs">{item.label}</Badge>
         </motion.div>
       ))}
     </motion.div>
   );
 }
 
+/* ── Issues tab ── */
 function IssuesTab({ dimensions }: { dimensions: AuditWithRelations['dimensions'] }) {
-  const allFlags: Array<{ flag: string; code: string; label: string }> = [];
-  for (const d of dimensions) {
+  const allFlags = dimensions.flatMap(d => {
     const dimMeta = DIMENSIONS.find(m => m.code === d.code);
-    (d.aiFlags || []).forEach(flag => allFlags.push({
-      flag,
-      code: d.code,
-      label: dimMeta?.shortName || d.code,
+    return (d.aiFlags || []).map(flag => ({
+      flag, code: d.code, label: dimMeta?.shortName || d.code,
     }));
-  }
+  });
 
-  if (allFlags.length === 0) {
-    return <p className="text-sm text-slate-500 dark:text-slate-400 py-4">No critical issues found.</p>;
+  if (!allFlags.length) {
+    return <p className="text-sm text-slate-500 dark:text-slate-400 py-6 text-center">No critical issues found.</p>;
   }
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-3">
-      {allFlags.map((item, idx) => (
-        <FlagCard key={idx} item={item} />
-      ))}
+    <motion.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-2">
+      {allFlags.map((item, idx) => <FlagCard key={idx} item={item} />)}
     </motion.div>
   );
 }
@@ -126,15 +186,15 @@ function FlagCard({ item }: { item: { flag: string; code: string; label: string 
   const [open, setOpen] = useState(false);
   return (
     <motion.div variants={itemVariants}>
-      <Card className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 border-l-4 border-l-rose-400 p-0 overflow-hidden">
-        <Collapsible.Root open={open} onOpenChange={setOpen}>
+      <Collapsible.Root open={open} onOpenChange={setOpen}>
+        <div className="rounded-xl border border-rose-200/60 dark:border-rose-800/40 overflow-hidden">
           <Collapsible.Trigger asChild>
-            <button className="w-full flex items-center gap-3 p-4 text-left hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-              <AlertTriangle className="h-4 w-4 text-rose-500 flex-shrink-0" />
-              <p className="flex-1 text-sm text-slate-700 dark:text-slate-300">{item.flag}</p>
+            <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-rose-50/50 dark:hover:bg-rose-900/10 transition-colors">
+              <AlertTriangle className="h-3.5 w-3.5 text-rose-500 flex-shrink-0" />
+              <p className="flex-1 text-sm text-slate-700 dark:text-slate-300 leading-snug">{item.flag}</p>
               <Badge color="rose" size="xs">{item.label}</Badge>
               <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                <ChevronDown className="h-4 w-4 text-slate-400" />
+                <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
               </motion.span>
             </button>
           </Collapsible.Trigger>
@@ -148,71 +208,40 @@ function FlagCard({ item }: { item: { flag: string; code: string; label: string 
                   transition={{ duration: 0.2 }}
                   className="overflow-hidden"
                 >
-                  <div className="px-4 pb-4 pt-0 border-t border-slate-200 dark:border-slate-700">
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">Navigate to the {item.label} dimension page for detailed recommendations.</p>
-                  </div>
+                  <p className="px-3 pb-3 pt-1 text-xs text-slate-500 dark:text-slate-400 border-t border-rose-100 dark:border-rose-900/30">
+                    Navigate to the <strong>{item.label}</strong> dimension page for detailed recommendations.
+                  </p>
                 </motion.div>
               </Collapsible.Content>
             )}
           </AnimatePresence>
-        </Collapsible.Root>
-      </Card>
+        </div>
+      </Collapsible.Root>
     </motion.div>
   );
 }
 
+/* ── Main component ── */
 export function AuditOverview({ audit, onRefetch }: AuditOverviewProps) {
   const [activeTab, setActiveTab] = useState<string>('issues');
   const dims = audit.dimensions || [];
-  const dimensionScores = Object.fromEntries(dims.map(d => [d.code, d.score]));
-  const completedDims = dims.filter(d => d.status === 'complete').length;
-  const allFlags = dims.flatMap(d => d.aiFlags || []);
-  const passItems = dims.flatMap(d => d.items || []).filter(i => i.status === 'PASS').length;
-  const failItems = dims.flatMap(d => d.items || []).filter(i => i.status === 'FAIL').length;
-  const overallScore = audit.overallScore ?? 0;
-  const tier = getTremorColor(overallScore);
-  const isRunning = ['COLLECTING', 'ANALYZING'].includes(audit.status);
+
+  const completedDims  = dims.filter(d => d.status === 'complete' && d.score !== null);
+  const allComplete    = completedDims.length === 10;
+  const overallScore   = audit.overallScore ?? 0;
+
+  const allFlags   = dims.flatMap(d => d.aiFlags || []);
+  const passItems  = dims.flatMap(d => d.items || []).filter(i => i.status === 'PASS').length;
+  const failItems  = dims.flatMap(d => d.items || []).filter(i => i.status === 'FAIL').length;
+  const isRunning  = ['COLLECTING', 'ANALYZING'].includes(audit.status);
+  const hasAnyData = completedDims.length > 0;
+  const gradient   = getScoreGradient(overallScore);
 
   const radarData = DIMENSIONS.map(d => ({
     subject: d.shortName,
-    score: dimensionScores[d.code] ?? 0,
+    score: dims.find(a => a.code === d.code)?.score ?? 0,
     fullMark: 100,
   }));
-
-  const metricCards = [
-    {
-      label: 'Overall Score',
-      value: overallScore,
-      displayValue: `${Math.round(overallScore)}/100`,
-      icon: BarChart3,
-      deltaType: 'unchanged' as const,
-      color: tier,
-    },
-    {
-      label: 'Pass / Fail Items',
-      value: passItems,
-      displayValue: `${passItems} / ${failItems}`,
-      icon: CheckCircle,
-      deltaType: 'increase' as const,
-      color: 'green' as const,
-    },
-    {
-      label: 'Critical Flags',
-      value: allFlags.length,
-      displayValue: allFlags.length,
-      icon: AlertTriangle,
-      deltaType: 'decrease' as const,
-      color: 'rose' as const,
-    },
-    {
-      label: 'Dims Complete',
-      value: completedDims,
-      displayValue: `${completedDims}/10`,
-      icon: Clock,
-      deltaType: 'increase' as const,
-      color: 'indigo' as const,
-    },
-  ];
 
   return (
     <motion.div
@@ -221,108 +250,179 @@ export function AuditOverview({ audit, onRefetch }: AuditOverviewProps) {
       transition={{ duration: 0.4 }}
       className="p-6 space-y-6"
     >
-      {/* HERO */}
-      <Card className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 relative overflow-hidden">
-        <div className="absolute top-4 right-4">
-          <ThemeToggle />
-        </div>
-        <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+      {/* ── HERO CARD ── */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.4 }}
+        className="relative overflow-hidden rounded-3xl border border-slate-200/60 dark:border-slate-700/50 bg-white dark:bg-slate-900 shadow-sm"
+      >
+        {/* Gradient accent strip */}
+        <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradient}`} />
+
+        <div className="p-6 flex flex-col md:flex-row items-start md:items-center gap-6">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100 truncate">
               {audit.developer?.brandName}
             </h1>
             <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm">
-              {[audit.developer?.city, audit.developer?.positioning, `Audit by ${audit.auditorName || 'Propacity'}`].filter(Boolean).join(' · ')}
+              {[
+                audit.developer?.city,
+                audit.developer?.positioning,
+                `Audit by ${audit.auditorName || 'Propacity'}`,
+              ].filter(Boolean).join(' · ')}
             </p>
-            {overallScore > 0 && (
-              <div className="mt-3">
-                <Badge color={tier} size="lg">
+            {hasAnyData && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold bg-gradient-to-r ${gradient} text-white shadow-sm`}>
+                  <Zap className="h-3.5 w-3.5" />
                   {getScoreLabel(overallScore)}
-                </Badge>
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                  {completedDims.length}/10 dimensions analyzed
+                </span>
               </div>
             )}
           </div>
-          {overallScore > 0 && <ScoreRing score={Math.round(overallScore)} />}
+
+          {/* Score ring */}
+          {hasAnyData && (
+            <div className="flex items-center gap-6">
+              <ScoreRing
+                score={Math.round(overallScore)}
+                label={allComplete ? 'Final Score' : 'Overall Score'}
+                subtitle={allComplete ? undefined : 'all 10 dims'}
+                size="lg"
+              />
+            </div>
+          )}
         </div>
-      </Card>
+      </motion.div>
 
-      {/* METRIC ROW */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {metricCards.map(card => (
-          <motion.div key={card.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-            <Card className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 p-4">
-              <div className="flex items-center justify-between mb-2">
-                <Text className="text-slate-500 dark:text-slate-400 text-xs">{card.label}</Text>
-                <BadgeDelta deltaType={card.deltaType} size="xs" />
-              </div>
-              <Metric className="text-slate-900 dark:text-slate-100 text-2xl">
-                {typeof card.value === 'number' && typeof card.displayValue === 'number' ? (
-                  <CountUp end={card.value} duration={2} enableScrollSpy />
-                ) : (
-                  <span>{card.displayValue}</span>
-                )}
-              </Metric>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
+      {/* ── METRIC CARDS ── */}
+      {hasAnyData && (
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-2 gap-4 sm:grid-cols-4"
+        >
+          <StatCard
+            label="Overall Score"
+            value={`${Math.round(overallScore)}/100`}
+            icon={BarChart3}
+            gradient="from-indigo-500 to-violet-600"
+          />
+          <StatCard
+            label="Pass / Fail Items"
+            value={`${passItems}/${failItems}`}
+            icon={CheckCircle}
+            gradient="from-emerald-400 to-green-600"
+            sub={`${passItems + failItems} total`}
+          />
+          <StatCard
+            label="Critical Flags"
+            value={allFlags.length}
+            icon={AlertTriangle}
+            gradient="from-rose-400 to-red-600"
+            sub={allFlags.length === 0 ? 'None found' : 'Need attention'}
+          />
+          <StatCard
+            label="Dims Complete"
+            value={`${completedDims.length}/10`}
+            icon={TrendingUp}
+            gradient="from-blue-400 to-indigo-600"
+            sub={allComplete ? 'All done' : `${10 - completedDims.length} pending`}
+          />
+        </motion.div>
+      )}
 
-      {/* RADAR + TABS */}
+      {/* ── RUNNING / RADAR + TABS ── */}
       {isRunning ? (
         <AuditProgress auditId={audit._id as string} onComplete={onRefetch} />
-      ) : (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      ) : hasAnyData ? (
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           {/* Radar Chart */}
-          <Card className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 p-4">
-            <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-3">Score Radar</h3>
-            <ResponsiveContainer width="100%" height={300}>
+          <motion.div
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="glass-card rounded-2xl p-5 shadow-sm"
+          >
+            <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-indigo-500" />
+              Score Radar
+            </h3>
+            <ResponsiveContainer width="100%" height={280}>
               <RechartsRadar data={radarData}>
-                <PolarGrid stroke="#e2e8f0" />
+                <PolarGrid stroke="rgba(148,163,184,0.3)" />
                 <PolarAngleAxis
                   dataKey="subject"
                   tick={({ x, y, payload }) => (
-                    <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={11} fill="#6b7280">
+                    <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={11} fill="#94a3b8">
                       {payload.value}
                     </text>
                   )}
                 />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 10, fill: '#9ca3af' }} tickCount={5} />
-                <Radar name="Score" dataKey="score" stroke="#6366f1" fill="#6366f1" fillOpacity={0.25} strokeWidth={2} />
-                <Tooltip formatter={(v: number) => [`${v}`, 'Score']} />
+                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fontSize: 10, fill: '#94a3b8' }} tickCount={5} />
+                <Radar name="Score" dataKey="score" stroke="#6366f1" fill="#6366f1" fillOpacity={0.2} strokeWidth={2.5} dot={{ fill: '#6366f1', r: 3 }} />
+                <Tooltip
+                  contentStyle={{
+                    background: 'rgba(15,23,42,0.85)',
+                    border: '1px solid rgba(99,102,241,0.3)',
+                    borderRadius: '12px',
+                    fontSize: '12px',
+                    color: '#e2e8f0',
+                  }}
+                  formatter={(v: number) => [`${v}`, 'Score']}
+                />
               </RechartsRadar>
             </ResponsiveContainer>
-          </Card>
+          </motion.div>
 
           {/* Issues / Strengths Tabs */}
-          <Card className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 p-4">
+          <motion.div
+            initial={{ opacity: 0, x: 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, delay: 0.15 }}
+            className="glass-card rounded-2xl p-5 shadow-sm"
+          >
             <TabsPrimitive.Root value={activeTab} onValueChange={setActiveTab}>
-              <TabsPrimitive.List className="flex border-b border-slate-200 dark:border-slate-700 mb-4 relative">
+              <TabsPrimitive.List className="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-1 mb-4">
                 {['issues', 'strengths'].map(tab => (
                   <TabsPrimitive.Trigger
                     key={tab}
                     value={tab}
-                    className="relative px-4 py-2 text-sm font-medium capitalize text-slate-500 dark:text-slate-400 data-[state=active]:text-indigo-600 dark:data-[state=active]:text-indigo-400 transition-colors"
+                    className="relative flex-1 px-3 py-2 text-xs font-semibold capitalize rounded-lg text-slate-500 dark:text-slate-400 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100 transition-colors"
                   >
-                    {tab}
                     {activeTab === tab && (
                       <motion.div
-                        layoutId="tab-underline"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400"
-                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                        layoutId="tab-pill"
+                        className="absolute inset-0 bg-white dark:bg-slate-700 rounded-lg shadow-sm"
+                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                       />
                     )}
+                    <span className="relative z-10 flex items-center justify-center gap-1.5">
+                      {tab === 'issues'
+                        ? <AlertTriangle className="h-3 w-3 text-rose-500" />
+                        : <CheckCircle2 className="h-3 w-3 text-emerald-500" />}
+                      {tab}
+                      {tab === 'issues' && allFlags.length > 0 && (
+                        <span className="ml-0.5 rounded-full bg-rose-500 text-white px-1.5 text-[9px] font-bold">{allFlags.length}</span>
+                      )}
+                    </span>
                   </TabsPrimitive.Trigger>
                 ))}
               </TabsPrimitive.List>
 
-              <div className="max-h-72 overflow-y-auto">
+              <div className="max-h-64 overflow-y-auto pr-1">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={activeTab}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15 }}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.18 }}
                   >
                     <TabsPrimitive.Content value="issues" forceMount hidden={activeTab !== 'issues'}>
                       <IssuesTab dimensions={dims} />
@@ -334,22 +434,43 @@ export function AuditOverview({ audit, onRefetch }: AuditOverviewProps) {
                 </AnimatePresence>
               </div>
             </TabsPrimitive.Root>
-          </Card>
+          </motion.div>
         </div>
+      ) : null}
+
+      {/* ── No data state ── */}
+      {!isRunning && !hasAnyData && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 p-10 text-center"
+        >
+          <Clock className="h-10 w-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+          <h3 className="font-bold text-slate-600 dark:text-slate-400 mb-1">No analysis yet</h3>
+          <p className="text-sm text-slate-400 dark:text-slate-500">
+            Run the audit to generate dimension scores and insights.
+          </p>
+        </motion.div>
       )}
 
-      {/* Collateral Analysis */}
+      {/* ── Collateral Analysis ── */}
       <div>
-        <h2 className="font-semibold text-slate-900 dark:text-slate-100 mb-3">Collateral Analysis</h2>
+        <h2 className="font-bold text-slate-900 dark:text-slate-100 mb-3 text-sm uppercase tracking-wide flex items-center gap-2">
+          <span className="w-6 h-0.5 bg-indigo-500 rounded-full" />
+          Collateral Analysis
+        </h2>
         <CollateralAnalysisPanel
           analysis={audit.collectedData?.collateralAnalysis}
           hasDocs={!!(audit.developer as { collateralDocs?: unknown[] })?.collateralDocs?.length}
         />
       </div>
 
-      {/* Dimension Grid */}
+      {/* ── Dimension Grid ── */}
       <div>
-        <h2 className="font-semibold text-slate-900 dark:text-slate-100 mb-3">All Dimensions</h2>
+        <h2 className="font-bold text-slate-900 dark:text-slate-100 mb-3 text-sm uppercase tracking-wide flex items-center gap-2">
+          <span className="w-6 h-0.5 bg-indigo-500 rounded-full" />
+          All Dimensions
+        </h2>
         <DimensionGrid auditId={audit._id as string} dimensions={dims} />
       </div>
     </motion.div>

@@ -5,7 +5,6 @@ import { Audit, Developer } from '@/lib/models';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
-// Use localhost for internal server-to-server calls — avoids routing through the public internet
 const BASE_URL = `http://localhost:${process.env.PORT || 3000}`;
 
 const WEIGHTS: Record<string, number> = {

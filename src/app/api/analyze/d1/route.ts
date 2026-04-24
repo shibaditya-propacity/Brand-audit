@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeWithClaude } from '@/lib/anthropic';
 import { buildD1Prompt } from '@/prompts/d1-brand-overview';
-import { getAuditWithDev, saveDimensionResult, buildDataAvailabilityNote } from '../_shared';
+import { getAuditWithDev, saveDimensionResult, saveSkippedDimension, buildDataAvailabilityNote } from '../_shared';
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,6 +15,11 @@ export async function POST(request: NextRequest) {
     const missing: string[] = [];
     if (!dev.pdlData) missing.push('company enrichment data (PDL)');
     if (!cd?.seoKeywords) missing.push('SEO/SERP data');
+
+    if (missing.length === 2) {
+      const score = await saveSkippedDimension(auditId, 'D1');
+      return NextResponse.json({ success: true, score, dimension: 'D1', skipped: true });
+    }
 
     const prompt = buildD1Prompt(dev, dev.pdlData ?? null, cd?.seoKeywords ?? null, auditDate)
       + buildDataAvailabilityNote(missing);

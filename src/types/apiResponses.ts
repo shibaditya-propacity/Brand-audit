@@ -160,15 +160,3 @@ export interface ApifyInstagramPost {
   displayUrl?: string;
   videoUrl?: string;
 }
-
-export interface MetaAdResponse {
-  id: string;
-  ad_creation_time?: string;
-  ad_creative_bodies?: string[];
-  ad_creative_link_titles?: string[];
-  ad_snapshot_url?: string;
-  page_name?: string;
-  impressions?: { lower_bound?: string; upper_bound?: string };
-  spend?: { lower_bound?: string; upper_bound?: string; currency?: string };
-  currency?: string;
-}

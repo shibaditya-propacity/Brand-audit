@@ -36,6 +36,41 @@ export function buildDataAvailabilityNote(missing: string[]): string {
   );
 }
 
+/**
+ * Call this when ALL required data sources for a dimension are unavailable.
+ * Saves the dimension as no_data (null score) without calling any LLM.
+ */
+export async function saveSkippedDimension(auditId: string, code: string) {
+  await connectDB();
+  const dimensionData = {
+    code,
+    score: null,
+    status: 'no_data',
+    aiSummary: 'No data sources were available — analysis skipped.',
+    aiFindings: { insufficientData: true, skipped: true },
+    aiFlags: [],
+    items: [],
+    analyzedAt: new Date(),
+  };
+
+  const audit = await Audit.findById(auditId);
+  if (!audit) throw new Error('Audit not found');
+
+  const existingIdx = audit.dimensions.findIndex((d: { code: string }) => d.code === code);
+  if (existingIdx >= 0) {
+    const existing = audit.dimensions[existingIdx];
+    const existingObj = (typeof (existing as unknown as { toObject?: () => object }).toObject === 'function'
+      ? (existing as unknown as { toObject: () => object }).toObject()
+      : existing) as object;
+    audit.dimensions[existingIdx] = { ...existingObj, ...dimensionData } as unknown as typeof existing;
+  } else {
+    audit.dimensions.push(dimensionData as unknown as Parameters<typeof audit.dimensions.push>[0]);
+  }
+
+  await audit.save();
+  return null;
+}
+
 export async function saveDimensionResult(
   auditId: string,
   code: string,
