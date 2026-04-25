@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { TopBar } from '@/components/layout/TopBar';
 import { HomeClient } from '@/components/home/HomeClient';
 import connectDB from '@/lib/mongodb';
@@ -24,7 +25,9 @@ export default async function HomePage() {
   return (
     <>
       <TopBar />
-      <HomeClient audits={audits} />
+      <Suspense fallback={null}>
+        <HomeClient audits={audits} />
+      </Suspense>
     </>
   );
 }

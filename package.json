@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.24.3",
-    "@clerk/nextjs": "^7.2.7",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-collapsible": "^1.0.3",
@@ -29,11 +28,13 @@
     "@types/react-dom": "^18",
     "autoprefixer": "^10.4.19",
     "axios": "^1.7.2",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "framer-motion": "^12.38.0",
     "html2pdf.js": "^0.14.0",
+    "jose": "^6.2.2",
     "lucide-react": "^0.400.0",
     "mongoose": "^8.5.1",
     "next": "^14.2.29",
@@ -51,5 +52,8 @@
     "typescript": "^5",
     "zod": "^3.23.8",
     "zustand": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6"
   }
 }

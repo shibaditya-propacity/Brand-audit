@@ -1,42 +1,41 @@
 'use client';
-import { useUser, useClerk } from '@clerk/nextjs';
+import { useAuth } from '@/components/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
-import type { ReactNode, MouseEvent } from 'react';
+import { useState, type ReactNode, type MouseEvent } from 'react';
+import { AuthModal } from '@/components/auth/AuthModal';
 
 interface ProtectedLinkProps {
-  href: string;
-  children: ReactNode;
+  href:       string;
+  children:   ReactNode;
   className?: string;
-  onClick?: () => void;
 }
 
-/**
- * Acts like a <Link> but intercepts clicks for unauthenticated users —
- * opens the Clerk sign-in modal with the target URL as the post-auth redirect.
- */
-export function ProtectedLink({ href, children, className, onClick }: ProtectedLinkProps) {
-  const { isLoaded, isSignedIn } = useUser();
-  const { openSignIn } = useClerk();
-  const router = useRouter();
+export function ProtectedLink({ href, children, className }: ProtectedLinkProps) {
+  const { user, loading } = useAuth();
+  const router            = useRouter();
+  const [open, setOpen]   = useState(false);
 
   function handleClick(e: MouseEvent<HTMLAnchorElement>) {
     e.preventDefault();
-    if (!isLoaded) return;
-
-    if (isSignedIn) {
-      onClick?.();
+    if (loading) return;
+    if (user) {
       router.push(href);
     } else {
-      openSignIn({
-        fallbackRedirectUrl: href,
-        signUpFallbackRedirectUrl: href,
-      });
+      setOpen(true);
     }
   }
 
   return (
-    <a href={href} className={className} onClick={handleClick}>
-      {children}
-    </a>
+    <>
+      <a href={href} className={className} onClick={handleClick}>
+        {children}
+      </a>
+      <AuthModal
+        open={open}
+        defaultTab="signin"
+        redirectTo={href}
+        onClose={() => setOpen(false)}
+      />
+    </>
   );
 }

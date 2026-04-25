@@ -1,12 +1,16 @@
 'use client';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import CountUp from 'react-countup';
+import { useAuth } from '@/components/providers/AuthProvider';
 import {
   Plus, Building2, ChevronRight, BarChart3, Sparkles,
   TrendingUp, Shield, Activity, Clock, CheckCircle2, AlertCircle,
 } from 'lucide-react';
 import { ScoreBadge } from '@/components/shared/ScoreBadge';
 import { ProtectedLink } from '@/components/shared/ProtectedLink';
+import { AuthModal } from '@/components/auth/AuthModal';
 import { formatDate } from '@/lib/utils';
 
 interface AuditSummary {
@@ -56,8 +60,29 @@ function StatCard({ value, label, icon: Icon, color }: { value: number | string;
 }
 
 export function HomeClient({ audits }: HomeClientProps) {
-  const totalComplete = audits.filter(a => a.status === 'COMPLETE').length;
-  const inProgress    = audits.filter(a => a.status === 'COLLECTING' || a.status === 'ANALYZING').length;
+  const totalComplete  = audits.filter(a => a.status === 'COMPLETE').length;
+  const inProgress     = audits.filter(a => a.status === 'COLLECTING' || a.status === 'ANALYZING').length;
+  const searchParams   = useSearchParams();
+  const router         = useRouter();
+  const { user, loading } = useAuth();
+  const [authOpen, setAuthOpen] = useState(false);
+  const [redirectTo, setRedirectTo] = useState<string | undefined>();
+
+  // Middleware redirects here with ?authRequired=1&redirect=/audit/...
+  // Only open if not already authenticated
+  useEffect(() => {
+    if (loading) return;
+    if (searchParams.get('authRequired') === '1') {
+      if (user) {
+        // Already logged in — go straight to the intended destination
+        const dest = searchParams.get('redirect') ?? '/';
+        router.replace(dest);
+      } else {
+        setRedirectTo(searchParams.get('redirect') ?? undefined);
+        setAuthOpen(true);
+      }
+    }
+  }, [searchParams, user, loading, router]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-indigo-950/30">
@@ -237,6 +262,14 @@ export function HomeClient({ audits }: HomeClientProps) {
           Propacity Brand Audit Platform · Evidence-based AI analysis
         </div>
       </div>
+
+      {/* Auth modal triggered by middleware redirect */}
+      <AuthModal
+        open={authOpen}
+        defaultTab="signin"
+        redirectTo={redirectTo}
+        onClose={() => setAuthOpen(false)}
+      />
     </div>
   );
 }
