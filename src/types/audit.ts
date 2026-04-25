@@ -92,6 +92,7 @@ export interface AuditWithRelations {
   dataSourceStatus?: { collected: string[]; failed: string[] };
   dimensions: AuditDimensionResult[];
   assets: AuditAsset[];
+  manualOverrides?: Record<string, unknown>;
   createdAt?: string;
   updatedAt?: string;
 }

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeWithClaude } from '@/lib/anthropic';
 import { buildD6Prompt } from '@/prompts/d6-collateral';
-import { getAuditWithDev, saveDimensionResult, saveSkippedDimension, buildDataAvailabilityNote } from '../_shared';
+import { getAuditWithDev, saveDimensionResult, saveSkippedDimension, buildDataAvailabilityNote, buildManualOverrideNote } from '../_shared';
 
 export async function POST(request: NextRequest) {
   try {
     const { auditId } = await request.json();
-    const { audit, dev } = await getAuditWithDev(auditId);
+    const { audit, dev, manualOverrides } = await getAuditWithDev(auditId);
     if (!audit || !dev) return NextResponse.json({ success: false, error: 'Audit not found' }, { status: 404 });
 
     const auditDate = new Date().toISOString().split('T')[0];
@@ -16,7 +16,8 @@ export async function POST(request: NextRequest) {
     if (!cd?.websiteContent) missing.push('website content / crawl data');
 
     const prompt = buildD6Prompt(dev, cd?.websiteContent ?? null, auditDate)
-      + buildDataAvailabilityNote(missing);
+      + buildDataAvailabilityNote(missing)
+      + buildManualOverrideNote(manualOverrides['D6']);
 
     const raw = await analyzeWithClaude(prompt);
     const findings = JSON.parse(raw);

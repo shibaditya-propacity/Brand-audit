@@ -1,5 +1,6 @@
 'use client';
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { DIMENSIONS } from '@/config/dimensions';
 import { Card, Badge, Text } from '@tremor/react';
 import { RadialBarChart, RadialBar, ResponsiveContainer } from 'recharts';
@@ -27,6 +28,7 @@ function getTremorColor(score: number): 'red' | 'orange' | 'yellow' | 'green' | 
 
 export function DimensionPageShell({ dimensionCode, dimension, leftContent, rightContent, auditId, onRerunComplete }: DimensionPageShellProps) {
   const meta = DIMENSIONS.find(d => d.code === dimensionCode);
+  const [alertDismissed, setAlertDismissed] = useState(false);
   if (!meta) return <div className="p-6">Dimension not found</div>;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

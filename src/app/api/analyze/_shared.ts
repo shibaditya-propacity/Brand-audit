@@ -6,9 +6,10 @@ export async function getAuditWithDev(auditId: string) {
   await connectDB();
   const Mongoose = await import('@/lib/models');
   const audit = await Mongoose.Audit.findById(auditId).lean() as (IAudit & { _id: unknown }) | null;
-  if (!audit) return { audit: null, dev: null };
+  if (!audit) return { audit: null, dev: null, manualOverrides: {} };
   const dev = await Mongoose.Developer.findById(audit.developerId).lean();
-  return { audit, dev };
+  const manualOverrides = (audit.manualOverrides as Record<string, unknown>) ?? {};
+  return { audit, dev, manualOverrides };
 }
 
 type ItemStatus = 'PASS' | 'FAIL' | 'PARTIAL' | 'NA';
@@ -18,6 +19,23 @@ const STATUS_MAP: Record<string, ItemStatus> = {
   partial: 'PARTIAL',
   na: 'NA',
 };
+
+/**
+ * Build a manual override note to append to Claude prompts.
+ * Provides auditor-supplied data that supplements or corrects auto-collected data.
+ */
+export function buildManualOverrideNote(overrides: unknown): string {
+  if (!overrides || typeof overrides !== 'object' || Object.keys(overrides).length === 0) return '';
+  const lines = Object.entries(overrides as Record<string, unknown>)
+    .filter(([, v]) => v !== null && v !== undefined && v !== '')
+    .map(([k, v]) => `  - ${k}: ${JSON.stringify(v)}`);
+  if (!lines.length) return '';
+  return (
+    '\n\nMANUAL AUDITOR INPUT: The following data was manually provided by the auditor and should be ' +
+    'treated as ground truth, taking precedence over inferred or auto-collected data where applicable:\n' +
+    lines.join('\n')
+  );
+}
 
 /**
  * Build a data availability note to append to Claude prompts.

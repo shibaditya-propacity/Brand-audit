@@ -60,6 +60,7 @@ function buildCollectTasks(
 export async function GET(req: NextRequest, { params }: { params: { auditId: string } }) {
   const { auditId } = params;
   const dimension = (req.nextUrl.searchParams.get('dimension') ?? '').toUpperCase();
+  const skipCollection = req.nextUrl.searchParams.get('skipCollection') === 'true';
 
   const encoder = new TextEncoder();
 
@@ -84,30 +85,34 @@ export async function GET(req: NextRequest, { params }: { params: { auditId: str
 
         const sourcesNeeded = DIMENSION_SOURCES[dimension];
 
-        // ── Collection phase ──────────────────────────────────────────────────
-        send({ stage: 'collecting', message: `Re-collecting data for ${dimension}…` });
+        // ── Collection phase (skipped when skipCollection=true) ───────────────
+        if (!skipCollection) {
+          send({ stage: 'collecting', message: `Re-collecting data for ${dimension}…` });
 
-        const tasks = sourcesNeeded
-          .map(s => buildCollectTasks(s, dev as Record<string, string | undefined>, auditId))
-          .filter((t): t is CollectTask => t !== null && t.enabled);
+          const tasks = sourcesNeeded
+            .map(s => buildCollectTasks(s, dev as Record<string, string | undefined>, auditId))
+            .filter((t): t is CollectTask => t !== null && t.enabled);
 
-        await Promise.allSettled(
-          tasks.map(async (task) => {
-            send({ stage: 'collecting', source: task.source, status: 'in_progress' });
-            try {
-              const res = await fetch(`${BASE_URL}/api/collect/${task.urlKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(task.body),
-              });
-              const json = res.ok ? await res.json().catch(() => ({})) : {};
-              const ok = json.success !== false && res.ok;
-              send({ stage: 'collecting', source: task.source, status: ok ? 'done' : 'failed' });
-            } catch {
-              send({ stage: 'collecting', source: task.source, status: 'failed' });
-            }
-          })
-        );
+          await Promise.allSettled(
+            tasks.map(async (task) => {
+              send({ stage: 'collecting', source: task.source, status: 'in_progress' });
+              try {
+                const res = await fetch(`${BASE_URL}/api/collect/${task.urlKey}`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(task.body),
+                });
+                const json = res.ok ? await res.json().catch(() => ({})) : {};
+                const ok = json.success !== false && res.ok;
+                send({ stage: 'collecting', source: task.source, status: ok ? 'done' : 'failed' });
+              } catch {
+                send({ stage: 'collecting', source: task.source, status: 'failed' });
+              }
+            })
+          );
+        } else {
+          send({ stage: 'collecting', message: 'Collection skipped — using manual data', status: 'done' });
+        }
 
         // ── Analysis phase ────────────────────────────────────────────────────
         send({ stage: 'analyzing', dimension, status: 'in_progress', message: `Re-analyzing ${dimension}…` });

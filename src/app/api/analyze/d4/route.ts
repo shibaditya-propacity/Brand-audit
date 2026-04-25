@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeWithClaude } from '@/lib/anthropic';
 import { buildD4Prompt } from '@/prompts/d4-paid-media';
-import { getAuditWithDev, saveDimensionResult, saveSkippedDimension, buildDataAvailabilityNote } from '../_shared';
+import { getAuditWithDev, saveDimensionResult, saveSkippedDimension, buildDataAvailabilityNote, buildManualOverrideNote } from '../_shared';
 
 export async function POST(request: NextRequest) {
   try {
     const { auditId } = await request.json();
-    const { audit, dev } = await getAuditWithDev(auditId);
+    const { audit, dev, manualOverrides } = await getAuditWithDev(auditId);
     if (!audit || !dev) return NextResponse.json({ success: false, error: 'Audit not found' }, { status: 404 });
 
     const auditDate = new Date().toISOString().split('T')[0];
@@ -16,7 +16,8 @@ export async function POST(request: NextRequest) {
     if (!cd?.metaAdsData) missing.push('Meta Ads Library data (ad creatives, spend, activity)');
 
     const prompt = buildD4Prompt(dev, cd?.metaAdsData ?? null, auditDate)
-      + buildDataAvailabilityNote(missing);
+      + buildDataAvailabilityNote(missing)
+      + buildManualOverrideNote(manualOverrides['D4']);
 
     const raw = await analyzeWithClaude(prompt);
     const findings = JSON.parse(raw);

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeWithClaude, analyzeWithVision } from '@/lib/anthropic';
 import { buildD5Prompt } from '@/prompts/d5-visual-identity';
-import { getAuditWithDev, saveDimensionResult, saveSkippedDimension, buildDataAvailabilityNote } from '../_shared';
+import { getAuditWithDev, saveDimensionResult, saveSkippedDimension, buildDataAvailabilityNote, buildManualOverrideNote } from '../_shared';
 
 export async function POST(request: NextRequest) {
   try {
     const { auditId } = await request.json();
-    const { audit, dev } = await getAuditWithDev(auditId);
+    const { audit, dev, manualOverrides } = await getAuditWithDev(auditId);
     if (!audit || !dev) return NextResponse.json({ success: false, error: 'Audit not found' }, { status: 404 });
 
     const logoUrl: string | null = audit.collectedData?.logoUrl ?? null;
@@ -18,7 +18,8 @@ export async function POST(request: NextRequest) {
     if (!screenshotUrl) missing.push('website screenshot');
 
     const prompt = buildD5Prompt(dev, logoUrl, screenshotUrl, auditDate)
-      + buildDataAvailabilityNote(missing);
+      + buildDataAvailabilityNote(missing)
+      + buildManualOverrideNote(manualOverrides['D5']);
 
     // Use vision if screenshot available so Claude actually sees the website
     const raw = screenshotUrl

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeWithClaude } from '@/lib/anthropic';
 import { buildD3Prompt } from '@/prompts/d3-social-media';
-import { getAuditWithDev, saveDimensionResult, saveSkippedDimension, buildDataAvailabilityNote } from '../_shared';
+import { getAuditWithDev, saveDimensionResult, saveSkippedDimension, buildDataAvailabilityNote, buildManualOverrideNote } from '../_shared';
 
 export async function POST(request: NextRequest) {
   try {
     const { auditId } = await request.json();
-    const { audit, dev } = await getAuditWithDev(auditId);
+    const { audit, dev, manualOverrides } = await getAuditWithDev(auditId);
     if (!audit || !dev) return NextResponse.json({ success: false, error: 'Audit not found' }, { status: 404 });
 
     const auditDate = new Date().toISOString().split('T')[0];
@@ -34,7 +34,8 @@ export async function POST(request: NextRequest) {
 
     const prompt =
       buildD3Prompt(devWithSocials, instagramData, facebookData, linkedinData, auditDate) +
-      buildDataAvailabilityNote(missing);
+      buildDataAvailabilityNote(missing) +
+      buildManualOverrideNote(manualOverrides['D3']);
 
     const raw = await analyzeWithClaude(prompt);
     const findings = JSON.parse(raw);

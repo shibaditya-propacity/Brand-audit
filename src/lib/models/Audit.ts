@@ -129,6 +129,7 @@ export interface IAudit extends Document {
   dataSourceStatus?: { collected: string[]; failed: string[] };
   dimensions: IAuditDimension[];
   assets: IAuditAsset[];
+  manualOverrides?: Record<string, unknown>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -153,6 +154,7 @@ const AuditSchema = new Schema<IAudit>(
     },
     dimensions: [AuditDimensionSchema],
     assets: [AuditAssetSchema],
+    manualOverrides: { type: Schema.Types.Mixed, default: {} },
   },
   { timestamps: true }
 );

@@ -1,4 +1,5 @@
 'use client';
+import { ManualInputForm } from '@/components/dimension/ManualInputForm';
 import { AppShell } from '@/components/layout/AppShell';
 import { DimensionPageShell } from '@/components/dimension/DimensionPageShell';
 import { AIFindingsPanel } from '@/components/dimension/AIFindingsPanel';
@@ -19,6 +20,12 @@ export default function D3Page({ params }: { params: { auditId: string } }) {
     <>
       <AIFindingsPanel dimension={dimension} />
       <ChecklistTable dimensionCode="D3" dimension={dimension} />
+      <ManualInputForm
+        dimensionCode="D3"
+        auditId={params.auditId}
+        initialData={audit?.manualOverrides?.['D3'] as Record<string, unknown> | undefined}
+        onSaved={refetch}
+      />
     </>
   );
 

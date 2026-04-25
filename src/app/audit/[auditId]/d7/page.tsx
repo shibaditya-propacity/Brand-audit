@@ -1,4 +1,5 @@
 'use client';
+import { ManualInputForm } from '@/components/dimension/ManualInputForm';
 import { useState } from 'react';
 import { AppShell } from '@/components/layout/AppShell';
 import { DimensionPageShell } from '@/components/dimension/DimensionPageShell';
@@ -47,6 +48,12 @@ export default function D7Page({ params }: { params: { auditId: string } }) {
     <>
       <AIFindingsPanel dimension={dimension} />
       <ChecklistTable dimensionCode="D7" dimension={dimension} />
+      <ManualInputForm
+        dimensionCode="D7"
+        auditId={params.auditId}
+        initialData={audit?.manualOverrides?.['D7'] as Record<string, unknown> | undefined}
+        onSaved={refetch}
+      />
     </>
   );
 

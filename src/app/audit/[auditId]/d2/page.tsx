@@ -1,4 +1,5 @@
 'use client';
+import { ManualInputForm } from '@/components/dimension/ManualInputForm';
 import { AppShell } from '@/components/layout/AppShell';
 import { DimensionPageShell } from '@/components/dimension/DimensionPageShell';
 import { AIFindingsPanel } from '@/components/dimension/AIFindingsPanel';
@@ -21,6 +22,12 @@ export default function D2Page({ params }: { params: { auditId: string } }) {
     <>
       <AIFindingsPanel dimension={dimension} />
       <ChecklistTable dimensionCode="D2" dimension={dimension} />
+      <ManualInputForm
+        dimensionCode="D2"
+        auditId={params.auditId}
+        initialData={audit?.manualOverrides?.['D2'] as Record<string, unknown> | undefined}
+        onSaved={refetch}
+      />
     </>
   );
 
