@@ -161,6 +161,29 @@
 
 @media print {
   .no-print { display: none !important; }
-  body { background: white; }
-  .print-break { page-break-before: always; }
+  body { background: white !important; color: black !important; }
+  .print-break { page-break-before: always; break-before: page; }
+  .print-avoid-break { page-break-inside: avoid; break-inside: avoid; }
+
+  /* Running page header — fixed position repeats on every page in Chrome */
+  .report-page-header {
+    display: block !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+  }
+  .report-content {
+    margin-top: 48px;
+  }
+
+  /* Hide sidebar, topbar, shell chrome */
+  nav, aside, header:not(.report-page-header) { display: none !important; }
+  main { padding: 0 !important; margin: 0 !important; }
+
+  @page {
+    margin: 14mm 12mm 14mm 12mm;
+    size: A4;
+  }
 }
