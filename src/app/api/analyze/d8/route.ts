@@ -12,11 +12,24 @@ export async function POST(request: NextRequest) {
     const auditDate = new Date().toISOString().split('T')[0];
     const cd = audit.collectedData;
 
+    // D8 uses developer-stated inputs (CRM, ad platforms, WhatsApp) for qualitative items
+    // so it should never be fully skipped — only mark scraped-only items NA when data is absent
     const missing: string[] = [];
-    if (!cd?.websiteContent) missing.push('website content / crawl data');
-    if (!cd?.technicalSeo) missing.push('technical SEO data');
+    if (!cd?.websiteContent) missing.push('website crawl data (D8-5, D8-6, D8-9, D8-10, D8-11 cannot be verified)');
+    if (!cd?.technicalSeo) missing.push('technical SEO data (D8-4 tech stack cannot be verified)');
 
-    const prompt = buildD8Prompt(dev, cd?.websiteContent ?? null, cd?.technicalSeo ?? null, auditDate)
+    const devForPrompt = {
+      brandName: dev.brandName as string,
+      positioning: (dev.positioning as string | null) ?? null,
+      city: (dev.city as string | null) ?? null,
+      targetSegments: (dev.targetSegments as string[]) ?? [],
+      websiteUrl: (dev.websiteUrl as string | null) ?? null,
+      crmTool: (dev.crmTool as string | null) ?? null,
+      adPlatforms: (dev.adPlatforms as string[]) ?? [],
+      whatsappNumber: (dev.whatsappNumber as string | null) ?? null,
+    };
+
+    const prompt = buildD8Prompt(devForPrompt, cd?.websiteContent ?? null, cd?.technicalSeo ?? null, auditDate)
       + buildDataAvailabilityNote(missing)
       + buildManualOverrideNote(manualOverrides['D8']);
 
