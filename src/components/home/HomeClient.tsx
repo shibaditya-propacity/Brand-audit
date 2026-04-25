@@ -1,12 +1,12 @@
 'use client';
 import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
 import CountUp from 'react-countup';
 import {
   Plus, Building2, ChevronRight, BarChart3, Sparkles,
   TrendingUp, Shield, Activity, Clock, CheckCircle2, AlertCircle,
 } from 'lucide-react';
 import { ScoreBadge } from '@/components/shared/ScoreBadge';
+import { ProtectedLink } from '@/components/shared/ProtectedLink';
 import { formatDate } from '@/lib/utils';
 
 interface AuditSummary {
@@ -108,13 +108,13 @@ export function HomeClient({ audits }: HomeClientProps) {
             transition={{ duration: 0.4, delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-3 justify-center"
           >
-            <Link
+            <ProtectedLink
               href="/audit/new"
               className="animate-pulse-ring inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 hover:bg-indigo-700 px-8 py-3.5 text-white font-semibold shadow-lg shadow-indigo-500/30 transition-all hover:shadow-xl hover:shadow-indigo-500/40 hover:-translate-y-0.5"
             >
               <Plus className="h-5 w-5" />
               Start New Audit
-            </Link>
+            </ProtectedLink>
             {audits.length > 0 && (
               <a
                 href="#audits"
@@ -142,12 +142,12 @@ export function HomeClient({ audits }: HomeClientProps) {
       <main id="audits" className="flex-1 max-w-5xl mx-auto px-4 pb-16 w-full">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">Recent Audits</h2>
-          <Link
+          <ProtectedLink
             href="/audit/new"
             className="inline-flex items-center gap-1.5 text-sm text-indigo-600 dark:text-indigo-400 font-medium hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
           >
             <Plus className="h-3.5 w-3.5" /> New Audit
-          </Link>
+          </ProtectedLink>
         </div>
 
         {audits.length === 0 ? (
@@ -164,12 +164,12 @@ export function HomeClient({ audits }: HomeClientProps) {
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
               Create your first brand audit to get started.
             </p>
-            <Link
+            <ProtectedLink
               href="/audit/new"
               className="inline-flex items-center gap-2 rounded-2xl bg-indigo-600 px-6 py-3 text-white font-semibold text-sm hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/25"
             >
               <Plus className="h-4 w-4" /> Start Audit
-            </Link>
+            </ProtectedLink>
           </motion.div>
         ) : (
           <motion.div
@@ -186,7 +186,7 @@ export function HomeClient({ audits }: HomeClientProps) {
 
                 return (
                   <motion.div key={audit._id} variants={row} layout>
-                    <Link
+                    <ProtectedLink
                       href={`/audit/${audit._id}`}
                       className="group flex items-center gap-4 rounded-2xl glass-card p-4 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 hover:border-indigo-300 dark:hover:border-indigo-700"
                     >
@@ -221,7 +221,7 @@ export function HomeClient({ audits }: HomeClientProps) {
                         <ScoreBadge score={audit.overallScore} size="md" />
                         <ChevronRight className="h-4 w-4 text-slate-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
                       </div>
-                    </Link>
+                    </ProtectedLink>
                   </motion.div>
                 );
               })}
