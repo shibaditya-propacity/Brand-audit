@@ -98,6 +98,42 @@ export function DimensionPageShell({ dimensionCode, dimension, leftContent, righ
         </div>
       </Card>
 
+      {/* Manual input hint banner */}
+      <AnimatePresence>
+        {!alertDismissed && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25 }}
+            className="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40 px-4 py-2.5"
+          >
+            <Icons.PenLine className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+            <p className="text-sm text-amber-800 dark:text-amber-300 flex-1">
+              You can manually fill in data for this dimension —{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  document.querySelector('[data-manual-form]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }}
+                className="font-semibold underline underline-offset-2 hover:text-amber-900 dark:hover:text-amber-200 transition-colors"
+              >
+                Manual Data Input form is at the bottom
+              </button>
+              . Fill it and click &ldquo;Save &amp; Rerun Analysis&rdquo; to update the AI analysis.
+            </p>
+            <button
+              type="button"
+              onClick={() => setAlertDismissed(true)}
+              className="flex-shrink-0 text-amber-500 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
+              aria-label="Dismiss"
+            >
+              <Icons.X className="h-4 w-4" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Two-column layout */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <motion.div

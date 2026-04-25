@@ -206,7 +206,7 @@ export function ManualInputForm({ dimensionCode, auditId, initialData, onSaved }
   const running = rerunPhase === 'collecting' || rerunPhase === 'analyzing';
 
   return (
-    <div className="rounded-lg border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden">
+    <div data-manual-form className="rounded-lg border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden">
       {/* Header toggle */}
       <button
         type="button"
