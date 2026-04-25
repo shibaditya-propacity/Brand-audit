@@ -61,6 +61,7 @@ export interface ICollectedData {
   facebookData?: Record<string, unknown>;
   linkedinData?: Record<string, unknown>;
   metaAdsData?: Record<string, unknown>;
+  promoterLinkedInData?: Record<string, unknown>;
   screenshotUrl?: string;
   logoUrl?: string;
   collectedAt: Date;
@@ -90,6 +91,7 @@ const CollectedDataSchema = new Schema<ICollectedData>({
   facebookData: { type: Schema.Types.Mixed },
   linkedinData: { type: Schema.Types.Mixed },
   metaAdsData: { type: Schema.Types.Mixed },
+  promoterLinkedInData: { type: Schema.Types.Mixed },
   screenshotUrl: String,
   logoUrl: String,
   collectedAt: { type: Date, default: Date.now },

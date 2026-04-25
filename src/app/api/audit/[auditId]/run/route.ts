@@ -45,6 +45,7 @@ export async function GET(_req: NextRequest, { params }: { params: { auditId: st
           { key: 'instagram', source: 'HikerAPI', enabled: !!(dev.instagramHandle || dev.facebookUrl || dev.linkedinUrl), body: { instagramHandle: dev.instagramHandle, auditId } },
           { key: 'metaAds', source: 'MetaAdLibrary', enabled: true, body: { brandName: (dev as { metaAdLibraryName?: string }).metaAdLibraryName || dev.brandName, auditId } },
           { key: 'screenshot', source: 'Screenshot', enabled: !!dev.websiteUrl, body: { websiteUrl: dev.websiteUrl, domain: dev.domain, auditId } },
+          { key: 'promoter-linkedin', source: 'PromoterLinkedIn', enabled: !!(dev as { promoterLinkedIn?: string }).promoterLinkedIn, body: { auditId } },
         ];
 
         const collectedSources: string[] = [];

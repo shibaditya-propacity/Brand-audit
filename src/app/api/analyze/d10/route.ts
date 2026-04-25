@@ -11,12 +11,14 @@ export async function POST(request: NextRequest) {
 
     const auditDate = new Date().toISOString().split('T')[0];
     const cd = audit.collectedData;
+    const promoterLinkedInData = (cd as unknown as Record<string, unknown>)?.promoterLinkedInData ?? null;
 
     const missing: string[] = [];
     if (!cd?.websiteContent) missing.push('website content / crawl data');
     if (!dev.pdlData) missing.push('company enrichment data');
+    if (!promoterLinkedInData) missing.push('promoter personal LinkedIn profile data');
 
-    const prompt = buildD10Prompt(dev, cd?.websiteContent ?? null, dev.pdlData ?? null, auditDate)
+    const prompt = buildD10Prompt(dev, cd?.websiteContent ?? null, dev.pdlData ?? null, promoterLinkedInData, auditDate)
       + buildDataAvailabilityNote(missing)
       + buildManualOverrideNote(manualOverrides['D10']);
 

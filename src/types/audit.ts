@@ -127,6 +127,7 @@ export interface CollectedDataRecord {
   websiteContent: unknown;
   instagramData: unknown;
   metaAdsData: unknown;
+  promoterLinkedInData: unknown;
   screenshotUrl: string | null;
   logoUrl: string | null;
   collectedAt?: string;

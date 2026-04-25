@@ -299,6 +299,114 @@ export async function getLinkedInInsights(
   return result;
 }
 
+// ── Promoter Personal LinkedIn ────────────────────────────────────────────────
+export interface PromoterLinkedInInsights {
+  profileUrl: string;
+  fullName: string | null;
+  headline: string | null;
+  followers: number | null;
+  connections: string | null; // "500+", "1K+", etc.
+  about: string | null;
+  currentRole: string | null;
+  currentCompany: string | null;
+  source: 'Serper';
+}
+
+export async function getPromoterLinkedInInsights(
+  linkedinUrl: string,
+  promoterName: string | null
+): Promise<PromoterLinkedInInsights> {
+  const profileUrl = linkedinUrl.startsWith('http') ? linkedinUrl : `https://www.linkedin.com/in/${linkedinUrl}`;
+  const result: PromoterLinkedInInsights = {
+    profileUrl,
+    fullName: null,
+    headline: null,
+    followers: null,
+    connections: null,
+    about: null,
+    currentRole: null,
+    currentCompany: null,
+    source: 'Serper',
+  };
+
+  try {
+    // Extract the handle from the URL for a direct site search
+    const handle = profileUrl.replace(/\/$/, '').split('/').pop() ?? '';
+
+    const queries = [
+      `site:linkedin.com/in/${handle}`,
+      promoterName ? `"${promoterName}" linkedin real estate developer` : null,
+      `linkedin.com/in/${handle} followers connections`,
+    ].filter(Boolean) as string[];
+
+    const results = await Promise.all(
+      queries.map(q => getSerpResults(q).catch(() => null))
+    );
+
+    const allOrganic: Array<{ title?: string; snippet?: string; link?: string }> = results.flatMap(r =>
+      (r as { organic?: Array<{ title?: string; snippet?: string; link?: string }> } | null)?.organic ?? []
+    );
+
+    for (const item of allOrganic) {
+      const isProfile = item.link?.includes('linkedin.com/in/');
+      const text = `${item.title ?? ''} ${item.snippet ?? ''}`;
+
+      // Full name — usually the first part of the LinkedIn page title
+      if (!result.fullName && item.title) {
+        const nameMatch = item.title.match(/^([^|–-]+?)(?:\s*[-–|]|\s+on LinkedIn)/i);
+        if (nameMatch) result.fullName = nameMatch[1].trim();
+      }
+
+      // Headline — "Title at Company" pattern after name in title
+      if (!result.headline && item.title) {
+        const hlMatch = item.title.match(/[-–|]\s*(.+?)(?:\s*[-–|]\s*LinkedIn|$)/i);
+        if (hlMatch) result.headline = hlMatch[1].trim();
+      }
+
+      // Followers — "12,500 followers" or "12.5K followers"
+      if (!result.followers && isProfile) {
+        result.followers = extractNumber(text, /([\d.,]+[KkMm]?)\s*followers?/i);
+      }
+
+      // Connections — "500+ connections"
+      if (!result.connections) {
+        const connMatch = text.match(/([\d,]+\+?)\s*connections?/i);
+        if (connMatch) result.connections = connMatch[1];
+      }
+
+      // About / bio — from the snippet when it's not just stats
+      if (!result.about && item.snippet && item.snippet.length > 30 && isProfile) {
+        result.about = item.snippet.slice(0, 300);
+      }
+
+      // Current role + company — "Director at Propacity" style
+      if (!result.currentRole) {
+        const roleMatch = text.match(/\b([A-Z][^.!?]+?)\s+at\s+([A-Z][^.!?]+?)(?:\s*[·|]|$)/);
+        if (roleMatch) {
+          result.currentRole = roleMatch[1].trim();
+          if (!result.currentCompany) result.currentCompany = roleMatch[2].trim();
+        }
+      }
+    }
+
+    // Knowledge graph fallback
+    for (const r of results) {
+      const kg = (r as { knowledgeGraph?: { description?: string; title?: string; type?: string; attributes?: Record<string, string> } } | null)?.knowledgeGraph;
+      if (!kg) continue;
+      if (!result.fullName && kg.title) result.fullName = kg.title;
+      if (!result.headline && kg.type) result.headline = kg.type;
+      if (!result.about && kg.description) result.about = kg.description.slice(0, 300);
+      if (kg.attributes) {
+        if (!result.followers) result.followers = parseCount(kg.attributes['Followers'] ?? '');
+      }
+    }
+  } catch (err) {
+    console.error('[socialInsights] PromoterLinkedIn error:', err instanceof Error ? err.message : err);
+  }
+
+  return result;
+}
+
 // ── Combined entry point ───────────────────────────────────────────────────────
 export interface SocialInsightsResult {
   instagram: InstagramInsights | null;

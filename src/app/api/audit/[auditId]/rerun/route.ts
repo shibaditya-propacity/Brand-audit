@@ -22,7 +22,7 @@ const DIMENSION_SOURCES: Record<string, string[]> = {
   D7:  ['Reviews'],
   D8:  ['WebCrawler', 'DataForSEO'],
   D9:  ['Reviews', 'HikerAPI', 'DataForSEO'],
-  D10: ['WebCrawler', 'PDL'],
+  D10: ['WebCrawler', 'PDL', 'PromoterLinkedIn'],
 };
 
 type CollectTask = {
@@ -52,6 +52,8 @@ function buildCollectTasks(
       return { source, urlKey: 'meta-ads', enabled: true, body: { brandName: dev.metaAdLibraryName || dev.brandName, auditId } };
     case 'Screenshot':
       return { source, urlKey: 'screenshot', enabled: !!dev.websiteUrl, body: { websiteUrl: dev.websiteUrl, domain: dev.domain, auditId } };
+    case 'PromoterLinkedIn':
+      return { source, urlKey: 'promoter-linkedin', enabled: !!dev.promoterLinkedIn, body: { auditId } };
     default:
       return null;
   }
