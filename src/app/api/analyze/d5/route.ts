@@ -3,6 +3,8 @@ import { analyzeWithClaude, analyzeWithVision } from '@/lib/anthropic';
 import { buildD5Prompt } from '@/prompts/d5-visual-identity';
 import { getAuditWithDev, saveDimensionResult, saveSkippedDimension, buildDataAvailabilityNote, buildManualOverrideNote } from '../_shared';
 
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const { auditId } = await request.json();

@@ -7,22 +7,35 @@ export const anthropic = new Anthropic({
 export const CLAUDE_MODEL = 'claude-sonnet-4-6';
 
 export async function analyzeWithClaude(prompt: string, systemPrompt?: string): Promise<string> {
-  const response = await anthropic.messages.create({
-    model: CLAUDE_MODEL,
-    max_tokens: 4096,
-    system: systemPrompt || 'You are an expert real estate brand strategist. Always return valid JSON only, no prose, no markdown fences.',
-    messages: [{ role: 'user', content: prompt }],
-  });
+  const system = systemPrompt || 'You are an expert real estate brand strategist. Always return valid JSON only, no prose, no markdown fences.';
 
-  const content = response.content[0];
-  if (content.type !== 'text') throw new Error('Unexpected response type from AI service');
+  for (let attempt = 0; attempt <= 1; attempt++) {
+    try {
+      const response = await anthropic.messages.create({
+        model: CLAUDE_MODEL,
+        max_tokens: 4096,
+        system,
+        messages: [{ role: 'user', content: prompt }],
+      });
 
-  // Strip markdown fences if present
-  let text = content.text.trim();
-  if (text.startsWith('```')) {
-    text = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+      const content = response.content[0];
+      if (content.type !== 'text') throw new Error('Unexpected response type from AI service');
+
+      let text = content.text.trim();
+      if (text.startsWith('```')) {
+        text = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+      }
+      return text;
+    } catch (err) {
+      if (attempt < 1) {
+        console.warn('[claude] attempt 1 failed, retrying in 3s:', err instanceof Error ? err.message : err);
+        await new Promise(r => setTimeout(r, 3000));
+        continue;
+      }
+      throw err;
+    }
   }
-  return text;
+  throw new Error('AI analysis failed after retries');
 }
 
 export async function analyzeWithVision(

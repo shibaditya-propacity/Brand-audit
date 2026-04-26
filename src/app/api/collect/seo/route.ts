@@ -3,6 +3,8 @@ import connectDB from '@/lib/mongodb';
 import { Audit } from '@/lib/models';
 import { getSerpResults, getBacklinksSummary, postOnPageTask, getOnPageResults, findDomainInSerp } from '@/lib/apis/dataForSeo';
 
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const { domain, brandName, auditId } = await request.json();
@@ -33,7 +35,16 @@ export async function POST(request: NextRequest) {
     if (serpResult.status === 'rejected') {
       const msg = serpResult.reason instanceof Error ? serpResult.reason.message : 'SEO data collection failed';
       console.error('SEO SERP collection error:', msg);
-      return NextResponse.json({ success: false, data: null, error: msg });
+      // Fall back to cached data if available
+      if (auditId) {
+        await connectDB();
+        const existing = await Audit.findById(auditId).lean() as { collectedData?: { seoKeywords?: unknown } } | null;
+        if (existing?.collectedData?.seoKeywords) {
+          console.log('[seo] using cached SEO data');
+          return NextResponse.json({ success: true, data: { serpData: existing.collectedData.seoKeywords }, cached: true });
+        }
+      }
+      return NextResponse.json({ success: false, data: null, error: 'SEO data unavailable' });
     }
 
     if (auditId) {

@@ -42,6 +42,15 @@ export async function POST(request: NextRequest) {
 
     const hasAnyData = insights.instagram || insights.facebook || insights.linkedin;
     if (!hasAnyData) {
+      // Fall back to cached data if available
+      if (auditId) {
+        await connectDB();
+        const existing = await Audit.findById(auditId).lean() as { collectedData?: { instagramData?: unknown } } | null;
+        if (existing?.collectedData?.instagramData) {
+          console.log('[instagram] using cached social data');
+          return NextResponse.json({ success: true, data: { instagram: existing.collectedData.instagramData }, cached: true });
+        }
+      }
       return NextResponse.json({ success: false, data: null, error: 'No social data found for any platform' });
     }
 

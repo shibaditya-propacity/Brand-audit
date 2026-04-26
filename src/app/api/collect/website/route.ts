@@ -3,6 +3,8 @@ import connectDB from '@/lib/mongodb';
 import { Audit } from '@/lib/models';
 import { startCrawl, pollCrawlUntilDone, extractWebsiteInsights } from '@/lib/apis/webCrawler';
 
+export const maxDuration = 150;
+
 export async function POST(request: NextRequest) {
   try {
     const { websiteUrl, auditId } = await request.json();
@@ -21,7 +23,16 @@ export async function POST(request: NextRequest) {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error('Web crawl API error:', msg);
-      return NextResponse.json({ success: false, data: null, error: msg });
+      // Fall back to cached data if available — don't fail if we have prior results
+      if (auditId) {
+        await connectDB();
+        const existing = await Audit.findById(auditId).lean() as { collectedData?: { websiteContent?: unknown } } | null;
+        if (existing?.collectedData?.websiteContent) {
+          console.log('[website] using cached website content');
+          return NextResponse.json({ success: true, data: existing.collectedData.websiteContent, cached: true });
+        }
+      }
+      return NextResponse.json({ success: false, data: null, error: 'Website data unavailable' });
     }
 
     if (auditId) {

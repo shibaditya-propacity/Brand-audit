@@ -3,6 +3,8 @@ import { analyzeWithVision } from '@/lib/anthropic';
 import { buildLogoVisionPrompt } from '@/prompts/logo-vision';
 import { getAuditWithDev } from '../_shared';
 
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const { auditId, logoUrl: providedLogoUrl } = await request.json();

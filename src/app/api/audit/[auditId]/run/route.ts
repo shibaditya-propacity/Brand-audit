@@ -38,7 +38,7 @@ export async function GET(_req: NextRequest, { params }: { params: { auditId: st
 
         // Parallel collection — all 7 sources run concurrently via Promise.allSettled
         const collectTasks = [
-          { key: 'companyData', source: 'PDL', enabled: !!dev.domain, body: { domain: dev.domain, brandName: dev.brandName, auditId } },
+          { key: 'companyData', source: 'PDL', enabled: !!dev.domain, body: { domain: dev.domain, brandName: dev.brandName, auditId, developerId: String((dev as { _id: unknown })._id) } },
           { key: 'gmb', source: 'Reviews', enabled: !!dev.brandName, body: { placeId: dev.gmbPlaceId, auditId } },
           { key: 'seo', source: 'DataForSEO', enabled: !!dev.domain || !!dev.brandName, body: { domain: dev.domain, brandName: dev.brandName, auditId } },
           { key: 'website', source: 'WebCrawler', enabled: !!dev.websiteUrl, body: { websiteUrl: dev.websiteUrl, auditId } },

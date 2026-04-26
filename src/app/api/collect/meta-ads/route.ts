@@ -3,6 +3,8 @@ import connectDB from '@/lib/mongodb';
 import { Audit } from '@/lib/models';
 import { getMetaAds, analyzeMetaAds } from '@/lib/apis/metaAdLibrary';
 
+export const maxDuration = 30;
+
 export async function POST(request: NextRequest) {
   try {
     const { brandName, auditId } = await request.json();
@@ -12,8 +14,17 @@ export async function POST(request: NextRequest) {
       ads = await getMetaAds(brandName || '');
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      console.error('MetAPI ads error:', msg);
-      return NextResponse.json({ success: false, data: null, error: msg });
+      console.error('Meta ads API error:', msg);
+      // Fall back to cached data if available
+      if (auditId) {
+        await connectDB();
+        const existing = await Audit.findById(auditId).lean() as { collectedData?: { metaAdsData?: unknown } } | null;
+        if (existing?.collectedData?.metaAdsData) {
+          console.log('[meta-ads] using cached ad data');
+          return NextResponse.json({ success: true, data: existing.collectedData.metaAdsData, cached: true });
+        }
+      }
+      return NextResponse.json({ success: false, data: null, error: 'Ad data unavailable' });
     }
 
     const analysis = analyzeMetaAds(ads);

@@ -5,8 +5,8 @@
 export async function fetchWithRetry(
   url: string,
   options: RequestInit = {},
-  retries = 1,
-  timeoutMs = 15000
+  retries = 2,
+  timeoutMs = 20000
 ): Promise<Response> {
   const doFetch = async (): Promise<Response> => {
     const controller = new AbortController();
@@ -39,7 +39,7 @@ export async function fetchWithRetry(
  */
 export async function withRetry<T>(
   fn: () => Promise<T>,
-  retries = 1,
+  retries = 2,
   delayMs = 2000
 ): Promise<T> {
   for (let attempt = 0; attempt <= retries; attempt++) {

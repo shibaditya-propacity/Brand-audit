@@ -3,6 +3,8 @@ import { analyzeWithClaude } from '@/lib/anthropic';
 import { buildD9Prompt } from '@/prompts/d9-competitors';
 import { getAuditWithDev, saveDimensionResult, saveSkippedDimension, buildDataAvailabilityNote, buildManualOverrideNote } from '../_shared';
 
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const { auditId } = await request.json();

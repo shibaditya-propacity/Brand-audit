@@ -4,6 +4,8 @@ import { Audit, Developer } from '@/lib/models';
 import { getPlaceDetails, getSerperPlaceRating } from '@/lib/apis/googlePlaces';
 import { getGoogleReviewsSummary, type ReviewSummary } from '@/lib/apis/apifyReviews';
 
+export const maxDuration = 90;
+
 export async function POST(request: NextRequest) {
   try {
     const { placeId, auditId } = await request.json();
