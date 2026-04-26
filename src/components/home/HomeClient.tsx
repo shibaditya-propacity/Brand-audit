@@ -103,7 +103,7 @@ export function HomeClient({ audits }: HomeClientProps) {
             className="inline-flex items-center gap-2 rounded-full bg-indigo-500/10 dark:bg-indigo-500/15 border border-indigo-500/20 px-4 py-1.5 text-sm text-indigo-600 dark:text-indigo-400 font-medium mb-6 shadow-sm"
           >
             <Sparkles className="h-3.5 w-3.5" />
-            Powered by Claude AI · 10 Brand Dimensions
+            AI-Powered · 10 Brand Dimensions
           </motion.div>
 
           <motion.h1
@@ -123,8 +123,8 @@ export function HomeClient({ audits }: HomeClientProps) {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto text-base mb-8 leading-relaxed"
           >
-            Evidence-based brand intelligence powered by live data from Google, Instagram,
-            DataForSEO &amp; Claude AI. No mock data — every insight is real.
+            Evidence-based brand intelligence powered by live data across search, social,
+            and web sources. No mock data — every insight is real.
           </motion.p>
 
           <motion.div

@@ -44,6 +44,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'D3 analysis failed';
     console.error('D3 analysis error:', msg);
-    return NextResponse.json({ success: false, score: null, dimension: 'D3', error: msg });
+    return NextResponse.json({ success: false, score: null, dimension: 'D3', error: 'Analysis failed. Please try again.' });
   }
 }

@@ -49,7 +49,7 @@ export function CollateralAnalysisPanel({ analysis, hasDocs }: CollateralAnalysi
             <h3 className="font-semibold text-slate-900 dark:text-slate-100">Collateral Analysis</h3>
             <Badge color={tierColor} size="xs">{analysis.score}/100</Badge>
             <span className="text-xs text-slate-400">
-              {analysis.docsAnalyzed} doc{analysis.docsAnalyzed !== 1 ? 's' : ''} analysed · Groq AI
+              {analysis.docsAnalyzed} doc{analysis.docsAnalyzed !== 1 ? 's' : ''} analysed
             </span>
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">{analysis.summary}</p>

@@ -40,6 +40,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'D8 analysis failed';
     console.error('D8 analysis error:', msg);
-    return NextResponse.json({ success: false, score: null, dimension: 'D8', error: msg });
+    return NextResponse.json({ success: false, score: null, dimension: 'D8', error: 'Analysis failed. Please try again.' });
   }
 }

@@ -77,8 +77,7 @@ export async function POST(request: NextRequest) {
     } catch {
       return NextResponse.json({
         success: false,
-        error: 'Failed to parse Groq response',
-        raw,
+        error: 'Analysis failed. Please try again.',
       });
     }
 
@@ -101,6 +100,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Collateral analysis failed';
     console.error('[analyze/collateral]', msg);
-    return NextResponse.json({ success: false, error: msg });
+    return NextResponse.json({ success: false, error: 'Analysis failed. Please try again.' });
   }
 }

@@ -247,6 +247,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Prefill lookup failed';
     console.error('[prefill] error:', msg);
-    return NextResponse.json({ success: false, data: null, error: msg });
+    return NextResponse.json({ success: false, data: null, error: 'Prefill lookup failed. Please try again.' });
   }
 }

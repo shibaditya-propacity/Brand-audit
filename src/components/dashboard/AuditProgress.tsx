@@ -12,11 +12,23 @@ interface AuditProgressProps {
   autoRun?: boolean;
 }
 
+const SOURCE_LABELS: Record<string, string> = {
+  PDL:             'Company Data',
+  DataForSEO:      'SEO Data',
+  WebCrawler:      'Website',
+  HikerAPI:        'Social Media',
+  MetaAdLibrary:   'Ad Library',
+  Reviews:         'Reviews',
+  Screenshot:      'Screenshot',
+  PromoterLinkedIn:'LinkedIn Profile',
+};
+
 /* ── single log row ── */
 function EventRow({ event, index }: { event: ProgressEvent; index: number }) {
+  const rawSource = event.source ?? 'data source';
   const label =
     event.stage === 'collecting'
-      ? (event.source ?? 'data source')
+      ? (SOURCE_LABELS[rawSource] ?? rawSource)
       : event.stage === 'analyzing'
       ? (event.dimension ?? 'dimension')
       : event.stage === 'complete'
@@ -99,7 +111,7 @@ function FailedSourcesBanner({ sources }: { sources: string[] }) {
     >
       <WifiOff className="h-3.5 w-3.5 mt-0.5 shrink-0" />
       <span>
-        <strong>Partial data:</strong> {sources.join(', ')} could not be reached.
+        <strong>Partial data:</strong> {sources.map(s => SOURCE_LABELS[s] ?? s).join(', ')} could not be reached.
         Affected items will be marked N/A — no score penalty applied.
       </span>
     </motion.div>

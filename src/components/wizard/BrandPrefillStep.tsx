@@ -446,7 +446,7 @@ export function BrandPrefillStep({ onContinue, onBack }: BrandPrefillStepProps) 
           <p className="text-sm font-medium text-slate-700">Collateral Documents</p>
           <p className="text-xs text-muted-foreground mt-0.5">
             Upload brochures, project decks, or pricing sheets (PDF, up to 3). These are analysed separately
-            using Groq AI and only the uploaded content is used.
+            using AI and only the uploaded content is used.
           </p>
         </div>
         <CollateralDocUpload

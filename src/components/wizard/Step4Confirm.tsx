@@ -55,7 +55,7 @@ export function Step4Confirm() {
       )}
 
       <div className="rounded-md border border-amber-200 bg-amber-50 p-3">
-        <p className="text-xs text-amber-800">Clicking <strong>Launch Audit</strong> will trigger live API calls to Google Places, DataForSEO, Instagram (HikerAPI), Meta Ad Library, and Claude AI. This uses real API credits.</p>
+        <p className="text-xs text-amber-800">Clicking <strong>Launch Audit</strong> will trigger live data collection and AI analysis across all brand dimensions. This uses real API credits.</p>
       </div>
     </div>
   );

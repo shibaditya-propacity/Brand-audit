@@ -16,7 +16,7 @@ const GROQ_BASE = 'https://api.groq.com/openai/v1/chat/completions';
  */
 export async function analyzeWithGroq(prompt: string, systemPrompt?: string): Promise<string> {
   if (!GROQ_API_KEY) {
-    throw new Error('GROQ_API_KEY not set — add it to .env');
+    throw new Error('AI service configuration error');
   }
 
   const messages: Array<{ role: string; content: string }> = [];
@@ -45,8 +45,7 @@ export async function analyzeWithGroq(prompt: string, systemPrompt?: string): Pr
   });
 
   if (!res.ok) {
-    const err = await res.text().catch(() => res.statusText);
-    throw new Error(`Groq API error ${res.status}: ${err}`);
+    throw new Error(`AI service error: ${res.status}`);
   }
 
   const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };
@@ -61,7 +60,7 @@ export async function analyzeWithGroq(prompt: string, systemPrompt?: string): Pr
 
 export async function extractWithGroq(prompt: string, maxTokens = 256): Promise<string> {
   if (!GROQ_API_KEY) {
-    throw new Error('GROQ_API_KEY not set — add it to .env to enable free LLM extraction');
+    throw new Error('AI service configuration error');
   }
 
   const res = await fetch(GROQ_BASE, {
@@ -79,8 +78,7 @@ export async function extractWithGroq(prompt: string, maxTokens = 256): Promise<
   });
 
   if (!res.ok) {
-    const err = await res.text().catch(() => res.statusText);
-    throw new Error(`Groq API error ${res.status}: ${err}`);
+    throw new Error(`AI service error: ${res.status}`);
   }
 
   const data = await res.json() as { choices?: Array<{ message?: { content?: string } }> };

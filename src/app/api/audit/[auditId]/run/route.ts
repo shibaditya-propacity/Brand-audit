@@ -159,7 +159,7 @@ export async function GET(_req: NextRequest, { params }: { params: { auditId: st
       } catch (error) {
         console.error('Run audit error:', error);
         try { await Audit.findByIdAndUpdate(auditId, { status: 'FAILED' }); } catch { /* ignore */ }
-        send({ stage: 'error', message: error instanceof Error ? error.message : 'Unknown error' });
+        send({ stage: 'error', message: 'Audit failed. Please try again.' });
       } finally {
         controller.close();
       }

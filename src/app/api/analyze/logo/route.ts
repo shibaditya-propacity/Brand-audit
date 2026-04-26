@@ -21,6 +21,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Logo analysis failed';
     console.error('Logo analysis error:', msg);
-    return NextResponse.json({ success: false, analysis: null, error: msg });
+    return NextResponse.json({ success: false, analysis: null, error: 'Analysis failed. Please try again.' });
   }
 }

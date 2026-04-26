@@ -33,6 +33,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'D9 analysis failed';
     console.error('D9 analysis error:', msg);
-    return NextResponse.json({ success: false, score: null, dimension: 'D9', error: msg });
+    return NextResponse.json({ success: false, score: null, dimension: 'D9', error: 'Analysis failed. Please try again.' });
   }
 }

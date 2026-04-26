@@ -15,7 +15,7 @@ export async function analyzeWithClaude(prompt: string, systemPrompt?: string): 
   });
 
   const content = response.content[0];
-  if (content.type !== 'text') throw new Error('Unexpected response type from Claude');
+  if (content.type !== 'text') throw new Error('Unexpected response type from AI service');
 
   // Strip markdown fences if present
   let text = content.text.trim();
@@ -58,7 +58,7 @@ export async function analyzeWithVision(
   });
 
   const content = response.content[0];
-  if (content.type !== 'text') throw new Error('Unexpected response type from Claude');
+  if (content.type !== 'text') throw new Error('Unexpected response type from AI service');
 
   let text = content.text.trim();
   if (text.startsWith('```')) {

@@ -168,7 +168,7 @@ export async function GET(req: NextRequest, { params }: { params: { auditId: str
 
         send({ stage: 'complete', dimension, score: newScore, overallScore });
       } catch (err) {
-        send({ stage: 'error', message: err instanceof Error ? err.message : 'Unknown error' });
+        send({ stage: 'error', message: 'Re-analysis failed. Please try again.' });
       } finally {
         controller.close();
       }

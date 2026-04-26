@@ -29,6 +29,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'D7 analysis failed';
     console.error('D7 analysis error:', msg);
-    return NextResponse.json({ success: false, score: null, dimension: 'D7', error: msg });
+    return NextResponse.json({ success: false, score: null, dimension: 'D7', error: 'Analysis failed. Please try again.' });
   }
 }
