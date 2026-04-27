@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { RefreshCw, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -25,6 +26,7 @@ export function RerunButton({ auditId, dimensionCode, onComplete }: RerunButtonP
   const [phase, setPhase] = useState<Phase>('idle');
   const [statusLine, setStatusLine] = useState('');
   const esRef = useRef<EventSource | null>(null);
+  const router = useRouter();
 
   function start() {
     if (phase !== 'idle' && phase !== 'done' && phase !== 'error') return;
@@ -51,8 +53,9 @@ export function RerunButton({ auditId, dimensionCode, onComplete }: RerunButtonP
           setStatusLine(data.score != null ? `Score: ${data.score}` : 'Done');
           es.close();
           onComplete?.();
-          // Reset to idle after 3 s so button is reusable
-          setTimeout(() => { setPhase('idle'); setStatusLine(''); }, 3000);
+          router.refresh(); // Force Next.js to invalidate cached page data
+          // Reset to idle after 4 s so button is reusable
+          setTimeout(() => { setPhase('idle'); setStatusLine(''); }, 4000);
         } else if (data.stage === 'error') {
           setPhase('error');
           setStatusLine(data.message ?? 'Error');
@@ -63,6 +66,8 @@ export function RerunButton({ auditId, dimensionCode, onComplete }: RerunButtonP
     };
 
     es.onerror = () => {
+      // Ignore onerror if we already finished (server closed stream after 'complete')
+      if (esRef.current?.readyState === EventSource.CLOSED) return;
       setPhase('error');
       setStatusLine('Connection lost');
       es.close();

@@ -13,7 +13,7 @@ export function useAuditData(auditId: string) {
     const fetchAudit = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/audit/${auditId}`);
+        const response = await fetch(`/api/audit/${auditId}`, { cache: 'no-store' });
         if (!response.ok) throw new Error('Failed to fetch audit');
         const data = await response.json();
         setAudit(data);
@@ -29,7 +29,7 @@ export function useAuditData(auditId: string) {
 
   const refetch = async () => {
     try {
-      const response = await fetch(`/api/audit/${auditId}`);
+      const response = await fetch(`/api/audit/${auditId}`, { cache: 'no-store' });
       if (response.ok) {
         const data = await response.json();
         setAudit(data);

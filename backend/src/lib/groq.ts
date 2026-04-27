@@ -51,15 +51,15 @@ async function callGroq(
       }),
     });
 
-    // Rate limited — wait and retry
+    // Rate limited — only retry if the wait is short, otherwise fall back to Claude immediately
     if (res.status === 429) {
-      if (attempt < 2) {
-        const retryAfter = parseInt(res.headers.get('retry-after') ?? '5', 10);
+      const retryAfter = parseInt(res.headers.get('retry-after') ?? '5', 10);
+      if (attempt < 2 && retryAfter <= 30) {
         console.warn(`[groq] rate limited, retrying in ${retryAfter}s (attempt ${attempt + 1})`);
         await new Promise(r => setTimeout(r, retryAfter * 1000));
         continue;
       }
-      throw new Error('Groq rate limit exceeded after retries');
+      throw new Error(`Groq rate limit exceeded (retry-after: ${retryAfter}s) — falling back to Claude`);
     }
 
     if (!res.ok) throw new Error(`Groq API error: ${res.status}`);

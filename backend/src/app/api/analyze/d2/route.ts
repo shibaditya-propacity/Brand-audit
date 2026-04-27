@@ -38,7 +38,13 @@ export async function POST(request: NextRequest) {
       + buildManualOverrideNote(manualOverrides['D2']);
 
     const raw = await analyzeWithGroq(prompt);
-    const findings = JSON.parse(raw);
+    let findings;
+    try {
+      findings = JSON.parse(raw);
+    } catch (parseErr) {
+      console.error('D2 JSON parse failed. Raw response (last 500 chars):', raw.slice(-500));
+      throw parseErr;
+    }
     const score = await saveDimensionResult(auditId, 'D2', findings);
     return NextResponse.json({ success: true, score, dimension: 'D2', findings });
   } catch (error) {
