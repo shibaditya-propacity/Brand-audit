@@ -2,9 +2,90 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuditStore } from '@/store/auditStore';
-import { CheckCircle, XCircle, Loader2, WifiOff, RefreshCw, Database, Cpu, Sparkles } from 'lucide-react';
+import { CheckCircle, WifiOff, RefreshCw, Database, Cpu, Sparkles, TrendingUp, Building2, MapPin, IndianRupee, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ProgressEvent } from '@/types/audit';
+
+const FACTS = [
+  { icon: IndianRupee, color: 'text-emerald-500', tag: 'Market Size', fact: 'India\'s real estate sector is expected to reach $1 trillion by 2030, contributing 13% of the country\'s GDP.' },
+  { icon: Building2, color: 'text-blue-500', tag: 'Housing Demand', fact: 'India needs to build 25 million affordable urban homes by 2030 to meet the demand of its growing middle class.' },
+  { icon: TrendingUp, color: 'text-violet-500', tag: 'Investment', fact: 'Real estate attracts the second-highest FDI in India after the services sector, crossing $55 billion in the last decade.' },
+  { icon: MapPin, color: 'text-rose-500', tag: 'Top Cities', fact: 'Mumbai, Delhi NCR, and Bengaluru together account for over 60% of India\'s Grade-A office space absorption every year.' },
+  { icon: BarChart3, color: 'text-amber-500', tag: 'Digital Shift', fact: 'Over 70% of homebuyers now start their property search online, making digital brand presence critical for developers.' },
+  { icon: Building2, color: 'text-indigo-500', tag: 'Luxury Boom', fact: 'Luxury home sales (₹4 Cr+) in India surged 130% between 2021 and 2024 — the fastest-growing segment in the market.' },
+  { icon: IndianRupee, color: 'text-teal-500', tag: 'RERA Impact', fact: 'RERA has registered over 1.2 lakh real estate projects across India, boosting buyer confidence and accountability.' },
+  { icon: TrendingUp, color: 'text-orange-500', tag: 'NRI Interest', fact: 'NRIs invested over $13.1 billion in Indian real estate in 2023, with the US, UAE, and UK being the top source countries.' },
+  { icon: MapPin, color: 'text-cyan-500', tag: 'Tier-2 Rise', fact: 'Tier-2 cities like Pune, Hyderabad, and Ahmedabad saw a 40% jump in new residential launches in 2023 vs 2021.' },
+  { icon: BarChart3, color: 'text-pink-500', tag: 'Office Rebound', fact: 'India\'s office market absorbed a record 60+ million sq ft in 2023 — surpassing pre-pandemic levels for the first time.' },
+  { icon: Building2, color: 'text-lime-500', tag: 'Green Building', fact: 'India is the 3rd largest green building market globally, with over 10 billion sq ft of green-certified space registered.' },
+  { icon: IndianRupee, color: 'text-sky-500', tag: 'Rental Yields', fact: 'Residential rental yields in Indian metro cities average 2–4%, while commercial properties can yield 7–10% annually.' },
+  { icon: TrendingUp, color: 'text-fuchsia-500', tag: 'Brand Power', fact: 'Branded developers command a 15–25% price premium over local builders in the same micro-market, per industry studies.' },
+  { icon: MapPin, color: 'text-red-500', tag: 'PropTech', fact: 'India\'s PropTech market is projected to grow to $1 billion by 2030, reshaping how developers market and sell homes.' },
+  { icon: BarChart3, color: 'text-yellow-500', tag: 'Social Media', fact: 'Instagram and YouTube are the #1 channels for luxury real estate discovery in India among buyers aged 28–45.' },
+];
+
+function FactRotator({ visible }: { visible: boolean }) {
+  const [idx, setIdx] = useState(() => Math.floor(Math.random() * FACTS.length));
+  const [show, setShow] = useState(true);
+
+  useEffect(() => {
+    if (!visible) return;
+    const interval = setInterval(() => {
+      setShow(false);
+      setTimeout(() => {
+        setIdx(i => (i + 1) % FACTS.length);
+        setShow(true);
+      }, 400);
+    }, 20000);
+    return () => clearInterval(interval);
+  }, [visible]);
+
+  const fact = FACTS[idx];
+  const Icon = fact.icon;
+
+  return (
+    <AnimatePresence mode="wait">
+      {show && (
+        <motion.div
+          key={idx}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.4 }}
+          className="px-4 py-5"
+        >
+          <div className="flex items-start gap-3">
+            <div className={cn('mt-0.5 p-2 rounded-xl bg-slate-100 dark:bg-slate-800 flex-shrink-0', fact.color)}>
+              <Icon className="h-4 w-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className={cn('inline-block text-[10px] font-bold uppercase tracking-widest mb-1.5 px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800', fact.color)}>
+                {fact.tag}
+              </span>
+              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                {fact.fact}
+              </p>
+            </div>
+          </div>
+          <div className="mt-3 flex items-center gap-2">
+            <div className="flex-1 flex gap-1">
+              {FACTS.slice(0, 8).map((_, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    'h-0.5 flex-1 rounded-full transition-colors duration-500',
+                    i === idx % 8 ? 'bg-indigo-500' : 'bg-slate-200 dark:bg-slate-700'
+                  )}
+                />
+              ))}
+            </div>
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 tabular-nums">{idx + 1}/{FACTS.length}</span>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
 
 interface AuditProgressProps {
   auditId: string;
@@ -22,63 +103,6 @@ const SOURCE_LABELS: Record<string, string> = {
   Screenshot:      'Screenshot',
   PromoterLinkedIn:'LinkedIn Profile',
 };
-
-/* ── single log row ── */
-function EventRow({ event, index }: { event: ProgressEvent; index: number }) {
-  const rawSource = event.source ?? 'data source';
-  const label =
-    event.stage === 'collecting'
-      ? (SOURCE_LABELS[rawSource] ?? rawSource)
-      : event.stage === 'analyzing'
-      ? (event.dimension ?? 'dimension')
-      : event.stage === 'complete'
-      ? `Done — Score: ${event.overallScore ?? 'N/A'}`
-      : event.message || event.stage;
-
-  const isCollectFail = event.stage === 'collecting' && event.status === 'failed';
-  const isHardFail    = (event.status === 'failed' && event.stage !== 'collecting') || event.stage === 'error';
-  const isDone        = event.status === 'done' || event.stage === 'complete';
-  const isInProgress  = event.status === 'in_progress';
-
-  const icon = isDone ? (
-    <CheckCircle className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />
-  ) : isCollectFail ? (
-    <WifiOff className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
-  ) : isHardFail ? (
-    <XCircle className="h-3.5 w-3.5 text-rose-500 flex-shrink-0" />
-  ) : isInProgress ? (
-    <Loader2 className="h-3.5 w-3.5 text-indigo-400 animate-spin flex-shrink-0" />
-  ) : (
-    <span className="h-3.5 w-3.5 rounded-full border border-slate-300 dark:border-slate-600 flex-shrink-0 inline-block" />
-  );
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -8 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.25, delay: index * 0.02 }}
-      className={cn(
-        'flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-mono transition-colors',
-        isDone        && 'bg-emerald-500/5 text-emerald-700 dark:text-emerald-400',
-        isCollectFail && 'bg-amber-500/5  text-amber-700  dark:text-amber-400',
-        isHardFail    && 'bg-rose-500/5   text-rose-700   dark:text-rose-400',
-        isInProgress  && 'bg-indigo-500/8 text-indigo-700 dark:text-indigo-300',
-        !isDone && !isCollectFail && !isHardFail && !isInProgress && 'text-slate-500 dark:text-slate-500',
-      )}
-    >
-      {icon}
-      <span className="flex-1 truncate">{label}</span>
-      {isCollectFail && (
-        <span className="ml-auto text-[10px] font-semibold bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 px-1.5 py-0.5 rounded-full">
-          unavailable
-        </span>
-      )}
-      {event.score !== undefined && event.score !== null && (
-        <span className="ml-auto font-bold text-indigo-600 dark:text-indigo-400">{event.score}</span>
-      )}
-    </motion.div>
-  );
-}
 
 /* ── phase progress bar ── */
 function PhaseBar({ done, total, color }: { done: number; total: number; color: string }) {
@@ -123,7 +147,6 @@ export function AuditProgress({ auditId, onComplete, autoRun = false }: AuditPro
   const eventSourceRef  = useRef<EventSource | null>(null);
   const completedRef    = useRef(false);
   const [manuallyStarted, setManuallyStarted] = useState(false);
-  const logRef = useRef<HTMLDivElement>(null);
 
   const collectEvents  = progressEvents.filter(e => e.stage === 'collecting');
   const analyzeEvents  = progressEvents.filter(e => e.stage === 'analyzing');
@@ -132,13 +155,6 @@ export function AuditProgress({ auditId, onComplete, autoRun = false }: AuditPro
   const totalSources   = collectEvents.length;
   const doneDims       = analyzeEvents.filter(e => e.status === 'done' || e.status === 'failed').length;
   const totalDims      = analyzeEvents.length;
-
-  // Auto-scroll log to bottom
-  useEffect(() => {
-    if (logRef.current) {
-      logRef.current.scrollTop = logRef.current.scrollHeight;
-    }
-  }, [progressEvents.length]);
 
   function startRun() {
     if (isRunning || completedRef.current) return;
@@ -278,23 +294,25 @@ export function AuditProgress({ auditId, onComplete, autoRun = false }: AuditPro
         </div>
       )}
 
-      {/* Log */}
-      <div
-        ref={logRef}
-        className="max-h-72 overflow-y-auto px-3 py-2 space-y-0.5 scroll-smooth"
-      >
-        {progressEvents.length === 0 && (
-          <div className="flex items-center gap-2 py-3 px-2 text-xs text-slate-400 dark:text-slate-500 font-mono">
-            <Sparkles className="h-3.5 w-3.5 animate-pulse" />
-            Initialising…
+      {/* Facts while running, completion card when done */}
+      {isRunning || progressEvents.length === 0 ? (
+        <div>
+          {progressEvents.length === 0 && (
+            <div className="flex items-center gap-2 px-4 pt-4 pb-1 text-xs text-slate-400 dark:text-slate-500">
+              <Sparkles className="h-3.5 w-3.5 animate-pulse" />
+              <span>Initialising audit…</span>
+            </div>
+          )}
+          <div className="border-t border-slate-100 dark:border-slate-800">
+            <div className="px-4 pt-3 pb-1">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                Did you know?
+              </p>
+            </div>
+            <FactRotator visible={isRunning || progressEvents.length === 0} />
           </div>
-        )}
-        <AnimatePresence initial={false}>
-          {progressEvents.map((event, idx) => (
-            <EventRow key={idx} event={event} index={idx} />
-          ))}
-        </AnimatePresence>
-      </div>
+        </div>
+      ) : null}
 
       <FailedSourcesBanner sources={failedSources} />
     </motion.div>

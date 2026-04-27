@@ -12,12 +12,26 @@ export function buildD2Prompt(
   const sharedCtx = buildSharedContext(developer.brandName, developer.positioning || '', developer.city || '', developer.targetSegments, developer.websiteUrl, auditDate);
   const serpSummary = summarizeSerp(serpData);
 
+  // Slim down websiteContent — cap large text fields to avoid bloating the prompt
+  const wc = websiteContent as Record<string, unknown> | null;
+  const wcSummary = wc ? {
+    pages: wc.pages,
+    titles: (wc.titles as string[] | undefined)?.slice(0, 10),
+    h1Tags: (wc.h1Tags as string[] | undefined)?.slice(0, 10),
+    h2Tags: (wc.h2Tags as string[] | undefined)?.slice(0, 15),
+    ctasFound: wc.ctasFound,
+    hasLeadForm: wc.hasLeadForm,
+    hasAnalytics: wc.hasAnalytics,
+    hasFacebookPixel: wc.hasFacebookPixel,
+    contentSummary: typeof wc.contentSummary === 'string' ? wc.contentSummary.slice(0, 2000) : wc.contentSummary,
+  } : null;
+
   return `${sharedCtx}
 
 You are auditing the Website & SEO dimension (D2) for ${developer.brandName}.
 
 WEBSITE CRAWL DATA:
-${JSON.stringify(websiteContent, null, 2)}
+${JSON.stringify(wcSummary, null, 2)}
 
 SEO METRICS (top 5 organic results + knowledge graph):
 ${JSON.stringify({ serpSummary, backlinksData }, null, 2)}

@@ -1,5 +1,15 @@
 import Anthropic from '@anthropic-ai/sdk';
 
+function extractJson(raw: string): string {
+  let text = raw.trim();
+  text = text.replace(/```(?:json)?\n?/g, '').replace(/```/g, '').trim();
+  if (text.startsWith('{')) return text;
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}');
+  if (start !== -1 && end !== -1 && end > start) return text.slice(start, end + 1);
+  return text;
+}
+
 export const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
@@ -21,11 +31,7 @@ export async function analyzeWithClaude(prompt: string, systemPrompt?: string): 
       const content = response.content[0];
       if (content.type !== 'text') throw new Error('Unexpected response type from AI service');
 
-      let text = content.text.trim();
-      if (text.startsWith('```')) {
-        text = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
-      }
-      return text;
+      return extractJson(content.text.trim());
     } catch (err) {
       if (attempt < 1) {
         console.warn('[claude] attempt 1 failed, retrying in 3s:', err instanceof Error ? err.message : err);
@@ -98,11 +104,7 @@ export async function analyzeWithVision(
       const content = response.content[0];
       if (content.type !== 'text') throw new Error('Unexpected response type from AI service');
 
-      let text = content.text.trim();
-      if (text.startsWith('```')) {
-        text = text.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
-      }
-      return text;
+      return extractJson(content.text.trim());
     } catch (err) {
       if (err instanceof ImageUnsupportedError) throw err;
       if (attempt < 1) {
