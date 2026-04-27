@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { analyzeWithClaude } from '@/lib/anthropic';
+import { analyzeWithGroq } from '@/lib/groq';
 import { buildD2Prompt } from '@/prompts/d2-website-seo';
 import { getAuditWithDev, saveDimensionResult, saveSkippedDimension, buildDataAvailabilityNote, buildManualOverrideNote } from '../_shared';
 
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     ) + buildDataAvailabilityNote(missing)
       + buildManualOverrideNote(manualOverrides['D2']);
 
-    const raw = await analyzeWithClaude(prompt);
+    const raw = await analyzeWithGroq(prompt);
     const findings = JSON.parse(raw);
     const score = await saveDimensionResult(auditId, 'D2', findings);
     return NextResponse.json({ success: true, score, dimension: 'D2', findings });

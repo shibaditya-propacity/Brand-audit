@@ -1,3 +1,34 @@
+/** Slim down a raw Serper SERP response to only the signals the analysis needs.
+ *  Avoids dumping 25-40 KB of JSON into every prompt. */
+export function summarizeSerp(serp: unknown): object | null {
+  if (!serp || typeof serp !== 'object') return null;
+  const s = serp as Record<string, unknown>;
+
+  const organic = (s.organic as Array<Record<string, unknown>> | undefined) ?? [];
+  const topOrganic = organic.slice(0, 5).map(r => ({
+    position: r.position,
+    title: r.title,
+    link: r.link,
+    snippet: typeof r.snippet === 'string' ? r.snippet.slice(0, 200) : r.snippet,
+  }));
+
+  const kg = s.knowledgeGraph as Record<string, unknown> | undefined;
+  const knowledgeGraph = kg ? {
+    title: kg.title,
+    type: kg.type,
+    description: typeof kg.description === 'string' ? kg.description.slice(0, 300) : kg.description,
+    website: kg.website,
+    rating: kg.rating,
+    reviewCount: kg.reviewCount,
+  } : null;
+
+  const answerBox = s.answerBox
+    ? { answer: (s.answerBox as Record<string, unknown>).answer }
+    : null;
+
+  return { topOrganic, knowledgeGraph, answerBox, totalOrganicResults: organic.length };
+}
+
 export function buildSharedContext(
   brandName: string,
   positioning: string,

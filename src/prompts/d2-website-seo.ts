@@ -1,4 +1,4 @@
-import { buildSharedContext } from './shared';
+import { buildSharedContext, summarizeSerp } from './shared';
 
 export function buildD2Prompt(
   developer: { brandName: string; positioning?: string | null; city?: string | null; targetSegments: string[]; websiteUrl?: string | null },
@@ -10,6 +10,8 @@ export function buildD2Prompt(
   auditDate: string
 ): string {
   const sharedCtx = buildSharedContext(developer.brandName, developer.positioning || '', developer.city || '', developer.targetSegments, developer.websiteUrl, auditDate);
+  const serpSummary = summarizeSerp(serpData);
+
   return `${sharedCtx}
 
 You are auditing the Website & SEO dimension (D2) for ${developer.brandName}.
@@ -17,8 +19,8 @@ You are auditing the Website & SEO dimension (D2) for ${developer.brandName}.
 WEBSITE CRAWL DATA:
 ${JSON.stringify(websiteContent, null, 2)}
 
-SEO METRICS:
-${JSON.stringify({ serpData, backlinksData }, null, 2)}
+SEO METRICS (top 5 organic results + knowledge graph):
+${JSON.stringify({ serpSummary, backlinksData }, null, 2)}
 
 TECHNICAL SEO:
 ${JSON.stringify(technicalSeo, null, 2)}

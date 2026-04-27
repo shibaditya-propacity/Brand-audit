@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { analyzeWithVision } from '@/lib/anthropic';
+import { analyzeWithClaude, analyzeWithVision } from '@/lib/anthropic';
 import { buildLogoVisionPrompt } from '@/prompts/logo-vision';
 import { getAuditWithDev } from '../_shared';
 
@@ -17,7 +17,16 @@ export async function POST(request: NextRequest) {
     }
 
     const prompt = buildLogoVisionPrompt(dev.brandName, dev.positioning || '');
-    const raw = await analyzeWithVision(prompt, imageUrl);
+
+    let raw: string;
+    try {
+      raw = await analyzeWithVision(prompt, imageUrl);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn('[logo] vision failed, falling back to text-only:', msg);
+      raw = await analyzeWithClaude(prompt);
+    }
+
     const analysis = JSON.parse(raw);
     return NextResponse.json({ success: true, analysis, logoUrl: imageUrl });
   } catch (error) {

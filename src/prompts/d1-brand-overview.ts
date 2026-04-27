@@ -1,4 +1,4 @@
-import { buildSharedContext } from './shared';
+import { buildSharedContext, summarizeSerp } from './shared';
 
 export function buildD1Prompt(
   developer: { brandName: string; positioning?: string | null; city?: string | null; targetSegments: string[]; websiteUrl?: string | null; yearEstablished?: number | null; legalName?: string | null; promoterName?: string | null },
@@ -7,6 +7,7 @@ export function buildD1Prompt(
   auditDate: string
 ): string {
   const sharedCtx = buildSharedContext(developer.brandName, developer.positioning || '', developer.city || '', developer.targetSegments, developer.websiteUrl, auditDate);
+  const serpSummary = summarizeSerp(serpData);
   return `${sharedCtx}
 
 You are auditing the Brand Overview dimension (D1) for ${developer.brandName}.
@@ -22,8 +23,8 @@ COMPANY INFORMATION:
 PDL COMPANY DATA (from People Data Labs):
 ${JSON.stringify(pdlData, null, 2)}
 
-SERP DATA (brand keyword search):
-${JSON.stringify(serpData, null, 2)}
+SERP DATA (brand keyword search — top 5 results + knowledge graph):
+${JSON.stringify(serpSummary, null, 2)}
 
 CRITICAL: Only evaluate items for which you have actual data. If PDL or SERP data is null/unavailable, set every item that depends on it to status "na" and finding "Data unavailable — cannot evaluate". Do NOT infer or estimate. Do NOT use "partial" as a substitute for missing data.
 

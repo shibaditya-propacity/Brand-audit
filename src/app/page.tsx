@@ -4,6 +4,8 @@ import { HomeClient } from '@/components/home/HomeClient';
 import connectDB from '@/lib/mongodb';
 import { Audit, Developer } from '@/lib/models';
 
+export const dynamic = 'force-dynamic';
+
 async function getAudits() {
   try {
     await connectDB();
