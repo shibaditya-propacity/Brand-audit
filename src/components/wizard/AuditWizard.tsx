@@ -1,6 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuditStore } from '@/store/auditStore';
 import { Step1BrandDetails } from './Step1BrandDetails';
 import { Step2DigitalPresence } from './Step2DigitalPresence';
@@ -10,7 +11,7 @@ import { BrandPrefillStep } from './BrandPrefillStep';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { CheckCircle, XCircle, Loader2, Database, Brain, Rocket, Sparkles } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2, Database, Brain, Rocket, Sparkles, TrendingUp, Building2, MapPin, IndianRupee, BarChart3 } from 'lucide-react';
 import type { ProgressEvent } from '@/types/audit';
 
 const STEPS = [
@@ -23,6 +24,71 @@ const STEPS = [
 const COLLECTION_SOURCES = ['PDL', 'DataForSEO', 'WebCrawler', 'HikerAPI', 'MetaAdLibrary', 'Screenshot', 'GooglePlaces'];
 const DIMENSION_CODES = ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10'];
 
+const FACTS = [
+  { icon: IndianRupee, color: 'text-emerald-500', bg: 'bg-emerald-50', tag: 'Market Size', fact: "India's real estate sector is expected to reach $1 trillion by 2030, contributing 13% of the country's GDP." },
+  { icon: Building2, color: 'text-blue-500', bg: 'bg-blue-50', tag: 'Housing Demand', fact: 'India needs to build 25 million affordable urban homes by 2030 to meet the demand of its growing middle class.' },
+  { icon: TrendingUp, color: 'text-violet-500', bg: 'bg-violet-50', tag: 'Investment', fact: 'Real estate attracts the second-highest FDI in India after the services sector, crossing $55 billion in the last decade.' },
+  { icon: MapPin, color: 'text-rose-500', bg: 'bg-rose-50', tag: 'Top Cities', fact: "Mumbai, Delhi NCR, and Bengaluru together account for over 60% of India's Grade-A office space absorption every year." },
+  { icon: BarChart3, color: 'text-amber-500', bg: 'bg-amber-50', tag: 'Digital Shift', fact: 'Over 70% of homebuyers now start their property search online, making digital brand presence critical for developers.' },
+  { icon: Building2, color: 'text-indigo-500', bg: 'bg-indigo-50', tag: 'Luxury Boom', fact: 'Luxury home sales (₹4 Cr+) in India surged 130% between 2021 and 2024 — the fastest-growing segment in the market.' },
+  { icon: IndianRupee, color: 'text-teal-500', bg: 'bg-teal-50', tag: 'RERA Impact', fact: 'RERA has registered over 1.2 lakh real estate projects across India, boosting buyer confidence and accountability.' },
+  { icon: TrendingUp, color: 'text-orange-500', bg: 'bg-orange-50', tag: 'NRI Interest', fact: 'NRIs invested over $13.1 billion in Indian real estate in 2023, with the US, UAE, and UK being the top source countries.' },
+  { icon: MapPin, color: 'text-cyan-500', bg: 'bg-cyan-50', tag: 'Tier-2 Rise', fact: 'Tier-2 cities like Pune, Hyderabad, and Ahmedabad saw a 40% jump in new residential launches in 2023 vs 2021.' },
+  { icon: BarChart3, color: 'text-pink-500', bg: 'bg-pink-50', tag: 'Office Rebound', fact: "India's office market absorbed a record 60+ million sq ft in 2023 — surpassing pre-pandemic levels for the first time." },
+  { icon: Building2, color: 'text-lime-600', bg: 'bg-lime-50', tag: 'Green Building', fact: 'India is the 3rd largest green building market globally, with over 10 billion sq ft of green-certified space registered.' },
+  { icon: IndianRupee, color: 'text-sky-500', bg: 'bg-sky-50', tag: 'Rental Yields', fact: 'Residential rental yields in Indian metro cities average 2–4%, while commercial properties can yield 7–10% annually.' },
+  { icon: TrendingUp, color: 'text-fuchsia-500', bg: 'bg-fuchsia-50', tag: 'Brand Power', fact: 'Branded developers command a 15–25% price premium over local builders in the same micro-market, per industry studies.' },
+  { icon: MapPin, color: 'text-red-500', bg: 'bg-red-50', tag: 'PropTech', fact: "India's PropTech market is projected to grow to $1 billion by 2030, reshaping how developers market and sell homes." },
+  { icon: BarChart3, color: 'text-yellow-600', bg: 'bg-yellow-50', tag: 'Social Media', fact: 'Instagram and YouTube are the #1 channels for luxury real estate discovery in India among buyers aged 28–45.' },
+];
+
+function FactCard() {
+  const [idx, setIdx] = useState(() => Math.floor(Math.random() * FACTS.length));
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const iv = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => { setIdx(i => (i + 1) % FACTS.length); setVisible(true); }, 400);
+    }, 20000);
+    return () => clearInterval(iv);
+  }, []);
+
+  const f = FACTS[idx];
+  const Icon = f.icon;
+
+  return (
+    <AnimatePresence mode="wait">
+      {visible && (
+        <motion.div
+          key={idx}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.35 }}
+          className="rounded-2xl border border-gray-100 bg-gray-50 p-5"
+        >
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Did you know?</p>
+          <div className="flex items-start gap-3">
+            <div className={cn('p-2 rounded-xl flex-shrink-0', f.bg)}>
+              <Icon className={cn('h-5 w-5', f.color)} />
+            </div>
+            <div>
+              <span className={cn('text-[10px] font-bold uppercase tracking-wider', f.color)}>{f.tag}</span>
+              <p className="mt-1 text-sm text-gray-700 leading-relaxed">{f.fact}</p>
+            </div>
+          </div>
+          <div className="mt-4 flex gap-1">
+            {FACTS.map((_, i) => (
+              <div key={i} className={cn('h-0.5 flex-1 rounded-full transition-all duration-500', i === idx ? f.color.replace('text-', 'bg-') : 'bg-gray-200')} />
+            ))}
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
 function AnalysisScreen({ auditId, onDone }: { auditId: string; onDone: () => void }) {
   const { addProgressEvent, clearProgressEvents, progressEvents, setIsRunning } = useAuditStore();
   const esRef = useRef<EventSource | null>(null);
@@ -32,13 +98,14 @@ function AnalysisScreen({ auditId, onDone }: { auditId: string; onDone: () => vo
   const analyzing = progressEvents.filter(e => e.stage === 'analyzing' && e.dimension);
   const isComplete = progressEvents.some(e => e.stage === 'complete');
   const hasError = progressEvents.some(e => e.stage === 'error');
-  const currentStageMsg = progressEvents.filter(e => e.message).at(-1)?.message ?? 'Initializing...';
 
   const collectDone = collecting.filter(e => e.status === 'done' || e.status === 'failed').length;
   const analyzeDone = analyzing.filter(e => e.status === 'done' || e.status === 'failed').length;
   const totalProgress = isComplete ? 100
     : collecting.length === 0 ? 5
     : Math.round(5 + (collectDone / COLLECTION_SOURCES.length) * 35 + (analyzeDone / DIMENSION_CODES.length) * 60);
+
+  const phase = isComplete ? 'Done' : analyzing.length > 0 ? 'Analysing brand dimensions…' : collecting.length > 0 ? 'Gathering data from the web…' : 'Starting up…';
 
   useEffect(() => {
     clearProgressEvents();
@@ -72,7 +139,7 @@ function AnalysisScreen({ auditId, onDone }: { auditId: string; onDone: () => vo
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white px-4">
-      <div className="w-full max-w-lg space-y-8">
+      <div className="w-full max-w-md space-y-6">
 
         {/* Icon + title */}
         <div className="text-center space-y-2">
@@ -86,9 +153,9 @@ function AnalysisScreen({ auditId, onDone }: { auditId: string; onDone: () => vo
             </div>
           )}
           <h2 className="text-2xl font-bold text-gray-900">
-            {isComplete ? 'Audit Complete!' : hasError ? 'Something went wrong' : 'Running Audit…'}
+            {isComplete ? 'Audit Complete!' : hasError ? 'Something went wrong' : 'Running Brand Audit…'}
           </h2>
-          <p className="text-sm text-muted-foreground">{isComplete ? 'Redirecting to your report…' : currentStageMsg}</p>
+          <p className="text-sm text-muted-foreground">{isComplete ? 'Redirecting to your report…' : phase}</p>
         </div>
 
         {/* Overall progress bar */}
@@ -100,57 +167,38 @@ function AnalysisScreen({ auditId, onDone }: { auditId: string; onDone: () => vo
           <Progress value={totalProgress} className="h-2" />
         </div>
 
-        {/* Two-column stage tracker */}
-        <div className="grid grid-cols-2 gap-6">
-          {/* Collection */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              <Database className="h-3.5 w-3.5" />
-              Data Collection
+        {/* Phase mini-bars */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 space-y-1.5">
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">
+              <Database className="h-3 w-3" /> Data Collection
             </div>
-            {COLLECTION_SOURCES.map(src => {
-              const ev = collecting.find(e => e.source === src);
-              const status = ev?.status ?? 'pending';
-              return (
-                <div key={src} className="flex items-center gap-2 text-sm">
-                  {status === 'done' ? <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
-                    : status === 'failed' ? <XCircle className="h-3.5 w-3.5 text-red-400 flex-shrink-0" />
-                    : status === 'in_progress' ? <Loader2 className="h-3.5 w-3.5 text-blue-500 animate-spin flex-shrink-0" />
-                    : <div className="h-3.5 w-3.5 rounded-full border border-gray-200 flex-shrink-0" />}
-                  <span className={cn('truncate', status === 'pending' ? 'text-gray-400' : status === 'failed' ? 'text-red-500' : 'text-gray-700')}>
-                    {src}
-                  </span>
-                </div>
-              );
-            })}
+            <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-blue-500 rounded-full"
+                animate={{ width: `${COLLECTION_SOURCES.length > 0 ? Math.round((collectDone / COLLECTION_SOURCES.length) * 100) : 0}%` }}
+                transition={{ duration: 0.5 }}
+              />
+            </div>
+            <p className="text-[11px] text-gray-400">{collectDone} of {COLLECTION_SOURCES.length} sources</p>
           </div>
-
-          {/* Analysis */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              <Brain className="h-3.5 w-3.5" />
-              AI Analysis
+          <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 space-y-1.5">
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 uppercase tracking-wide">
+              <Brain className="h-3 w-3" /> AI Analysis
             </div>
-            {DIMENSION_CODES.map(dim => {
-              const ev = analyzing.find(e => e.dimension === dim);
-              const status = ev?.status ?? 'pending';
-              return (
-                <div key={dim} className="flex items-center gap-2 text-sm">
-                  {status === 'done' ? <CheckCircle className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
-                    : status === 'failed' ? <XCircle className="h-3.5 w-3.5 text-red-400 flex-shrink-0" />
-                    : status === 'in_progress' ? <Loader2 className="h-3.5 w-3.5 text-blue-500 animate-spin flex-shrink-0" />
-                    : <div className="h-3.5 w-3.5 rounded-full border border-gray-200 flex-shrink-0" />}
-                  <span className={cn('truncate', status === 'pending' ? 'text-gray-400' : status === 'failed' ? 'text-red-500' : 'text-gray-700')}>
-                    {dim}
-                    {ev?.score !== undefined && ev?.score !== null && status === 'done' && (
-                      <span className="ml-1 text-xs text-muted-foreground">· {ev.score}</span>
-                    )}
-                  </span>
-                </div>
-              );
-            })}
+            <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-violet-500 rounded-full"
+                animate={{ width: `${DIMENSION_CODES.length > 0 ? Math.round((analyzeDone / DIMENSION_CODES.length) * 100) : 0}%` }}
+                transition={{ duration: 0.5 }}
+              />
+            </div>
+            <p className="text-[11px] text-gray-400">{analyzeDone} of {DIMENSION_CODES.length} dimensions</p>
           </div>
         </div>
+
+        {/* Rotating fact card */}
+        {!isComplete && !hasError && <FactCard />}
 
         {hasError && (
           <p className="text-center text-sm text-red-600">
