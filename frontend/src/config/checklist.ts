@@ -1,0 +1,162 @@
+import type { ChecklistItem, DimensionCode } from '@/types/checklist';
+
+export const CHECKLIST_ITEMS: ChecklistItem[] = [
+  // D1 - Brand Overview (15 items)
+  { code: 'D1-1', dimension: 'D1', category: 'Brand Fundamentals', label: 'Brand name is distinctive and memorable', description: 'The brand name stands out in the real estate market and is easy to recall', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D1-2', dimension: 'D1', category: 'Brand Fundamentals', label: 'Clear value proposition defined', description: 'A concise, differentiated value proposition is articulated', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D1-3', dimension: 'D1', category: 'Brand Fundamentals', label: 'Brand positioning is consistent across touchpoints', description: 'The stated positioning matches what is communicated across channels', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D1-4', dimension: 'D1', category: 'Brand Fundamentals', label: 'Target audience clearly defined', description: 'The developer has a clear picture of their ideal customer segment', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D1-5', dimension: 'D1', category: 'Brand Fundamentals', label: 'Brand story is compelling and authentic', description: 'The brand narrative connects emotionally with target buyers', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D1-6', dimension: 'D1', category: 'Presence & Visibility', label: 'Company listed on LinkedIn', description: 'Active LinkedIn company page exists', type: 'VERIFIABLE', weight: 1, dataSource: 'PDL' },
+  { code: 'D1-7', dimension: 'D1', category: 'Presence & Visibility', label: 'Wikipedia or notable press presence', description: 'Brand appears in credible online directories or publications', type: 'VERIFIABLE', weight: 1 },
+  { code: 'D1-8', dimension: 'D1', category: 'Presence & Visibility', label: 'Google Knowledge Panel exists', description: 'A Knowledge Panel appears when searching the brand name', type: 'VERIFIABLE', weight: 1, dataSource: 'DataForSEO' },
+  { code: 'D1-9', dimension: 'D1', category: 'Presence & Visibility', label: 'Brand ranks #1 for own name on Google', description: 'The developer\'s own website is the first organic result for brand name', type: 'PASS_FAIL', weight: 1, isGate: true, dataSource: 'DataForSEO' },
+  { code: 'D1-10', dimension: 'D1', category: 'Brand Governance', label: 'Brand guidelines document exists', description: 'A formal brand guidelines document is available', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D1-11', dimension: 'D1', category: 'Brand Governance', label: 'Consistent tone of voice across materials', description: 'All copy follows the same voice and personality', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D1-12', dimension: 'D1', category: 'Brand Governance', label: 'Brand name trademarked', description: 'The brand name or logo is registered under trademark', type: 'VERIFIABLE', weight: 1 },
+  { code: 'D1-13', dimension: 'D1', category: 'Market Position', label: 'Clear differentiation from top 3 competitors', description: 'The brand has distinct points of difference vs competitors', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D1-14', dimension: 'D1', category: 'Market Position', label: 'Pricing tier aligns with brand positioning', description: 'Product pricing is consistent with the brand\'s stated market position', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D1-15', dimension: 'D1', category: 'Market Position', label: 'Employee count signals credibility', description: 'Company has sufficient team size to support operations credibly', type: 'VERIFIABLE', weight: 1, dataSource: 'PDL' },
+
+  // D2 - Website & SEO (17 items)
+  { code: 'D2-1', dimension: 'D2', category: 'Website Presence', label: 'Website is live and accessible', description: 'The website loads correctly without errors', type: 'PASS_FAIL', weight: 1, isGate: true, dataSource: 'WebCrawler' },
+  { code: 'D2-2', dimension: 'D2', category: 'Website Presence', label: 'SSL certificate is valid', description: 'Website uses HTTPS with a valid SSL certificate', type: 'PASS_FAIL', weight: 1, dataSource: 'DataForSEO' },
+  { code: 'D2-3', dimension: 'D2', category: 'Website Presence', label: 'Mobile responsive design', description: 'Website renders correctly on mobile devices', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+  { code: 'D2-4', dimension: 'D2', category: 'Website Presence', label: 'Clear primary CTA above the fold', description: 'A Book/Enquire/Contact CTA is visible without scrolling', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+  { code: 'D2-5', dimension: 'D2', category: 'Website Presence', label: 'Lead capture form exists', description: 'A contact form or enquiry form is present on the site', type: 'PASS_FAIL', weight: 1, isGate: true, dataSource: 'WebCrawler' },
+  { code: 'D2-6', dimension: 'D2', category: 'Website Presence', label: 'WhatsApp/click-to-call integration', description: 'Easy one-tap contact via WhatsApp or phone number is present', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+  { code: 'D2-7', dimension: 'D2', category: 'Content Quality', label: 'Project pages are complete with pricing/specs', description: 'Each project page has floor plans, pricing, and specifications', type: 'QUALITATIVE', weight: 1, dataSource: 'WebCrawler' },
+  { code: 'D2-8', dimension: 'D2', category: 'Content Quality', label: 'About Us / Team section exists', description: 'The developer has an About page with company story and leadership', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+  { code: 'D2-9', dimension: 'D2', category: 'Content Quality', label: 'Testimonials or customer reviews visible', description: 'Social proof from customers is displayed on the website', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+  { code: 'D2-10', dimension: 'D2', category: 'SEO Performance', label: 'Brand keyword ranks in top 3 on Google', description: 'Searching the brand name shows their website in top 3 results', type: 'VERIFIABLE', weight: 1, dataSource: 'DataForSEO' },
+  { code: 'D2-11', dimension: 'D2', category: 'SEO Performance', label: 'Domain has meaningful backlink profile', description: 'Site has at least 50 referring domains from credible sources', type: 'VERIFIABLE', weight: 1, dataSource: 'DataForSEO' },
+  { code: 'D2-12', dimension: 'D2', category: 'SEO Performance', label: 'Page titles and meta descriptions optimized', description: 'Key pages have unique, keyword-rich title tags and meta descriptions', type: 'VERIFIABLE', weight: 1, dataSource: 'DataForSEO' },
+  { code: 'D2-13', dimension: 'D2', category: 'Technical SEO', label: 'No significant broken links', description: 'Site has fewer than 5 broken internal links', type: 'VERIFIABLE', weight: 1, dataSource: 'DataForSEO' },
+  { code: 'D2-14', dimension: 'D2', category: 'Technical SEO', label: 'H1 tags properly used', description: 'Key pages have a single, descriptive H1 tag', type: 'VERIFIABLE', weight: 1, dataSource: 'DataForSEO' },
+  { code: 'D2-15', dimension: 'D2', category: 'Technical SEO', label: 'Page load speed acceptable', description: 'Website loads within 3 seconds on desktop', type: 'VERIFIABLE', weight: 1 },
+  { code: 'D2-16', dimension: 'D2', category: 'Analytics', label: 'Google Analytics / tracking implemented', description: 'Website has analytics tracking installed', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+  { code: 'D2-17', dimension: 'D2', category: 'Analytics', label: 'Facebook Pixel or Google Tag Manager present', description: 'Remarketing pixel is installed for paid campaigns', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+
+  // D3 - Social Media (13 items)
+  { code: 'D3-1', dimension: 'D3', category: 'Platform Presence', label: 'Instagram account exists and is active', description: 'Brand has an Instagram page with posts in last 30 days', type: 'PASS_FAIL', weight: 1, isGate: true, dataSource: 'HikerAPI' },
+  { code: 'D3-2', dimension: 'D3', category: 'Platform Presence', label: 'Facebook Page is active', description: 'Brand has an active Facebook page', type: 'VERIFIABLE', weight: 1, dataSource: 'PDL' },
+  { code: 'D3-3', dimension: 'D3', category: 'Platform Presence', label: 'LinkedIn Company Page is complete', description: 'LinkedIn page has logo, description, website, and employee range', type: 'VERIFIABLE', weight: 1, dataSource: 'PDL' },
+  { code: 'D3-4', dimension: 'D3', category: 'Platform Presence', label: 'YouTube channel exists', description: 'Brand has a YouTube channel with project or brand videos', type: 'VERIFIABLE', weight: 1 },
+  { code: 'D3-5', dimension: 'D3', category: 'Instagram Performance', label: 'Instagram follower count > 5,000', description: 'Page has a meaningful follower base', type: 'VERIFIABLE', weight: 1, dataSource: 'HikerAPI' },
+  { code: 'D3-6', dimension: 'D3', category: 'Instagram Performance', label: 'Engagement rate > 1%', description: 'Average engagement rate on posts exceeds 1%', type: 'VERIFIABLE', weight: 1, dataSource: 'HikerAPI' },
+  { code: 'D3-7', dimension: 'D3', category: 'Instagram Performance', label: 'Posts at least twice per week', description: 'Posting frequency is at least 2 posts per week', type: 'VERIFIABLE', weight: 1, dataSource: 'HikerAPI' },
+  { code: 'D3-8', dimension: 'D3', category: 'Content Strategy', label: 'Reels used for reach', description: 'At least 30% of recent content is Reels format', type: 'VERIFIABLE', weight: 1, dataSource: 'HikerAPI' },
+  { code: 'D3-9', dimension: 'D3', category: 'Content Strategy', label: 'Content mix includes project highlights, lifestyle, and testimonials', description: 'Content is varied and not just property photos', type: 'QUALITATIVE', weight: 1, dataSource: 'HikerAPI' },
+  { code: 'D3-10', dimension: 'D3', category: 'Content Strategy', label: 'Instagram bio is professional with CTA and link', description: 'Bio has brand description, contact info, and website link', type: 'VERIFIABLE', weight: 1, dataSource: 'HikerAPI' },
+  { code: 'D3-11', dimension: 'D3', category: 'Brand Consistency', label: 'Visual brand identity consistent with website', description: 'Same colors, fonts, and logo used across Instagram and website', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D3-12', dimension: 'D3', category: 'Brand Consistency', label: 'Branded hashtags used consistently', description: 'A unique branded hashtag is used in posts', type: 'VERIFIABLE', weight: 1, dataSource: 'HikerAPI' },
+  { code: 'D3-13', dimension: 'D3', category: 'Brand Consistency', label: 'Story highlights are organized and branded', description: 'Instagram Story Highlights are present with branded covers', type: 'VERIFIABLE', weight: 1 },
+
+  // D4 - Paid Media (16 items)
+  { code: 'D4-1', dimension: 'D4', category: 'Platform Coverage', label: 'Meta Ads (Facebook/Instagram) active', description: 'Active ads running on Meta platforms', type: 'PASS_FAIL', weight: 1, isGate: true, dataSource: 'MetaAdLibrary' },
+  { code: 'D4-2', dimension: 'D4', category: 'Platform Coverage', label: 'Google Ads active', description: 'Active paid search campaigns on Google', type: 'VERIFIABLE', weight: 1 },
+  { code: 'D4-3', dimension: 'D4', category: 'Platform Coverage', label: 'Property portals (99acres, Housing.com, MagicBricks) listed', description: 'Projects are listed on at least 2 major portals', type: 'VERIFIABLE', weight: 1 },
+  { code: 'D4-4', dimension: 'D4', category: 'Ad Creative Quality', label: 'Ad copy clearly states USP', description: 'Ads communicate a unique selling proposition beyond just "luxury"', type: 'QUALITATIVE', weight: 1, dataSource: 'MetaAdLibrary' },
+  { code: 'D4-5', dimension: 'D4', category: 'Ad Creative Quality', label: 'Multiple ad creative formats used', description: 'Ad library shows image, video, and carousel formats', type: 'VERIFIABLE', weight: 1, dataSource: 'MetaAdLibrary' },
+  { code: 'D4-6', dimension: 'D4', category: 'Ad Creative Quality', label: 'Ad creative aligns with website visual identity', description: 'Same branding language used in ads as on website', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D4-7', dimension: 'D4', category: 'Ad Strategy', label: 'Ads running continuously (not paused > 30 days)', description: 'No significant gap in ad delivery detected', type: 'VERIFIABLE', weight: 1, dataSource: 'MetaAdLibrary' },
+  { code: 'D4-8', dimension: 'D4', category: 'Ad Strategy', label: 'Ad copy includes specific pricing or configuration', description: 'Ads mention price range or apartment configuration', type: 'QUALITATIVE', weight: 1, dataSource: 'MetaAdLibrary' },
+  { code: 'D4-9', dimension: 'D4', category: 'Ad Strategy', label: 'Retargeting/remarketing campaigns in use', description: 'Evidence of audience retargeting in ad strategy', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D4-10', dimension: 'D4', category: 'Ad Strategy', label: 'Landing pages are conversion-optimized', description: 'Ads link to dedicated landing pages (not just homepage)', type: 'VERIFIABLE', weight: 1 },
+  { code: 'D4-11', dimension: 'D4', category: 'Funnel', label: 'Lead magnet or offer in ads', description: 'Ads use an offer (site visit, floor plan download, callback) as CTA', type: 'QUALITATIVE', weight: 1, dataSource: 'MetaAdLibrary' },
+  { code: 'D4-12', dimension: 'D4', category: 'Funnel', label: 'WhatsApp or instant lead form used in ads', description: 'Meta Lead Gen forms or Click-to-WhatsApp ads visible', type: 'VERIFIABLE', weight: 1, dataSource: 'MetaAdLibrary' },
+  { code: 'D4-13', dimension: 'D4', category: 'Funnel', label: 'Ad frequency managed to avoid fatigue', description: 'Ad library shows creative rotation', type: 'QUALITATIVE', weight: 1, dataSource: 'MetaAdLibrary' },
+  { code: 'D4-14', dimension: 'D4', category: 'Compliance', label: 'RERA registration number in ads', description: 'Where applicable, ads show RERA registration number', type: 'VERIFIABLE', weight: 1, dataSource: 'MetaAdLibrary' },
+  { code: 'D4-15', dimension: 'D4', category: 'Compliance', label: 'Disclaimer included in property ads', description: 'Mandatory real estate disclaimers are present', type: 'VERIFIABLE', weight: 1, dataSource: 'MetaAdLibrary' },
+  { code: 'D4-16', dimension: 'D4', category: 'Budget Signal', label: 'Ad spend signals serious investment', description: 'Ad library shows consistent spend indicating committed budget', type: 'QUALITATIVE', weight: 1, dataSource: 'MetaAdLibrary' },
+
+  // D5 - Visual Identity (12 items)
+  { code: 'D5-1', dimension: 'D5', category: 'Logo', label: 'Logo is professionally designed', description: 'Logo does not look generic or clip-art based', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D5-2', dimension: 'D5', category: 'Logo', label: 'Logo aligns with brand positioning', description: 'Logo visual language communicates the brand\'s market position', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D5-3', dimension: 'D5', category: 'Logo', label: 'Logo is versatile (works small and large)', description: 'Logo reads clearly at favicon size and billboard size', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D5-4', dimension: 'D5', category: 'Logo', label: 'Logo available in multiple formats (color, B&W, reverse)', description: 'Logo variants exist for different backgrounds', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D5-5', dimension: 'D5', category: 'Color & Typography', label: 'Primary color palette is consistent across all materials', description: 'Same colors used on website, ads, brochures, and social media', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D5-6', dimension: 'D5', category: 'Color & Typography', label: 'Typography is consistent and professional', description: 'Same font families used across all brand materials', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D5-7', dimension: 'D5', category: 'Color & Typography', label: 'Color psychology aligns with positioning', description: 'Colors communicate the intended brand personality', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D5-8', dimension: 'D5', category: 'Website Visual Design', label: 'Website has a premium/professional design', description: 'Website design quality matches the brand\'s market position', type: 'QUALITATIVE', weight: 1, dataSource: 'Screenshot' },
+  { code: 'D5-9', dimension: 'D5', category: 'Website Visual Design', label: 'Hero imagery is high quality', description: 'Hero/banner images are professional and high resolution', type: 'QUALITATIVE', weight: 1, dataSource: 'Screenshot' },
+  { code: 'D5-10', dimension: 'D5', category: 'Website Visual Design', label: 'Consistent iconography and illustration style', description: 'All icons and graphics follow a unified visual language', type: 'QUALITATIVE', weight: 1, dataSource: 'Screenshot' },
+  { code: 'D5-11', dimension: 'D5', category: 'Brand Differentiation', label: 'Visual identity is distinct from competitors', description: 'Brand does not look like a generic real estate brand', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D5-12', dimension: 'D5', category: 'Brand Differentiation', label: 'Design quality matches aspirational brand tier', description: 'Visual design communicates the price point and quality tier', type: 'QUALITATIVE', weight: 1 },
+
+  // D6 - Collateral (10 items)
+  { code: 'D6-1', dimension: 'D6', category: 'Sales Collateral', label: 'Professional brochure exists for each active project', description: 'Each project has a high-quality PDF or print brochure', type: 'PASS_FAIL', weight: 1, isGate: true },
+  { code: 'D6-2', dimension: 'D6', category: 'Sales Collateral', label: 'Brochure design matches brand identity', description: 'Brochure uses brand colors, fonts, and logo correctly', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D6-3', dimension: 'D6', category: 'Sales Collateral', label: 'Brochure includes all critical information', description: 'Location, configuration, pricing, amenities, and USPs all present', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D6-4', dimension: 'D6', category: 'Sales Collateral', label: 'Digital-first materials available', description: 'Website has downloadable brochure or digital flipbook', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+  { code: 'D6-5', dimension: 'D6', category: 'Sales Collateral', label: 'Floor plans are clear and to scale', description: 'Floor plan visuals are professional and dimensioned', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D6-6', dimension: 'D6', category: 'Site Experience', label: 'Hoarding/site signage is brand-consistent', description: 'On-site branding matches digital brand identity', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D6-7', dimension: 'D6', category: 'Site Experience', label: 'Sample flat / experience center quality', description: 'Physical experience mirrors the brand\'s positioning', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D6-8', dimension: 'D6', category: 'Press & PR', label: 'Press kit or media page exists', description: 'The website has a Press or Media section', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+  { code: 'D6-9', dimension: 'D6', category: 'Press & PR', label: 'Notable press coverage exists', description: 'Brand has been featured in at least 1 credible publication', type: 'VERIFIABLE', weight: 1 },
+  { code: 'D6-10', dimension: 'D6', category: 'Press & PR', label: 'Awards or certifications displayed', description: 'Any industry recognition is highlighted on website or materials', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+
+  // D7 - Reputation & Compliance (16 items)
+  { code: 'D7-1', dimension: 'D7', category: 'Google My Business', label: 'GMB listing is claimed and complete', description: 'Google My Business profile is claimed, verified, and fully filled out', type: 'PASS_FAIL', weight: 1, isGate: true, dataSource: 'GooglePlaces' },
+  { code: 'D7-2', dimension: 'D7', category: 'Google My Business', label: 'GMB rating >= 4.0', description: 'Overall Google rating is 4.0 or higher', type: 'PASS_FAIL', weight: 1, dataSource: 'GooglePlaces' },
+  { code: 'D7-3', dimension: 'D7', category: 'Google My Business', label: 'At least 50 Google reviews', description: 'Review volume indicates genuine customer engagement', type: 'VERIFIABLE', weight: 1, dataSource: 'GooglePlaces' },
+  { code: 'D7-4', dimension: 'D7', category: 'Google My Business', label: 'Responses to reviews present', description: 'Developer is actively responding to customer reviews', type: 'VERIFIABLE', weight: 1, dataSource: 'GooglePlaces' },
+  { code: 'D7-5', dimension: 'D7', category: 'Review Sentiment', label: 'Positive sentiment > 70% of reviews', description: 'Majority of reviews are positive in sentiment', type: 'VERIFIABLE', weight: 1, dataSource: 'GooglePlaces' },
+  { code: 'D7-6', dimension: 'D7', category: 'Review Sentiment', label: 'No unresolved major complaints', description: 'No pattern of serious unresolved issues in reviews', type: 'QUALITATIVE', weight: 1, dataSource: 'GooglePlaces' },
+  { code: 'D7-7', dimension: 'D7', category: 'Review Sentiment', label: 'Review themes are aspirational (quality, service)', description: 'Positive reviews focus on quality, service, and delivery', type: 'QUALITATIVE', weight: 1, dataSource: 'GooglePlaces' },
+  { code: 'D7-8', dimension: 'D7', category: 'Portal Reviews', label: 'Rating >= 4.0 on at least one portal', description: 'Positive rating on 99acres, Housing, or MagicBricks', type: 'VERIFIABLE', weight: 1 },
+  { code: 'D7-9', dimension: 'D7', category: 'RERA Compliance', label: 'RERA registration is current and valid', description: 'All projects have valid RERA registration numbers', type: 'PASS_FAIL', weight: 1, isGate: true },
+  { code: 'D7-10', dimension: 'D7', category: 'RERA Compliance', label: 'RERA number displayed on all marketing materials', description: 'RERA registration visible on website, ads, and brochures', type: 'VERIFIABLE', weight: 1 },
+  { code: 'D7-11', dimension: 'D7', category: 'RERA Compliance', label: 'RERA project page is up to date', description: 'RERA portal shows current project completion status', type: 'VERIFIABLE', weight: 1 },
+  { code: 'D7-12', dimension: 'D7', category: 'Legal Standing', label: 'No notable consumer forum complaints', description: 'No significant pattern of legal complaints in public domain', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D7-13', dimension: 'D7', category: 'Legal Standing', label: 'No major negative press in last 12 months', description: 'No negative news coverage about project delays or fraud', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D7-14', dimension: 'D7', category: 'Customer Trust', label: 'Delivery track record is visible', description: 'Past delivered projects with possession dates are showcased', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+  { code: 'D7-15', dimension: 'D7', category: 'Customer Trust', label: 'Customer testimonial videos exist', description: 'Video testimonials from homebuyers are publicly accessible', type: 'VERIFIABLE', weight: 1 },
+  { code: 'D7-16', dimension: 'D7', category: 'Customer Trust', label: 'Privacy policy and terms are present', description: 'Website has legally required privacy policy page', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+
+  // D8 - Technology (12 items)
+  { code: 'D8-1', dimension: 'D8', category: 'CRM & Lead Management', label: 'CRM tool is in active use', description: 'A CRM system is implemented for lead management', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D8-2', dimension: 'D8', category: 'CRM & Lead Management', label: 'Lead response SLA < 1 hour', description: 'Leads from digital channels are followed up within 1 hour', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D8-3', dimension: 'D8', category: 'CRM & Lead Management', label: 'Automated lead nurturing sequences exist', description: 'Email/WhatsApp automation is used for lead nurturing', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D8-4', dimension: 'D8', category: 'Website Technology', label: 'Website built on modern, maintainable platform', description: 'Site runs on WordPress, Next.js, or similar modern platform', type: 'VERIFIABLE', weight: 1, dataSource: 'DataForSEO' },
+  { code: 'D8-5', dimension: 'D8', category: 'Website Technology', label: 'Google Tag Manager implemented', description: 'GTM is used for marketing tag management', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+  { code: 'D8-6', dimension: 'D8', category: 'Website Technology', label: 'Chat widget or live support exists', description: 'Website has a chat widget for instant visitor support', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+  { code: 'D8-7', dimension: 'D8', category: 'Analytics & Tracking', label: 'Conversion tracking set up', description: 'Form submissions and enquiries are tracked as conversions', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D8-8', dimension: 'D8', category: 'Analytics & Tracking', label: 'Google Search Console connected', description: 'GSC is verified and monitoring website search performance', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D8-9', dimension: 'D8', category: 'Analytics & Tracking', label: 'Facebook Pixel installed and events firing', description: 'Meta Pixel tracks website visitors for ad retargeting', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+  { code: 'D8-10', dimension: 'D8', category: 'Virtual Experience', label: '3D walkthrough or virtual tour available', description: 'Immersive virtual tour of sample flat is accessible online', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+  { code: 'D8-11', dimension: 'D8', category: 'Virtual Experience', label: 'Construction progress updates published', description: 'Website or social media shows regular construction updates', type: 'VERIFIABLE', weight: 1 },
+  { code: 'D8-12', dimension: 'D8', category: 'Automation', label: 'WhatsApp Business API integration', description: 'Automated WhatsApp messages used for lead communication', type: 'QUALITATIVE', weight: 1 },
+
+  // D9 - Competitor Analysis (10 items)
+  { code: 'D9-1', dimension: 'D9', category: 'Competitor Awareness', label: 'Top 3 competitors identified', description: 'The developer has named their key direct competitors', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D9-2', dimension: 'D9', category: 'Competitive Position', label: 'Brand has higher Google rating than primary competitor', description: 'GMB rating compares favorably with top competitor', type: 'VERIFIABLE', weight: 1, dataSource: 'GooglePlaces' },
+  { code: 'D9-3', dimension: 'D9', category: 'Competitive Position', label: 'Brand has more Instagram followers than primary competitor', description: 'Social media following is competitive', type: 'VERIFIABLE', weight: 1 },
+  { code: 'D9-4', dimension: 'D9', category: 'Competitive Position', label: 'Website ranks for competitive keywords', description: 'Site appears in results for key location + property type searches', type: 'VERIFIABLE', weight: 1, dataSource: 'DataForSEO' },
+  { code: 'D9-5', dimension: 'D9', category: 'Competitive Differentiation', label: 'Unique selling proposition is clearly differentiated', description: 'USP is meaningfully different from competitors\' positioning', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D9-6', dimension: 'D9', category: 'Competitive Differentiation', label: 'Pricing strategy is deliberate vs competitors', description: 'Pricing is positioned intentionally vs market comps', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D9-7', dimension: 'D9', category: 'Competitive Differentiation', label: 'Product features exceed comparable competition', description: 'Amenities or specifications are competitive or superior', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D9-8', dimension: 'D9', category: 'Market Intelligence', label: 'Competitor ad strategies analyzed', description: 'Developer has insight into how competitors advertise', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D9-9', dimension: 'D9', category: 'Market Intelligence', label: 'Competitive gap identified and being addressed', description: 'A clear competitive gap or opportunity has been identified', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D9-10', dimension: 'D9', category: 'Market Intelligence', label: 'Win/loss pattern from competitor comparison understood', description: 'Developer knows why customers choose them over competitors', type: 'QUALITATIVE', weight: 1 },
+
+  // D10 - Promoter Brand (10 items)
+  { code: 'D10-1', dimension: 'D10', category: 'Promoter Visibility', label: 'Promoter has active LinkedIn presence', description: 'Promoter\'s LinkedIn profile is complete and professional', type: 'VERIFIABLE', weight: 1 },
+  { code: 'D10-2', dimension: 'D10', category: 'Promoter Visibility', label: 'Promoter appears in company About section', description: 'Promoter name and bio is featured on company website', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+  { code: 'D10-3', dimension: 'D10', category: 'Promoter Visibility', label: 'Promoter has media / press presence', description: 'Promoter is quoted in at least 1 credible publication or interview', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D10-4', dimension: 'D10', category: 'Promoter Credibility', label: 'Promoter LinkedIn has > 500 connections', description: 'Network size signals industry credibility', type: 'VERIFIABLE', weight: 1 },
+  { code: 'D10-5', dimension: 'D10', category: 'Promoter Credibility', label: 'Promoter posts thought leadership content', description: 'Promoter shares real estate insights, not just company promotions', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D10-6', dimension: 'D10', category: 'Promoter Credibility', label: 'Promoter speaks at industry events', description: 'Promoter has been a speaker at conferences or panels', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D10-7', dimension: 'D10', category: 'Personal Brand', label: 'Promoter personal brand aligns with developer brand', description: 'Promoter\'s personal narrative reinforces the company positioning', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D10-8', dimension: 'D10', category: 'Personal Brand', label: 'Promoter has no negative press or controversies', description: 'No significant reputational issues associated with the promoter', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D10-9', dimension: 'D10', category: 'Trust Signal', label: 'Promoter has customer-facing touchpoints', description: 'Promoter engages directly with buyers (events, social, personal meetings)', type: 'QUALITATIVE', weight: 1 },
+  { code: 'D10-10', dimension: 'D10', category: 'Trust Signal', label: 'Promoter background and track record is visible', description: 'Years of experience, past projects, and qualifications are documented', type: 'VERIFIABLE', weight: 1, dataSource: 'WebCrawler' },
+];
+
+export function getItemsByDimension(dimensionCode: DimensionCode): ChecklistItem[] {
+  return CHECKLIST_ITEMS.filter(item => item.dimension === dimensionCode);
+}
+
+export function getItemByCode(code: string): ChecklistItem | undefined {
+  return CHECKLIST_ITEMS.find(item => item.code === code);
+}

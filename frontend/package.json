@@ -1,19 +1,14 @@
 {
-  "name": "propacity-audit",
+  "name": "brand-audit-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "next dev -p 5175",
     "build": "next build",
-    "start": "next start -p $PORT",
-    "lint": "next lint",
-    "dev:backend": "cd backend && npm install && npm run dev",
-    "dev:frontend": "cd frontend && npm install && npm run dev",
-    "dev:frontend:5173": "cd frontend && next dev -p 5173",
-    "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
+    "start": "next start -p 5175",
+    "lint": "next lint"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.24.3",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-collapsible": "^1.0.3",
@@ -31,19 +26,14 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.4.19",
-    "axios": "^1.7.2",
-    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "framer-motion": "^12.38.0",
     "html2pdf.js": "^0.14.0",
-    "jose": "^6.2.2",
     "lucide-react": "^0.400.0",
-    "mongoose": "^8.5.1",
     "next": "^14.2.29",
     "next-themes": "^0.4.6",
-    "pdf-parse": "^2.4.5",
     "postcss": "^8",
     "react": "^18",
     "react-countup": "^6.5.3",
@@ -56,8 +46,5 @@
     "typescript": "^5",
     "zod": "^3.23.8",
     "zustand": "^4.5.4"
-  },
-  "devDependencies": {
-    "@types/bcryptjs": "^2.4.6"
   }
 }
