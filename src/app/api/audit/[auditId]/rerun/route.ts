@@ -5,7 +5,7 @@ import { Audit, Developer } from '@/lib/models';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
-const BASE_URL = `http://localhost:${process.env.PORT || 3000}`;
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || `http://localhost:${process.env.PORT || 3000}`;
 
 const WEIGHTS: Record<string, number> = {
   D1: 8, D2: 12, D3: 10, D4: 12, D5: 8, D6: 8, D7: 15, D8: 10, D9: 9, D10: 8,
