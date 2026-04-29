@@ -18,21 +18,28 @@ export async function POST(request: NextRequest) {
     try {
       const jobId = await startCrawl(websiteUrl);
       const crawlResult = await pollCrawlUntilDone(jobId);
-      insights = crawlResult.pages ? extractWebsiteInsights(crawlResult.pages) : null;
-      pageCount = crawlResult.pages?.length || 0;
+      if (crawlResult.pages && crawlResult.pages.length > 0) {
+        insights = extractWebsiteInsights(crawlResult.pages);
+        pageCount = crawlResult.pages.length;
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error('Web crawl API error:', msg);
-      // Fall back to cached data if available — don't fail if we have prior results
-      if (auditId) {
-        await connectDB();
-        const existing = await Audit.findById(auditId).lean() as { collectedData?: { websiteContent?: unknown } } | null;
-        if (existing?.collectedData?.websiteContent) {
-          console.log('[website] using cached website content');
-          return NextResponse.json({ success: true, data: existing.collectedData.websiteContent, cached: true });
-        }
+    }
+
+    // Fall back to cached data if crawl produced nothing
+    if (!insights && auditId) {
+      await connectDB();
+      const existing = await Audit.findById(auditId).lean() as { collectedData?: { websiteContent?: { insights?: unknown } } } | null;
+      const cached = existing?.collectedData?.websiteContent?.insights;
+      if (cached) {
+        console.log('[website] using cached website content');
+        return NextResponse.json({ success: true, data: { insights: cached, rawPageCount: 0 }, cached: true });
       }
-      return NextResponse.json({ success: false, data: null, error: 'Website data unavailable' });
+    }
+
+    if (!insights) {
+      return NextResponse.json({ success: false, data: null, error: 'Website crawl returned no content' });
     }
 
     if (auditId) {

@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
       instagramHandle?: string | null;
       facebookUrl?: string | null;
       linkedinUrl?: string | null;
+      youtubeUrl?: string | null;
     }
     let dev: DevSocial | null = null;
 
@@ -38,9 +39,10 @@ export async function POST(request: NextRequest) {
       instagramHandle: handle,
       facebookUrl: dev?.facebookUrl ?? null,
       linkedinUrl: dev?.linkedinUrl ?? null,
+      youtubeUrl: dev?.youtubeUrl ?? null,
     });
 
-    const hasAnyData = insights.instagram || insights.facebook || insights.linkedin;
+    const hasAnyData = insights.instagram || insights.facebook || insights.linkedin || insights.youtube;
     if (!hasAnyData) {
       // Fall back to cached data if available
       if (auditId) {
@@ -61,6 +63,7 @@ export async function POST(request: NextRequest) {
       if (insights.instagram) update['collectedData.instagramData'] = insights.instagram;
       if (insights.facebook) update['collectedData.facebookData'] = insights.facebook;
       if (insights.linkedin) update['collectedData.linkedinData'] = insights.linkedin;
+      if (insights.youtube) update['collectedData.youtubeData'] = insights.youtube;
       if (Object.keys(update).length) {
         await Audit.findByIdAndUpdate(auditId, update);
       }

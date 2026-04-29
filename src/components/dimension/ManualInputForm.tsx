@@ -45,7 +45,11 @@ const DIMENSION_FIELDS: Record<string, FieldConfig[]> = {
     { key: 'facebookPageLikes', label: 'Facebook page likes', type: 'number', min: 0, placeholder: 'e.g. 8000' },
     { key: 'facebookFollowers', label: 'Facebook page followers', type: 'number', min: 0, placeholder: 'e.g. 9200' },
     { key: 'linkedinFollowers', label: 'LinkedIn page followers', type: 'number', min: 0, placeholder: 'e.g. 2300' },
-    { key: 'notes', label: 'Additional observations', type: 'textarea', placeholder: 'Content quality, posting consistency notes...' },
+    { key: 'youtubeSubscribers', label: 'YouTube subscribers', type: 'number', min: 0, placeholder: 'e.g. 3500' },
+    { key: 'youtubeTotalVideos', label: 'Total YouTube videos', type: 'number', min: 0, placeholder: 'e.g. 120' },
+    { key: 'youtubeAvgViews', label: 'Average views per video', type: 'number', min: 0, placeholder: 'e.g. 850' },
+    { key: 'youtubeVideosPerMonth', label: 'Upload frequency (videos/month)', type: 'number', min: 0, placeholder: 'e.g. 4' },
+    { key: 'notes', label: 'Additional observations', type: 'textarea', placeholder: 'Content quality, posting consistency, YouTube channel notes...' },
   ],
   D4: [
     { key: 'runningMetaAds', label: 'Currently running Meta (Facebook/Instagram) ads', type: 'boolean' },

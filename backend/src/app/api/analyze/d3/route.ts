@@ -14,14 +14,17 @@ export async function POST(request: NextRequest) {
     const auditDate = new Date().toISOString().split('T')[0];
     const cd = audit.collectedData;
 
+    const cdAny = cd as unknown as Record<string, unknown>;
     const instagramData = cd?.instagramData ?? null;
-    const facebookData = (cd as unknown as Record<string, unknown>)?.facebookData ?? null;
-    const linkedinData = (cd as unknown as Record<string, unknown>)?.linkedinData ?? null;
+    const facebookData = cdAny?.facebookData ?? null;
+    const linkedinData = cdAny?.linkedinData ?? null;
+    const youtubeData = cdAny?.youtubeData ?? null;
 
     const missing: string[] = [];
     if (!instagramData) missing.push('Instagram data');
     if (!facebookData) missing.push('Facebook data');
     if (!linkedinData) missing.push('LinkedIn data');
+    if (!youtubeData) missing.push('YouTube data');
 
     const devWithSocials = {
       brandName: dev.brandName as string,
@@ -32,10 +35,11 @@ export async function POST(request: NextRequest) {
       instagramHandle: (dev.instagramHandle as string | null) ?? null,
       facebookUrl: (dev.facebookUrl as string | null) ?? null,
       linkedinUrl: (dev.linkedinUrl as string | null) ?? null,
+      youtubeUrl: (dev.youtubeUrl as string | null) ?? null,
     };
 
     const prompt =
-      buildD3Prompt(devWithSocials, instagramData, facebookData, linkedinData, auditDate) +
+      buildD3Prompt(devWithSocials, instagramData, facebookData, linkedinData, youtubeData, auditDate) +
       buildDataAvailabilityNote(missing) +
       buildManualOverrideNote(manualOverrides['D3']);
 

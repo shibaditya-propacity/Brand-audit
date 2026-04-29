@@ -407,11 +407,151 @@ export async function getPromoterLinkedInInsights(
   return result;
 }
 
+// ── YouTube ────────────────────────────────────────────────────────────────────
+export interface YouTubeInsights {
+  channelUrl: string;
+  channelName: string | null;
+  description: string | null;
+  subscribers: number | null;
+  totalVideos: number | null;
+  totalViews: number | null;
+  avgViewsPerVideo: number | null;
+  uploadFrequencyPerMonth: number | null;
+  recentVideos: Array<{ title: string; publishedAt: string; viewCount: number | null }>;
+  source: 'YouTubeDataAPI';
+}
+
+function extractYouTubeHandle(url: string): string | null {
+  // Supports: @handle, /c/name, /channel/UCxxx, /user/name
+  const m = url.match(/youtube\.com\/(?:@([a-zA-Z0-9_.-]+)|c\/([a-zA-Z0-9_.-]+)|channel\/(UC[a-zA-Z0-9_-]+)|user\/([a-zA-Z0-9_.-]+))/);
+  if (!m) return null;
+  return m[1] || m[2] || m[3] || m[4] || null;
+}
+
+export async function getYouTubeInsights(
+  channelUrl: string,
+  _brandName: string
+): Promise<YouTubeInsights> {
+  const apiKey = process.env.YOUTUBE_DATA_API_KEY;
+  const result: YouTubeInsights = {
+    channelUrl,
+    channelName: null,
+    description: null,
+    subscribers: null,
+    totalVideos: null,
+    totalViews: null,
+    avgViewsPerVideo: null,
+    uploadFrequencyPerMonth: null,
+    recentVideos: [],
+    source: 'YouTubeDataAPI',
+  };
+
+  if (!apiKey) {
+    console.warn('[YouTube] YOUTUBE_DATA_API_KEY not set');
+    return result;
+  }
+
+  try {
+    const handle = extractYouTubeHandle(channelUrl);
+    if (!handle) {
+      console.warn('[YouTube] Could not extract handle from URL:', channelUrl);
+      return result;
+    }
+
+    // Step 1: Get channel info
+    const isChannelId = handle.startsWith('UC');
+    const channelParam = isChannelId
+      ? `id=${handle}`
+      : handle.startsWith('UC') ? `id=${handle}` : `forHandle=@${handle.replace(/^@/, '')}`;
+
+    const channelRes = await fetch(
+      `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&${channelParam}&key=${apiKey}`
+    );
+    const channelJson = await channelRes.json() as {
+      items?: Array<{
+        id: string;
+        snippet: { title: string; description: string };
+        statistics: { subscriberCount: string; videoCount: string; viewCount: string };
+      }>;
+    };
+
+    const channel = channelJson.items?.[0];
+    if (!channel) {
+      console.warn('[YouTube] No channel found for:', handle);
+      return result;
+    }
+
+    const channelId = channel.id;
+    result.channelName = channel.snippet?.title ?? null;
+    result.description = channel.snippet?.description?.slice(0, 300) ?? null;
+    result.subscribers = parseInt(channel.statistics?.subscriberCount ?? '0', 10) || null;
+    result.totalVideos = parseInt(channel.statistics?.videoCount ?? '0', 10) || null;
+    result.totalViews = parseInt(channel.statistics?.viewCount ?? '0', 10) || null;
+
+    if (result.totalVideos && result.totalVideos > 0 && result.totalViews) {
+      result.avgViewsPerVideo = Math.round(result.totalViews / result.totalVideos);
+    }
+
+    // Step 2: Get recent videos (last 10)
+    const searchRes = await fetch(
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&order=date&maxResults=10&type=video&key=${apiKey}`
+    );
+    const searchJson = await searchRes.json() as {
+      items?: Array<{ id: { videoId: string }; snippet: { title: string; publishedAt: string } }>;
+    };
+
+    const videos = searchJson.items ?? [];
+
+    // Step 3: Get video statistics for view counts
+    const videoIds = videos.map(v => v.id.videoId).filter(Boolean).join(',');
+    let videoStats: Record<string, number> = {};
+
+    if (videoIds) {
+      const statsRes = await fetch(
+        `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoIds}&key=${apiKey}`
+      );
+      const statsJson = await statsRes.json() as {
+        items?: Array<{ id: string; statistics: { viewCount: string } }>;
+      };
+      for (const v of statsJson.items ?? []) {
+        videoStats[v.id] = parseInt(v.statistics?.viewCount ?? '0', 10);
+      }
+    }
+
+    result.recentVideos = videos.slice(0, 6).map(v => ({
+      title: v.snippet?.title ?? '',
+      publishedAt: v.snippet?.publishedAt ?? '',
+      viewCount: videoStats[v.id.videoId] ?? null,
+    }));
+
+    // Calculate upload frequency: videos per month based on last 10 videos
+    if (result.recentVideos.length >= 2) {
+      const dates = result.recentVideos
+        .map(v => new Date(v.publishedAt).getTime())
+        .filter(d => !isNaN(d))
+        .sort((a, b) => b - a);
+      if (dates.length >= 2) {
+        const spanMs = dates[0] - dates[dates.length - 1];
+        const spanMonths = spanMs / (1000 * 60 * 60 * 24 * 30);
+        if (spanMonths > 0) {
+          result.uploadFrequencyPerMonth = Math.round((dates.length / spanMonths) * 10) / 10;
+        }
+      }
+    }
+
+  } catch (err) {
+    console.error('[socialInsights] YouTube error:', err instanceof Error ? err.message : err);
+  }
+
+  return result;
+}
+
 // ── Combined entry point ───────────────────────────────────────────────────────
 export interface SocialInsightsResult {
   instagram: InstagramInsights | null;
   facebook: FacebookInsights | null;
   linkedin: LinkedInInsights | null;
+  youtube: YouTubeInsights | null;
 }
 
 export async function getSocialInsights(dev: {
@@ -419,8 +559,9 @@ export async function getSocialInsights(dev: {
   instagramHandle?: string | null;
   facebookUrl?: string | null;
   linkedinUrl?: string | null;
+  youtubeUrl?: string | null;
 }): Promise<SocialInsightsResult> {
-  const [instagram, facebook, linkedin] = await Promise.all([
+  const [instagram, facebook, linkedin, youtube] = await Promise.all([
     dev.instagramHandle
       ? getInstagramInsights(dev.instagramHandle.replace('@', ''), dev.brandName).catch(() => null)
       : Promise.resolve(null),
@@ -430,7 +571,10 @@ export async function getSocialInsights(dev: {
     dev.linkedinUrl
       ? getLinkedInInsights(dev.linkedinUrl, dev.brandName).catch(() => null)
       : Promise.resolve(null),
+    dev.youtubeUrl
+      ? getYouTubeInsights(dev.youtubeUrl, dev.brandName).catch(() => null)
+      : Promise.resolve(null),
   ]);
 
-  return { instagram, facebook, linkedin };
+  return { instagram, facebook, linkedin, youtube };
 }

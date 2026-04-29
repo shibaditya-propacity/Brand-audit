@@ -37,6 +37,7 @@ export default function D3Page({ params }: { params: { auditId: string } }) {
         instagramData={cd?.instagramData}
         facebookData={cdAny?.facebookData}
         linkedinData={cdAny?.linkedinData}
+        youtubeData={cdAny?.youtubeData}
       />
     </>
   );

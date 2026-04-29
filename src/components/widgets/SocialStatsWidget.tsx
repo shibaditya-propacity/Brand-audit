@@ -1,5 +1,5 @@
 'use client';
-import { Instagram, Facebook, Linkedin, Users, FileText, UserCheck, Briefcase, ExternalLink } from 'lucide-react';
+import { Instagram, Facebook, Linkedin, Users, FileText, UserCheck, Briefcase, ExternalLink, Youtube, Eye, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface InstagramData {
@@ -30,10 +30,23 @@ interface LinkedInData {
   description?: string | null;
 }
 
+interface YouTubeData {
+  channelUrl?: string | null;
+  channelName?: string | null;
+  description?: string | null;
+  subscribers?: number | null;
+  totalVideos?: number | null;
+  totalViews?: number | null;
+  avgViewsPerVideo?: number | null;
+  uploadFrequencyPerMonth?: number | null;
+  recentVideos?: Array<{ title: string; publishedAt: string; viewCount: number | null }>;
+}
+
 interface SocialStatsWidgetProps {
   instagramData: unknown;
   facebookData?: unknown;
   linkedinData?: unknown;
+  youtubeData?: unknown;
 }
 
 function fmt(n: number | null | undefined): string {
@@ -116,14 +129,16 @@ function PlatformCard({
   );
 }
 
-export function SocialStatsWidget({ instagramData, facebookData, linkedinData }: SocialStatsWidgetProps) {
+export function SocialStatsWidget({ instagramData, facebookData, linkedinData, youtubeData }: SocialStatsWidgetProps) {
   const ig = instagramData as InstagramData | null;
   const fb = facebookData as FacebookData | null;
   const li = linkedinData as LinkedInData | null;
+  const yt = youtubeData as YouTubeData | null;
 
   const igAvailable = !!(ig && (ig.followers != null || ig.totalPosts != null || ig.following != null));
   const fbAvailable = !!(fb && (fb.likes != null || fb.followers != null));
   const liAvailable = !!(li && (li.followers != null || li.employees != null));
+  const ytAvailable = !!(yt && (yt.subscribers != null || yt.totalVideos != null || yt.totalViews != null));
 
   return (
     <div className="space-y-3">
@@ -192,12 +207,68 @@ export function SocialStatsWidget({ instagramData, facebookData, linkedinData }:
         }
       />
 
+      {/* YouTube */}
+      <PlatformCard
+        icon={<Youtube className="h-4 w-4 text-red-600" />}
+        name="YouTube"
+        color="bg-red-50"
+        profileUrl={yt?.channelUrl}
+        available={ytAvailable}
+        stats={[
+          { label: 'Subscribers', value: fmt(yt?.subscribers) },
+          { label: 'Videos', value: fmt(yt?.totalVideos) },
+          { label: 'Total Views', value: fmt(yt?.totalViews) },
+        ]}
+        description={yt?.description}
+        extras={
+          ytAvailable ? (
+            <div className="space-y-2">
+              {/* Deep insights row */}
+              <div className="grid grid-cols-2 gap-2 p-2 bg-red-50 rounded-lg">
+                <div className="flex items-center gap-1.5">
+                  <Eye className="h-3 w-3 text-red-500 flex-shrink-0" />
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wide">Avg Views/Video</p>
+                    <p className="text-xs font-semibold text-slate-700">{fmt(yt?.avgViewsPerVideo)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <TrendingUp className="h-3 w-3 text-red-500 flex-shrink-0" />
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wide">Videos/Month</p>
+                    <p className="text-xs font-semibold text-slate-700">
+                      {yt?.uploadFrequencyPerMonth != null ? `${yt.uploadFrequencyPerMonth}` : '—'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Recent videos */}
+              {yt?.recentVideos && yt.recentVideos.length > 0 && (
+                <div className="space-y-1">
+                  <p className="text-[10px] uppercase tracking-wide text-slate-400 font-medium">Recent Videos</p>
+                  {yt.recentVideos.slice(0, 3).map((v, i) => (
+                    <div key={i} className="pl-2 border-l-2 border-red-200">
+                      <p className="text-xs text-slate-600 line-clamp-1">{v.title}</p>
+                      {v.viewCount != null && (
+                        <p className="text-[10px] text-slate-400">{fmt(v.viewCount)} views</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : null
+        }
+      />
+
       {/* Summary row */}
-      <div className="rounded-lg bg-slate-50 border border-slate-200 p-3 grid grid-cols-3 gap-2 text-center">
+      <div className="rounded-lg bg-slate-50 border border-slate-200 p-3 grid grid-cols-4 gap-2 text-center">
         {[
           { icon: <Users className="h-3.5 w-3.5" />, label: 'IG Followers', value: fmt(ig?.followers), color: 'text-pink-600' },
           { icon: <FileText className="h-3.5 w-3.5" />, label: 'FB Likes', value: fmt(fb?.likes), color: 'text-blue-600' },
           { icon: <UserCheck className="h-3.5 w-3.5" />, label: 'LI Followers', value: fmt(li?.followers), color: 'text-sky-700' },
+          { icon: <Youtube className="h-3.5 w-3.5" />, label: 'YT Subscribers', value: fmt(yt?.subscribers), color: 'text-red-600' },
         ].map(item => (
           <div key={item.label} className="space-y-0.5">
             <div className={cn('flex justify-center', item.color)}>{item.icon}</div>
