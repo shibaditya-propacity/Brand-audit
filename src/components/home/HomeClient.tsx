@@ -1,9 +1,10 @@
 'use client';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import CountUp from 'react-countup';
 import {
   Plus, Building2, ChevronRight, BarChart3, Sparkles,
-  TrendingUp, Shield, Activity, Clock, CheckCircle2, AlertCircle,
+  TrendingUp, Activity, Clock, CheckCircle2, AlertCircle,
 } from 'lucide-react';
 import { ScoreBadge } from '@/components/shared/ScoreBadge';
 import { ProtectedLink } from '@/components/shared/ProtectedLink';
@@ -31,7 +32,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: React.E
 };
 
 const container = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } } };
-const row      = { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.35 } } };
+const row = { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.35 } } };
 
 function StatCard({ value, label, icon: Icon, color }: { value: number | string; label: string; icon: React.ElementType; color: string }) {
   return (
@@ -56,8 +57,8 @@ function StatCard({ value, label, icon: Icon, color }: { value: number | string;
 }
 
 export function HomeClient({ audits }: HomeClientProps) {
-  const totalComplete  = audits.filter(a => a.status === 'COMPLETE').length;
-  const inProgress     = audits.filter(a => a.status === 'COLLECTING' || a.status === 'ANALYZING').length;
+  const totalComplete = audits.filter(a => a.status === 'COMPLETE').length;
+  const inProgress    = audits.filter(a => a.status === 'COLLECTING' || a.status === 'ANALYZING').length;
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-primary/5 dark:from-slate-950 dark:via-slate-900 dark:to-primary/10">
@@ -71,10 +72,33 @@ export function HomeClient({ audits }: HomeClientProps) {
         </div>
 
         <div className="relative max-w-4xl mx-auto text-center">
+          {/* Logo lockup */}
+          <motion.div
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex items-center justify-center gap-3 mb-8"
+          >
+            <Image
+              src="/propacity-logo.png"
+              alt="Propacity"
+              width={48}
+              height={48}
+              className="rounded-xl shadow-md"
+            />
+            <Image
+              src="/propacity-text.png"
+              alt="propacity"
+              width={140}
+              height={35}
+              className="dark:invert"
+            />
+          </motion.div>
+
           <motion.div
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.05 }}
             className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-1.5 text-sm text-primary font-medium mb-6 shadow-sm"
           >
             <Sparkles className="h-3.5 w-3.5" />
@@ -131,10 +155,10 @@ export function HomeClient({ audits }: HomeClientProps) {
       {/* ── Stats ── */}
       <section className="max-w-5xl mx-auto w-full px-4 -mt-6 mb-10">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <StatCard value={audits.length} label="Total Audits" icon={BarChart3} color="bg-primary/10 text-primary" />
-          <StatCard value={totalComplete} label="Complete" icon={CheckCircle2} color="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" />
-          <StatCard value={inProgress} label="In Progress" icon={Activity} color="bg-blue-500/10 text-blue-600 dark:text-blue-400" />
-          <StatCard value="10" label="Dimensions" icon={TrendingUp} color="bg-violet-500/10 text-violet-600 dark:text-violet-400" />
+          <StatCard value={audits.length} label="Total Audits"  icon={BarChart3}    color="bg-primary/10 text-primary" />
+          <StatCard value={totalComplete} label="Complete"      icon={CheckCircle2} color="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" />
+          <StatCard value={inProgress}    label="In Progress"   icon={Activity}     color="bg-blue-500/10 text-blue-600 dark:text-blue-400" />
+          <StatCard value="10"            label="Dimensions"    icon={TrendingUp}   color="bg-violet-500/10 text-violet-600 dark:text-violet-400" />
         </div>
       </section>
 
@@ -172,12 +196,7 @@ export function HomeClient({ audits }: HomeClientProps) {
             </ProtectedLink>
           </motion.div>
         ) : (
-          <motion.div
-            variants={container}
-            initial="hidden"
-            animate="visible"
-            className="space-y-3"
-          >
+          <motion.div variants={container} initial="hidden" animate="visible" className="space-y-3">
             <AnimatePresence>
               {audits.map((audit) => {
                 const cfg  = statusConfig[audit.status] || statusConfig.DRAFT;
@@ -190,12 +209,10 @@ export function HomeClient({ audits }: HomeClientProps) {
                       href={`/audit/${audit._id}`}
                       className="group flex items-center gap-4 rounded-2xl glass-card p-4 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 hover:border-primary/30 dark:hover:border-primary/30"
                     >
-                      {/* Brand icon */}
                       <div className="h-11 w-11 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-md flex-shrink-0">
                         <Building2 className="h-5 w-5 text-white" />
                       </div>
 
-                      {/* Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
                           <h3 className="font-bold text-slate-900 dark:text-slate-100 truncate">
@@ -216,7 +233,6 @@ export function HomeClient({ audits }: HomeClientProps) {
                         <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{formatDate(audit.createdAt)}</p>
                       </div>
 
-                      {/* Score + arrow */}
                       <div className="flex items-center gap-3 flex-shrink-0">
                         <ScoreBadge score={audit.overallScore} size="md" />
                         <ChevronRight className="h-4 w-4 text-slate-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
@@ -229,14 +245,6 @@ export function HomeClient({ audits }: HomeClientProps) {
           </motion.div>
         )}
       </main>
-
-      {/* Footer hint */}
-      <div className="text-center pb-8">
-        <div className="inline-flex items-center gap-2 text-xs text-slate-400 dark:text-slate-600">
-          <Shield className="h-3 w-3" />
-          Propacity Brand Audit Platform · Evidence-based AI analysis
-        </div>
-      </div>
     </div>
   );
 }

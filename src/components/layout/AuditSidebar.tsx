@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { DIMENSIONS } from '@/config/dimensions';
@@ -47,6 +48,11 @@ export function AuditSidebar({ auditId, dimensionScores = {}, dimensionStatuses 
 
   return (
     <aside className="w-60 flex-shrink-0 border-r border-slate-200 dark:border-slate-800/80 bg-white/90 dark:bg-slate-950/90 backdrop-blur-sm flex flex-col h-full">
+      {/* Logo header — shown in embedded mode (TopBar is hidden) */}
+      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+        <Image src="/propacity-logo.png" alt="Propacity" width={24} height={24} className="rounded-md flex-shrink-0" />
+        <Image src="/propacity-text.png" alt="propacity" width={76} height={18} className="dark:invert" />
+      </div>
       <nav className="flex-1 overflow-y-auto py-3 space-y-0.5 px-2">
         {navItems.map((item, idx) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
