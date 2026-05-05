@@ -28,9 +28,9 @@ export function TopBar() {
       <header className="sticky top-0 z-40 flex h-14 items-center border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md px-4 gap-4">
         <Link
           href="/"
-          className="flex items-center gap-2 font-black text-base text-indigo-600 dark:text-indigo-400 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-2 font-black text-base text-primary hover:opacity-80 transition-opacity"
         >
-          <div className="rounded-lg bg-indigo-600 p-1 shadow-sm">
+          <div className="rounded-lg bg-primary p-1 shadow-sm">
             <Building2 className="h-3.5 w-3.5 text-white" />
           </div>
           <span>Propacity</span>
@@ -50,7 +50,7 @@ export function TopBar() {
             </button>
             <button
               onClick={openSignUp}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 px-4 py-1.5 text-white text-sm font-semibold shadow-md shadow-indigo-500/20 transition-all hover:shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-primary hover:bg-primary/90 px-4 py-1.5 text-white text-sm font-semibold shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5"
             >
               Sign Up
             </button>
@@ -61,7 +61,7 @@ export function TopBar() {
           <>
             <Link
               href="/audit/new"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 px-4 py-1.5 text-white text-sm font-semibold shadow-md shadow-indigo-500/20 transition-all hover:shadow-lg hover:shadow-indigo-500/30 hover:-translate-y-0.5"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-primary hover:bg-primary/90 px-4 py-1.5 text-white text-sm font-semibold shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5"
             >
               <Plus className="h-3.5 w-3.5" />
               New Audit
@@ -73,7 +73,7 @@ export function TopBar() {
                 onClick={() => setMenuOpen(v => !v)}
                 className="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all"
               >
-                <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center flex-shrink-0">
+                <div className="h-6 w-6 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center flex-shrink-0">
                   <User className="h-3.5 w-3.5 text-white" />
                 </div>
                 <span className="max-w-[120px] truncate">{user.name}</span>

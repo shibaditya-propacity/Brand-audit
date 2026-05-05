@@ -13,7 +13,7 @@ export function WebsiteScreenshotWidget({ screenshotUrl, websiteUrl }: WebsiteSc
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-sm text-slate-900 dark:text-slate-100">Website Screenshot</h3>
         {websiteUrl && (
-          <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-600 dark:text-indigo-400 flex items-center gap-1 hover:underline">
+          <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary flex items-center gap-1 hover:underline">
             Open <ExternalLink className="h-3 w-3" />
           </a>
         )}

@@ -311,7 +311,7 @@ export function AuditOverview({ audit, onRefetch }: AuditOverviewProps) {
             label="Overall Score"
             value={`${Math.round(overallScore)}/100`}
             icon={BarChart3}
-            gradient="from-indigo-500 to-violet-600"
+            gradient="from-primary to-violet-600"
           />
           <StatCard
             label="Pass / Fail Items"
@@ -331,7 +331,7 @@ export function AuditOverview({ audit, onRefetch }: AuditOverviewProps) {
             label="Dims Complete"
             value={`${completedDims.length}/10`}
             icon={TrendingUp}
-            gradient="from-blue-400 to-indigo-600"
+            gradient="from-blue-400 to-primary"
             sub={allComplete ? 'All done' : `${10 - completedDims.length} pending`}
           />
         </motion.div>
@@ -350,7 +350,7 @@ export function AuditOverview({ audit, onRefetch }: AuditOverviewProps) {
             className="glass-card rounded-2xl p-5 shadow-sm"
           >
             <h3 className="font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-indigo-500" />
+              <BarChart3 className="h-4 w-4 text-primary" />
               Score Radar
             </h3>
             <ResponsiveContainer width="100%" height={280}>
@@ -456,7 +456,7 @@ export function AuditOverview({ audit, onRefetch }: AuditOverviewProps) {
       {/* ── Collateral Analysis ── */}
       <div>
         <h2 className="font-bold text-slate-900 dark:text-slate-100 mb-3 text-sm uppercase tracking-wide flex items-center gap-2">
-          <span className="w-6 h-0.5 bg-indigo-500 rounded-full" />
+          <span className="w-6 h-0.5 bg-primary rounded-full" />
           Collateral Analysis
         </h2>
         <CollateralAnalysisPanel
@@ -468,7 +468,7 @@ export function AuditOverview({ audit, onRefetch }: AuditOverviewProps) {
       {/* ── Dimension Grid ── */}
       <div>
         <h2 className="font-bold text-slate-900 dark:text-slate-100 mb-3 text-sm uppercase tracking-wide flex items-center gap-2">
-          <span className="w-6 h-0.5 bg-indigo-500 rounded-full" />
+          <span className="w-6 h-0.5 bg-primary rounded-full" />
           All Dimensions
         </h2>
         <DimensionGrid auditId={audit._id as string} dimensions={dims} />

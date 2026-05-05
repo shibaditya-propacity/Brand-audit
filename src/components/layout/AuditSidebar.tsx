@@ -72,7 +72,7 @@ export function AuditSidebar({ auditId, dimensionScores = {}, dimensionStatuses 
                 className={cn(
                   'group flex flex-col gap-1 px-2.5 py-2 rounded-xl text-sm transition-all relative',
                   isActive
-                    ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 shadow-sm'
+                    ? 'bg-primary/10 text-primary shadow-sm'
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200',
                 )}
               >
@@ -80,7 +80,7 @@ export function AuditSidebar({ auditId, dimensionScores = {}, dimensionStatuses 
                 {isActive && (
                   <motion.div
                     layoutId="sidebar-active"
-                    className="absolute left-0 top-1/4 bottom-1/4 w-0.5 rounded-r-full bg-indigo-500"
+                    className="absolute left-0 top-1/4 bottom-1/4 w-0.5 rounded-r-full bg-primary"
                     transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                   />
                 )}

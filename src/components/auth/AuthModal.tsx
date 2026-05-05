@@ -99,10 +99,10 @@ export function AuthModal({ open, defaultTab = 'signin', redirectTo, onClose }: 
               {/* Header */}
               <div className="relative flex items-center justify-center pt-6 pb-4 px-6 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-2">
-                  <div className="rounded-lg bg-indigo-600 p-1.5 shadow-sm">
+                  <div className="rounded-lg bg-primary p-1.5 shadow-sm">
                     <Building2 className="h-4 w-4 text-white" />
                   </div>
-                  <span className="font-black text-indigo-600 dark:text-indigo-400">Propacity</span>
+                  <span className="font-black text-primary">Propacity</span>
                   <span className="text-slate-400 font-light text-sm">Brand Audit</span>
                 </div>
                 <button
@@ -144,7 +144,7 @@ export function AuthModal({ open, defaultTab = 'signin', redirectTo, onClose }: 
                       onChange={e => setName(e.target.value)}
                       placeholder="Jane Smith"
                       required
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                     />
                   </div>
                 )}
@@ -160,7 +160,7 @@ export function AuthModal({ open, defaultTab = 'signin', redirectTo, onClose }: 
                     onChange={e => setEmail(e.target.value)}
                     placeholder="jane@company.com"
                     required
-                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                   />
                 </div>
 
@@ -175,7 +175,7 @@ export function AuthModal({ open, defaultTab = 'signin', redirectTo, onClose }: 
                       onChange={e => setPassword(e.target.value)}
                       placeholder={tab === 'signup' ? 'Min. 8 characters' : '••••••••'}
                       required
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2.5 pr-10 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3.5 py-2.5 pr-10 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                     />
                     <button
                       type="button"
@@ -204,7 +204,7 @@ export function AuthModal({ open, defaultTab = 'signin', redirectTo, onClose }: 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-500/20 transition-all hover:shadow-lg hover:shadow-indigo-500/30"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary/90 disabled:opacity-60 disabled:cursor-not-allowed px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-primary/20 transition-all hover:shadow-lg hover:shadow-primary/30"
                 >
                   {loading
                     ? <><Loader2 className="h-4 w-4 animate-spin" /> {tab === 'signup' ? 'Creating account…' : 'Signing in…'}</>
@@ -217,7 +217,7 @@ export function AuthModal({ open, defaultTab = 'signin', redirectTo, onClose }: 
                   <button
                     type="button"
                     onClick={() => setTab(tab === 'signin' ? 'signup' : 'signin')}
-                    className="font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors"
+                    className="font-semibold text-primary hover:text-primary/80 transition-colors"
                   >
                     {tab === 'signin' ? 'Sign up' : 'Sign in'}
                   </button>

@@ -12,7 +12,7 @@ const FACTS = [
   { icon: TrendingUp, color: 'text-violet-500', tag: 'Investment', fact: 'Real estate attracts the second-highest FDI in India after the services sector, crossing $55 billion in the last decade.' },
   { icon: MapPin, color: 'text-rose-500', tag: 'Top Cities', fact: 'Mumbai, Delhi NCR, and Bengaluru together account for over 60% of India\'s Grade-A office space absorption every year.' },
   { icon: BarChart3, color: 'text-amber-500', tag: 'Digital Shift', fact: 'Over 70% of homebuyers now start their property search online, making digital brand presence critical for developers.' },
-  { icon: Building2, color: 'text-indigo-500', tag: 'Luxury Boom', fact: 'Luxury home sales (₹4 Cr+) in India surged 130% between 2021 and 2024 — the fastest-growing segment in the market.' },
+  { icon: Building2, color: 'text-primary', tag: 'Luxury Boom', fact: 'Luxury home sales (₹4 Cr+) in India surged 130% between 2021 and 2024 — the fastest-growing segment in the market.' },
   { icon: IndianRupee, color: 'text-teal-500', tag: 'RERA Impact', fact: 'RERA has registered over 1.2 lakh real estate projects across India, boosting buyer confidence and accountability.' },
   { icon: TrendingUp, color: 'text-orange-500', tag: 'NRI Interest', fact: 'NRIs invested over $13.1 billion in Indian real estate in 2023, with the US, UAE, and UK being the top source countries.' },
   { icon: MapPin, color: 'text-cyan-500', tag: 'Tier-2 Rise', fact: 'Tier-2 cities like Pune, Hyderabad, and Ahmedabad saw a 40% jump in new residential launches in 2023 vs 2021.' },
@@ -74,7 +74,7 @@ function FactRotator({ visible }: { visible: boolean }) {
                   key={i}
                   className={cn(
                     'h-0.5 flex-1 rounded-full transition-colors duration-500',
-                    i === idx % 8 ? 'bg-indigo-500' : 'bg-slate-200 dark:bg-slate-700'
+                    i === idx % 8 ? 'bg-primary' : 'bg-slate-200 dark:bg-slate-700'
                   )}
                 />
               ))}
@@ -245,8 +245,8 @@ export function AuditProgress({ auditId, onComplete, autoRun = false }: AuditPro
       <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 dark:border-slate-800">
         {isRunning ? (
           <span className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-600" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-primary" />
           </span>
         ) : completeEvent ? (
           <CheckCircle className="h-4 w-4 text-emerald-500" />
@@ -260,7 +260,7 @@ export function AuditProgress({ auditId, onComplete, autoRun = false }: AuditPro
           <span className="ml-auto text-xs text-slate-400 dark:text-slate-500 font-mono animate-blink">●</span>
         )}
         {completeEvent?.overallScore !== undefined && (
-          <span className="ml-auto text-xs font-bold text-indigo-600 dark:text-indigo-400">
+          <span className="ml-auto text-xs font-bold text-primary">
             Score: {completeEvent.overallScore ?? 'N/A'}
           </span>
         )}

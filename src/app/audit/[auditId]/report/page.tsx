@@ -45,7 +45,7 @@ export default function ReportPage({ params }: { params: { auditId: string } }) 
           </button>
           <button
             onClick={openPrint}
-            className="inline-flex items-center gap-1.5 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-white hover:bg-primary/90 transition-colors"
           >
             <Download className="h-4 w-4" /> Download PDF
           </button>

@@ -30,7 +30,7 @@ const FACTS = [
   { icon: TrendingUp, color: 'text-violet-500', bg: 'bg-violet-50', tag: 'Investment', fact: 'Real estate attracts the second-highest FDI in India after the services sector, crossing $55 billion in the last decade.' },
   { icon: MapPin, color: 'text-rose-500', bg: 'bg-rose-50', tag: 'Top Cities', fact: "Mumbai, Delhi NCR, and Bengaluru together account for over 60% of India's Grade-A office space absorption every year." },
   { icon: BarChart3, color: 'text-amber-500', bg: 'bg-amber-50', tag: 'Digital Shift', fact: 'Over 70% of homebuyers now start their property search online, making digital brand presence critical for developers.' },
-  { icon: Building2, color: 'text-indigo-500', bg: 'bg-indigo-50', tag: 'Luxury Boom', fact: 'Luxury home sales (₹4 Cr+) in India surged 130% between 2021 and 2024 — the fastest-growing segment in the market.' },
+  { icon: Building2, color: 'text-primary', bg: 'bg-primary/5', tag: 'Luxury Boom', fact: 'Luxury home sales (₹4 Cr+) in India surged 130% between 2021 and 2024 — the fastest-growing segment in the market.' },
   { icon: IndianRupee, color: 'text-teal-500', bg: 'bg-teal-50', tag: 'RERA Impact', fact: 'RERA has registered over 1.2 lakh real estate projects across India, boosting buyer confidence and accountability.' },
   { icon: TrendingUp, color: 'text-orange-500', bg: 'bg-orange-50', tag: 'NRI Interest', fact: 'NRIs invested over $13.1 billion in Indian real estate in 2023, with the US, UAE, and UK being the top source countries.' },
   { icon: MapPin, color: 'text-cyan-500', bg: 'bg-cyan-50', tag: 'Tier-2 Rise', fact: 'Tier-2 cities like Pune, Hyderabad, and Ahmedabad saw a 40% jump in new residential launches in 2023 vs 2021.' },

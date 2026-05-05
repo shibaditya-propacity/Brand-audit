@@ -70,7 +70,7 @@ export function CollateralDocUpload({ value, onChange, maxDocs = 3 }: Collateral
               key={i}
               className="flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2"
             >
-              <FileText className="h-4 w-4 text-indigo-500 flex-shrink-0" />
+              <FileText className="h-4 w-4 text-primary flex-shrink-0" />
               <span className="flex-1 text-sm text-slate-700 truncate">{doc.name}.pdf</span>
               <span className="text-xs text-slate-400">
                 {Math.round(doc.textContent.length / 5)} words extracted
@@ -97,7 +97,7 @@ export function CollateralDocUpload({ value, onChange, maxDocs = 3 }: Collateral
             'w-full flex items-center justify-center gap-2 rounded-md border-2 border-dashed px-4 py-3 text-sm transition-colors',
             uploading
               ? 'border-slate-200 bg-slate-50 text-slate-400 cursor-not-allowed'
-              : 'border-slate-300 text-slate-500 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 cursor-pointer',
+              : 'border-slate-300 text-slate-500 hover:border-primary hover:text-primary hover:bg-primary/5 cursor-pointer',
           )}
         >
           {uploading ? (

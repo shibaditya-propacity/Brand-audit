@@ -36,13 +36,13 @@ export function Step4Confirm() {
       </div>
       {/* Collateral docs summary */}
       {d.collateralDocs && d.collateralDocs.length > 0 ? (
-        <div className="rounded-md border border-indigo-200 bg-indigo-50 p-3 space-y-1">
-          <p className="text-xs font-medium text-indigo-800 flex items-center gap-1.5">
+        <div className="rounded-md border border-primary/20 bg-primary/5 p-3 space-y-1">
+          <p className="text-xs font-medium text-primary flex items-center gap-1.5">
             <FileText className="h-3.5 w-3.5" />
             {d.collateralDocs.length} collateral doc{d.collateralDocs.length > 1 ? 's' : ''} uploaded
           </p>
           {d.collateralDocs.map((doc, i) => (
-            <p key={i} className="text-xs text-indigo-700 pl-5">{doc.name}.pdf</p>
+            <p key={i} className="text-xs text-primary/80 pl-5">{doc.name}.pdf</p>
           ))}
         </div>
       ) : (
