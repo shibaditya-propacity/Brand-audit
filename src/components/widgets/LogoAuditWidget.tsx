@@ -55,7 +55,7 @@ export function LogoAuditWidget({ logoUrl, logoAnalysis }: LogoAuditWidgetProps)
             <div key={item.label} className="flex items-center gap-2">
               <span className="text-xs text-slate-500 dark:text-slate-400 w-20">{item.label}</span>
               <div className="flex-1 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                <div className="h-full rounded-full bg-indigo-500" style={{ width: `${(item.score / 10) * 100}%` }} />
+                <div className="h-full rounded-full bg-primary" style={{ width: `${(item.score / 10) * 100}%` }} />
               </div>
               <span className="text-xs font-medium w-6 text-right text-slate-700 dark:text-slate-300">{item.score}/10</span>
             </div>

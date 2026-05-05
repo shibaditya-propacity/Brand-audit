@@ -4,7 +4,7 @@ const SOURCE_COLORS: Record<string, string> = {
   DataForSEO:   'bg-blue-50 text-blue-700 border-blue-200',
   GooglePlaces: 'bg-green-50 text-green-700 border-green-200',
   HikerAPI:     'bg-pink-50 text-pink-700 border-pink-200',
-  MetaAdLibrary:'bg-indigo-50 text-indigo-700 border-indigo-200',
+  MetaAdLibrary:'bg-primary/5 text-primary border-primary/20',
   WebCrawler:   'bg-orange-50 text-orange-700 border-orange-200',
   PDL:          'bg-purple-50 text-purple-700 border-purple-200',
   Screenshot:   'bg-cyan-50 text-cyan-700 border-cyan-200',

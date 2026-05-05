@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { DIMENSIONS } from '@/config/dimensions';
@@ -47,6 +48,11 @@ export function AuditSidebar({ auditId, dimensionScores = {}, dimensionStatuses 
 
   return (
     <aside className="w-60 flex-shrink-0 border-r border-slate-200 dark:border-slate-800/80 bg-white/90 dark:bg-slate-950/90 backdrop-blur-sm flex flex-col h-full">
+      {/* Logo header — shown in embedded mode (TopBar is hidden) */}
+      <div className="flex items-center gap-2.5 px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+        <Image src="/propacity-logo.png" alt="Propacity" width={24} height={24} className="rounded-md flex-shrink-0" />
+        <Image src="/propacity-text.png" alt="propacity" width={76} height={18} className="dark:invert" />
+      </div>
       <nav className="flex-1 overflow-y-auto py-3 space-y-0.5 px-2">
         {navItems.map((item, idx) => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -72,7 +78,7 @@ export function AuditSidebar({ auditId, dimensionScores = {}, dimensionStatuses 
                 className={cn(
                   'group flex flex-col gap-1 px-2.5 py-2 rounded-xl text-sm transition-all relative',
                   isActive
-                    ? 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 shadow-sm'
+                    ? 'bg-primary/10 text-primary shadow-sm'
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200',
                 )}
               >
@@ -80,7 +86,7 @@ export function AuditSidebar({ auditId, dimensionScores = {}, dimensionStatuses 
                 {isActive && (
                   <motion.div
                     layoutId="sidebar-active"
-                    className="absolute left-0 top-1/4 bottom-1/4 w-0.5 rounded-r-full bg-indigo-500"
+                    className="absolute left-0 top-1/4 bottom-1/4 w-0.5 rounded-r-full bg-primary"
                     transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                   />
                 )}

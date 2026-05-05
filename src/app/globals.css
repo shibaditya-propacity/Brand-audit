@@ -10,7 +10,8 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 238 84% 67%;
+    /* Brand blue #2D3FE7 = hsl(234 79% 54%) — matches Growth Engine primary */
+    --primary: 234 79% 54%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -22,7 +23,7 @@
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 238 84% 67%;
+    --ring: 234 79% 54%;
     --radius: 0.75rem;
   }
 
@@ -33,7 +34,7 @@
     --card-foreground: 210 40% 98%;
     --popover: 217.2 32.6% 7%;
     --popover-foreground: 210 40% 98%;
-    --primary: 238 84% 67%;
+    --primary: 234 79% 54%;
     --primary-foreground: 210 40% 98%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -45,7 +46,7 @@
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 238 84% 67%;
+    --ring: 234 79% 54%;
   }
 }
 
@@ -66,9 +67,10 @@
 }
 
 @keyframes pulse-ring {
-  0%   { box-shadow: 0 0 0 0 rgba(99,102,241,0.45); }
-  70%  { box-shadow: 0 0 0 14px rgba(99,102,241,0); }
-  100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+  /* Brand blue #2D3FE7 */
+  0%   { box-shadow: 0 0 0 0 rgba(45,63,231,0.45); }
+  70%  { box-shadow: 0 0 0 14px rgba(45,63,231,0); }
+  100% { box-shadow: 0 0 0 0 rgba(45,63,231,0); }
 }
 
 @keyframes gradient-x {
@@ -136,7 +138,8 @@
 
 /* ── Gradient text utility ── */
 .gradient-text {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+  /* Brand palette: deep blue → mid blue → light blue */
+  background: linear-gradient(135deg, #2D3FE7 0%, #5B6EF5 50%, #8B9AFF 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -186,4 +189,11 @@
     margin: 14mm 12mm 14mm 12mm;
     size: A4;
   }
+}
+
+/* ── Embedded mode — hides Brand Audit's own TopBar when running inside
+   the Growth Engine iframe (?embedded=1 → JS adds .embedded to body) ── */
+body.embedded > header,
+body.embedded header.sticky {
+  display: none !important;
 }

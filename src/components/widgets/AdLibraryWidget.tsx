@@ -56,7 +56,7 @@ export function AdLibraryWidget({ metaAdsData }: AdLibraryWidgetProps) {
               <div className="flex items-center justify-between mt-1.5">
                 <span className="text-xs text-slate-400">{ad.date ? formatDate(ad.date) : ''}</span>
                 {ad.snapshotUrl && (
-                  <a href={ad.snapshotUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-600 dark:text-indigo-400 flex items-center gap-0.5">
+                  <a href={ad.snapshotUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary flex items-center gap-0.5">
                     View <ExternalLink className="h-3 w-3" />
                   </a>
                 )}

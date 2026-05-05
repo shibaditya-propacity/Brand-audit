@@ -46,7 +46,7 @@ export function DimensionCard({ auditId, dimensionCode, score, status, flagCount
       transition={{ type: 'spring', stiffness: 350, damping: 25 }}
     >
       <Link href={`/audit/${auditId}/${dimensionCode.toLowerCase()}`} className="block group h-full">
-        <div className="relative h-full rounded-2xl border border-slate-200/70 dark:border-slate-700/50 bg-white dark:bg-slate-900 p-4 transition-all hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md hover:shadow-indigo-500/10 overflow-hidden">
+        <div className="relative h-full rounded-2xl border border-slate-200/70 dark:border-slate-700/50 bg-white dark:bg-slate-900 p-4 transition-all hover:border-primary/30 dark:hover:border-primary/30 hover:shadow-md hover:shadow-primary/10 overflow-hidden">
 
           {/* Color accent on hover */}
           <div

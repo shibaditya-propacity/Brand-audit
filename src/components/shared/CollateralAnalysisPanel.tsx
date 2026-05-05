@@ -43,7 +43,7 @@ export function CollateralAnalysisPanel({ analysis, hasDocs }: CollateralAnalysi
     <Card className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 p-4 space-y-4">
       {/* Header */}
       <div className="flex items-start gap-3">
-        <FileText className="h-5 w-5 text-indigo-500 flex-shrink-0 mt-0.5" />
+        <FileText className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-semibold text-slate-900 dark:text-slate-100">Collateral Analysis</h3>
@@ -59,8 +59,8 @@ export function CollateralAnalysisPanel({ analysis, hasDocs }: CollateralAnalysi
 
       {/* Market Positioning */}
       {analysis.marketPositioning && (
-        <div className="rounded-md bg-indigo-50 dark:bg-indigo-950 border border-indigo-100 dark:border-indigo-800 p-3">
-          <p className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide mb-1">
+        <div className="rounded-md bg-primary/5 dark:bg-primary/10 border border-primary/10 p-3">
+          <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-1">
             Market Positioning
           </p>
           <p className="text-sm text-slate-700 dark:text-slate-300">{analysis.marketPositioning}</p>
@@ -106,7 +106,7 @@ export function CollateralAnalysisPanel({ analysis, hasDocs }: CollateralAnalysi
             </div>
             {analysis.recommendations.map((r, i) => (
               <div key={i} className="flex items-start gap-1.5 text-xs text-slate-600 dark:text-slate-300">
-                <Lightbulb className="h-3.5 w-3.5 text-indigo-400 flex-shrink-0 mt-0.5" />
+                <Lightbulb className="h-3.5 w-3.5 text-primary/60 flex-shrink-0 mt-0.5" />
                 {r}
               </div>
             ))}

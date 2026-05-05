@@ -1,48 +1,44 @@
 'use client';
-import { createContext, useContext, useEffect, useState, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
-interface AuthUser { name: string; email: string; }
+export interface AuthUser { name: string; email: string; }
 
 interface AuthContextValue {
   user:    AuthUser | null;
   loading: boolean;
-  signOut: () => Promise<void>;
-  refetch: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextValue>({
-  user: null, loading: true,
-  signOut: async () => {}, refetch: async () => {},
-});
+const AuthContext = createContext<AuthContextValue>({ user: null, loading: false });
+
+function isEmbedded(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return new URLSearchParams(window.location.search).get('embedded') === '1';
+  } catch {
+    return false;
+  }
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user,    setUser]    = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const fetching              = useRef(false);
+  const [user, setUser] = useState<AuthUser | null>(null);
 
-  async function refetch() {
-    if (fetching.current) return;
-    fetching.current = true;
-    try {
-      const res = await fetch('/api/auth/me', { cache: 'no-store' });
-      setUser(res.ok ? (await res.json()).user ?? null : null);
-    } catch {
-      setUser(null);
-    } finally {
-      setLoading(false);
-      fetching.current = false;
+  useEffect(() => {
+    if (!isEmbedded()) return;
+    // In embedded mode, receive identity from ASM parent via postMessage
+    function onMessage(e: MessageEvent) {
+      if (e.data?.type === 'ASM_AUTH' && e.data.user) {
+        setUser({ name: e.data.user.name ?? '', email: e.data.user.email ?? '' });
+      }
+      if (e.data?.type === 'ASM_LOGOUT') {
+        setUser(null);
+      }
     }
-  }
-
-  useEffect(() => { refetch(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  async function signOut() {
-    await fetch('/api/auth/signout', { method: 'POST' });
-    setUser(null);
-  }
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, signOut, refetch }}>
+    <AuthContext.Provider value={{ user, loading: false }}>
       {children}
     </AuthContext.Provider>
   );
